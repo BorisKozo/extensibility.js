@@ -1,0 +1,7 @@
+{
+    "globalstrict": true,
+    "validthis": true,
+    "globals": {
+        "angular": false
+    }
+}
