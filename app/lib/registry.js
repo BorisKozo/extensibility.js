@@ -7,10 +7,12 @@
     this.name = name;
     this.nodes = {};
     this.addins = [];
+    this.sorted = false;
   }
 
   Node.prototype.addAddin = function (addin) {
     this.addins.push(addin);
+    this.sorted = false;
   };
 
   function getNode(axes, createIfNotExists) {
@@ -33,7 +35,7 @@
     return currentNode;
   }
 
-  
+
 
   EJS.registry = {
     systemPathPrefix: 'EJS',
@@ -128,6 +130,14 @@
     */
     clear: function () {
       _registry = new Node('');
+    },
+    sortPath: function (path) {
+      var node = getNode(path, false);
+      if (node === null) {
+        return;
+      }
+      node.addins = EJS.utils.topologicalSort(node.addins);
+      node.sorted = true;
     }
   };
 
