@@ -1,108 +1,204 @@
 ﻿(function (EJS) {
-  'use strict';
-  function Cluster(addin) {
-    this.addins = [];
-    if (addin) {
-      this.addins.push(addin);
-    }
-    this.order = 0;
-    this.dependsOnClusters = [];
-    //this.futureDependencies = []; //All the ids of clusters that I will depend on in post processing
-    //this.futureDependants = []; //All the clusters that will depend on me on post processing
-  }
+    'use strict';
+    var clusterId = 0;
 
-  Cluster.prototype.containsAddin = function (id) {
-    return _.findIndex(this.addins, { id: id }) !== -1;
-  };
-
-  Cluster.prototype.addBefore = function (id, addin) {
-    var index = _.findIndex(this.addins, { id: id });
-    if (index !== -1) {
-      this.addins.splice(index, 0, addin);
-    }
-  };
-
-  Cluster.prototype.addAfter = function (id, addin) {
-    var index = _.findIndex(this.addins, { id: id });
-    if (index !== -1) {
-      this.addins.splice(index + 1, 0, addin);
-    }
-  };
-
-  Cluster.prototype.calculateOrder = function () {
-    var addin = _.find(this.addins, function (addin) {
-      return _.isNumber(addin.order);
-    });
-    if (addin) {
-      this.order = addin.order;
-    }
-  };
-
-  /*
-  * Returns a cluster that contains the given id or null if no cluster contains this id
-  */
-  function findCluster(clusters, id) {
-    var i;
-    for (i = 0; i < clusters.length; i++) {
-      if (clusters[i].containsAddin(id)) {
-        return clusters[i];
-      }
+    function Cluster(addin) {
+        this.id = clusterId++;
+        this.mergedIds = {};
+        this.addins = [];
+        this.addins.push(addin);
+        this.order = 0;
+        this.dependsOnClusters = {};
+        this.activeAddin = addin;
     }
 
-    return null;
-  }
+    Cluster.prototype.containsAddin = function (id) {
+        return _.findIndex(this.addins, {id: id}) !== -1;
+    };
 
-  function formSortClusters(addins) {
-    var clusters = [];
-    var currentAddins = addins;
-    var remainingAddins = [];
-    var i, addin;
-    var targetId = null;
-    var cluster = null;
-    var newCluster = null;
-
-    while (currentAddins.length > 0) {
-      for (i = 0; i < remainingAddins.length; i++) {
-        addin = remainingAddins[i];
-        if (_.isString(addin.order)) { //cases of <, <<, >, >>
-          if (_.indexOf(addin.order, '>') === 0) { //cases of > and >>
-            if (_.indexOf(addin.order, '>', 1) === 1) { // case of >>
-              targetId = addin.order.substring(2);
-              cluster = findCluster(clusters, targetId);
-              if (cluster) { //Found the id in some other cluster so I need to be in a new cluster that depends on it
-                newCluster = new Cluster(addin);
-                newCluster.dependsOnClusters.push(cluster);
-                clusters.push(newCluster);
-              } else { //The cluster which my cluster depends on doesn't exist yet so store the id for post processing
-                remainingAddins.push(addin);
-              }
-            } else { //case of >
-              targetId = addin.order.substring(1);
-              cluster = findCluster(clusters, targetId);
-              if (cluster) {//My target is already in a cluster
-                cluster.addAfter(targetId, addin);
-              } else {
-                remainingAddins.push(addin);
-              }
-            }
-          }
+    Cluster.prototype.calculateOrder = function () {
+        var addin = _.find(this.addins, function (addin) {
+            return _.isNumber(addin.order);
+        });
+        if (addin) {
+            this.order = addin.order;
         }
-      }
+    };
 
-      if (currentAddins.length === remainingAddins.length) {
-        throw new Error('Unable to determine topological order for addins ' + JSON.stringify(remainingAddins));
-      }
+    //Makes sure that firstId appears before secondId within this cluster
+    Cluster.prototype.verifyOrder = function (firstId, secondId, adjecent) {
+        if (firstId === secondId) {
+            return false;
+        }
 
-      currentAddins = remainingAddins;
-      remainingAddins = [];
+        var firstIndex = _.findIndex(this.addins, {id: firstId});
+        if (firstIndex === -1) {
+            throw new Error('Could not find addin with id ' + firstId + ' in cluster ' + this.id);
+        }
+        var secondIndex = _.findIndex(this.addins, {id: secondId});
+        if (secondIndex === -1) {
+            throw new Error('Could not find addin with id ' + secondId + ' in cluster ' + this.id);
+        }
+
+        if (adjecent) {
+            return (secondIndex - firstIndex) === 1;
+        }
+        return firstIndex < secondIndex;
+    };
+
+    //Returns the first addin in the cluster
+    Cluster.prototype.first = function () {
+        return this.addins[0];
+    };
+
+    //Returns the last addin in the cluster
+    Cluster.prototype.last = function () {
+        return this.addins[this.addins.length - 1];
+    };
+
+    //Merges the given cluster to the end of this cluster
+    Cluster.prototype.mergeToEnd = function (cluster) {
+        var i;
+        for (i = 0; i < cluster.addins.length; i++) {
+            this.addins.push(cluster.addins[i]);
+        }
+
+        this.mergedIds[cluster.id] = true;
+        this.mergedIds = _.assign(this.mergedIds, cluster.mergedIds);
+    };
+
+    //Merges the given cluster to the front of this cluster
+    Cluster.prototype.mergeToFront = function (cluster) {
+        var i;
+        for (i = cluster.addins.length - 1; i >= 0; i--) {
+            this.addins.unshift(cluster.addins[i]);
+        }
+
+        this.mergedIds[cluster.id] = true;
+        this.mergedIds = _.assign(this.mergedIds, cluster.mergedIds);
+    };
+
+
+    /*
+     * Returns a cluster that contains an addin with the given id or null if no cluster contains this id
+     */
+    function findClusterByAddinId(id) {
+        var i, j;
+        var clusters;
+        for (j = 1; j < arguments.length; j++) {
+            clusters = arguments[j];
+            for (i = 0; i < clusters.length; i++) {
+                if (clusters[i].containsAddin(id)) {
+                    return clusters[i];
+                }
+            }
+        }
+
+        return null;
     }
-  }
 
-  if (!EJS.utils) {
-    EJS.utils = {};
-  }
+    function formSortClusters(addins) {
+        var clusters = [];
+        var nextClusters = []
+        var currentCluster;
+        var i, addin;
+        var targetId = null;
+        var cluster = null;
 
-  EJS.utils.topologicalSort = function (addins) { };
+        for (i = 0; i < addins.length; i++) {
+            clusters.push(new Cluster(addins[i]));
+        }
+
+
+        while (clusters.length > 0) {
+            currentCluster = clusters.pop();
+            addin = currentCluster.activeAddin;
+            if (_.isString(addin.order)) { //cases of <, <<, >, >>
+                if (_.indexOf(addin.order, '>') === 0) { //cases of > and >>
+                    if (_.indexOf(addin.order, '>', 1) === 1) { // case of >>
+                        targetId = addin.order.substring(2);
+                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                        if (cluster === null) {
+                            throw new Error('Could not find cluster with id ' + targetId + 'for >> dependency');
+                        }
+                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                            if (!cluster.verifyOrder(targetId, addin.id)) {
+                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                            }
+                        }
+                        currentCluster.dependsOnClusters[cluster.id] = true;
+                        nextClusters.push(currentCluster);
+                    } else { //case of >
+                        targetId = addin.order.substring(1);
+                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                        if (cluster === null) {
+                            throw new Error('Could not find cluster with id ' + targetId + 'for > dependency');
+                        }
+                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                            if (!cluster.verifyOrder(targetId, addin.id, true)) {
+                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                            }
+                            nextClusters.push(currentCluster);
+                        } else {
+                            if (cluster.last().id === targetId) {
+                                cluster.mergeToEnd(currentCluster);
+                            } else {
+                                throw new Error('Could not fulfill > dependency for ' + targetId + ' because ' + cluster.last().id + ' already has the same dependency');
+                            }
+                        }
+                    }
+                } else if (_.indexOf(addin.order, '<') === 0) { //cases of < and <<
+                    if (_.indexOf(addin.order, '<', 1) === 1) { // case of <<
+                        targetId = addin.order.substring(2);
+                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                        if (cluster === null) {
+                            throw new Error('Could not find cluster with id ' + targetId + 'for << dependency');
+                        }
+                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                            if (!cluster.verifyOrder(addin.id, targetId)) {
+                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                            }
+                        }
+                        cluster.dependsOnClusters[currentCluster.id] = true;
+                        nextClusters.push(currentCluster);
+                    } else {// case of <
+                        targetId = addin.order.substring(1);
+                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                        if (cluster === null) {
+                            throw new Error('Could not find cluster with id ' + targetId + 'for < dependency');
+                        }
+                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                            if (!cluster.verifyOrder(addin.id, targetId, true)) {
+                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                            }
+                            nextClusters.push(currentCluster);
+                        } else {
+                            if (cluster.first().id === targetId) {
+                                cluster.mergeToFront(currentCluster);
+                            } else {
+                                throw new Error('Could not fulfill < dependency for ' + targetId + ' because ' + cluster.first().id + ' already has the same dependency');
+                            }
+                        }
+                    }
+                } else {
+                    throw new Error('order must begin with <, <<, >, >> or be a number');
+                }
+            } else {
+                nextClusters.push(currentCluster);
+            }
+        }
+
+        return nextClusters;
+    }
+
+    if (!EJS.utils) {
+        EJS.utils = {};
+    }
+
+    EJS.utils.topologicalSort = function (addins) {
+    };
+
+    EJS.utils.topologicalSort._formSortClusters = formSortClusters;
 
 
 })(window.EJS || (window.EJS = {}));
