@@ -56,6 +56,8 @@
 
         this.mergedIds[cluster.id] = true;
         this.mergedIds = _.assign(this.mergedIds, cluster.mergedIds);
+
+        this.dependsOnClusters = _.assign(this.dependsOnClusters, cluster.dependsOnClusters);
     };
 
     //Merges the given cluster to the front of this cluster
@@ -92,9 +94,10 @@
         var clusters = [];
         var nextClusters = [];
         var currentCluster;
-        var i, addin;
+        var i, orderAxis, addin;
         var targetId = null;
         var cluster = null;
+        var splitOrder;
 
         for (i = 0; i < addins.length; i++) {
             clusters.push(new Cluster(addins[i]));
@@ -104,80 +107,102 @@
             currentCluster = clusters.pop();
             addin = currentCluster.activeAddin;
             if (_.isString(addin.order)) { //cases of <, <<, >, >>
-                if (_.indexOf(addin.order, '>') === 0) { //cases of > and >>
-                    if (_.indexOf(addin.order, '>', 1) === 1) { // case of >>
-                        targetId = addin.order.substring(2);
-                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
-                        if (cluster === null) {
-                            throw new Error('Could not find cluster with id ' + targetId + ' for >> dependency');
-                        }
-                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
-                            if (!cluster.verifyOrder(targetId, addin.id)) {
-                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                splitOrder = addin.order.split(',');
+                for (orderAxis = 0; orderAxis < splitOrder.length; orderAxis++) {
+                    if (_.indexOf(splitOrder[orderAxis], '>') === 0) { //cases of > and >>
+                        if (_.indexOf(splitOrder[orderAxis], '>', 1) === 1) { // case of >>
+                            targetId = splitOrder[orderAxis].substring(2);
+                            cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                            if (cluster === null) {
+                                throw new Error('Could not find cluster with id ' + targetId + ' for >> dependency');
                             }
-                        }
-                        currentCluster.dependsOnClusters[cluster.id] = true;
-                        nextClusters.push(currentCluster);
-                    } else { //case of >
-                        targetId = addin.order.substring(1);
-                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
-                        if (cluster === null) {
-                            throw new Error('Could not find cluster with id ' + targetId + ' for > dependency');
-                        }
-                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
-                            if (!cluster.verifyOrder(targetId, addin.id, true)) {
-                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
-                            }
-                            nextClusters.push(currentCluster);
-                        } else {
-                            if (cluster.last().id === targetId) {
-                                if (cluster.dependsOnClusters[currentCluster.id]) {
+                            if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                                if (!cluster.verifyOrder(targetId, addin.id)) {
                                     throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
                                 }
-                                cluster.mergeToEnd(currentCluster);
-                            } else {
-                                throw new Error('Could not fulfill > dependency for ' + targetId + ' because ' + cluster.last().id + ' already has the same dependency');
                             }
-                        }
-                    }
-                } else if (_.indexOf(addin.order, '<') === 0) { //cases of < and <<
-                    if (_.indexOf(addin.order, '<', 1) === 1) { // case of <<
-                        targetId = addin.order.substring(2);
-                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
-                        if (cluster === null) {
-                            throw new Error('Could not find cluster with id ' + targetId + ' for << dependency');
-                        }
-                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
-                            if (!cluster.verifyOrder(addin.id, targetId)) {
-                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                            currentCluster.dependsOnClusters[cluster.id] = true;
+                            if (!_.contains(nextClusters, currentCluster)) {
+                                nextClusters.push(currentCluster);
                             }
-                        }
-                        cluster.dependsOnClusters[currentCluster.id] = true;
-                        nextClusters.push(currentCluster);
-                    } else {// case of <
-                        targetId = addin.order.substring(1);
-                        cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
-                        if (cluster === null) {
-                            throw new Error('Could not find cluster with id ' + targetId + ' for < dependency');
-                        }
-                        if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
-                            if (!cluster.verifyOrder(addin.id, targetId, true)) {
-                                throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                        } else { //case of >
+                            if (orderAxis !== (splitOrder.length - 1)) {
+                                throw  new Error('> dependency must be last in ' + addin.order + ' at ' + addin.id);
                             }
-                            nextClusters.push(currentCluster);
-                        } else {
-                            if (cluster.first().id === targetId) {
-                                if (currentCluster.dependsOnClusters[cluster.id]) {
+
+                            targetId = splitOrder[orderAxis].substring(1);
+                            cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                            if (cluster === null) {
+                                throw new Error('Could not find cluster with id ' + targetId + ' for > dependency');
+                            }
+                            if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                                if (!cluster.verifyOrder(targetId, addin.id, true)) {
                                     throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
                                 }
-                                cluster.mergeToFront(currentCluster);
+                                if (!_.contains(nextClusters, currentCluster)) {
+                                    nextClusters.push(currentCluster);
+                                }
                             } else {
-                                throw new Error('Could not fulfill < dependency for ' + targetId + ' because ' + cluster.first().id + ' already has the same dependency');
+                                if (cluster.last().id === targetId) {
+                                    if (cluster.dependsOnClusters[currentCluster.id]) {
+                                        throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                                    }
+                                    cluster.mergeToEnd(currentCluster);
+                                    _.remove(nextClusters, currentCluster);
+                                    break;
+                                } else {
+                                    throw new Error('Could not fulfill > dependency for ' + targetId + ' because ' + cluster.last().id + ' already has the same dependency');
+                                }
                             }
                         }
+                    } else if (_.indexOf(splitOrder[orderAxis], '<') === 0) { //cases of < and <<
+                        if (_.indexOf(splitOrder[orderAxis], '<', 1) === 1) { // case of <<
+                            targetId = splitOrder[orderAxis].substring(2);
+                            cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                            if (cluster === null) {
+                                throw new Error('Could not find cluster with id ' + targetId + ' for << dependency');
+                            }
+                            if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                                if (!cluster.verifyOrder(addin.id, targetId)) {
+                                    throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                                }
+                            }
+                            cluster.dependsOnClusters[currentCluster.id] = true;
+                            if (!_.contains(nextClusters, currentCluster)) {
+                                nextClusters.push(currentCluster);
+                            }
+                        } else {// case of <
+                            if (orderAxis !== (splitOrder.length - 1)) {
+                                throw  new Error('< dependency must be last in ' + addin.order + ' at ' + addin.id);
+                            }
+                            targetId = splitOrder[orderAxis].substring(1);
+                            cluster = findClusterByAddinId(targetId, clusters, nextClusters, [currentCluster]);
+                            if (cluster === null) {
+                                throw new Error('Could not find cluster with id ' + targetId + ' for < dependency');
+                            }
+                            if (cluster.id === currentCluster.id) { //The dependency is already within my cluster
+                                if (!cluster.verifyOrder(addin.id, targetId, true)) {
+                                    throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                                }
+                                if (!_.contains(nextClusters, currentCluster)) {
+                                    nextClusters.push(currentCluster);
+                                }
+                            } else {
+                                if (cluster.first().id === targetId) {
+                                    if (currentCluster.dependsOnClusters[cluster.id]) {
+                                        throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
+                                    }
+                                    cluster.mergeToFront(currentCluster);
+                                    _.remove(nextClusters, currentCluster);
+                                    break;
+                                } else {
+                                    throw new Error('Could not fulfill < dependency for ' + targetId + ' because ' + cluster.first().id + ' already has the same dependency');
+                                }
+                            }
+                        }
+                    } else {
+                        throw new Error('order must begin with <, <<, >, >> or be a number');
                     }
-                } else {
-                    throw new Error('order must begin with <, <<, >, >> or be a number');
                 }
             } else if (_.isNumber(addin.order)) { //If the order is a number
                 nextClusters.push(currentCluster);

@@ -248,6 +248,22 @@
             });
         });
 
+        describe('multiple indirect dependencies', function () {
+            it('should order correctly for multiple indirect dependencies', function () {
+                var addins = [];
+                addins.push(new EJS.Addin({id: '1', order: 0}));
+                addins.push(new EJS.Addin({id: '3', order: '>>1'}));
+                addins.push(new EJS.Addin({id: '2', order: '>>1,>>3'}));
+                var clusters = EJS.utils.topologicalSort._formSortClusters(addins);
+                expect(clusters.length).to.be.equal(3);
+                expect(verifyClusterOrder(clusters[0], ['2'])).to.be.true;
+                expect(verifyClusterOrder(clusters[1], ['3'])).to.be.true;
+                expect(verifyClusterOrder(clusters[2], ['1'])).to.be.true;
+                expect(verifyClusterDependency(clusters[0], clusters[1], clusters[2])).to.be.true;
+                expect(verifyClusterDependency(clusters[1], clusters[2])).to.be.true;
+            });
+        });
+
         describe('general errors', function () {
             it('should throw if referencing an not existing id', function () {
                 var addins = [];
@@ -294,9 +310,11 @@
                 }).to.throw('order must begin with <, <<, >, >> or be a number');
             });
         });
+
+
     });
 
-    describe.only('topologicalSort', function () {
+    describe('topologicalSort', function () {
         function verifyAddinsOrder(addins, ids) {
             var i;
             if (addins.length !== ids.length) {
@@ -352,7 +370,7 @@
 
         });
 
-        it('should throw if circular dependency is found', function(){
+        it('should throw if circular dependency is found', function () {
             var addins = [];
             addins.push(new EJS.Addin({id: '1', order: '>>3'}));
             addins.push(new EJS.Addin({id: '2', order: '>>1'}));
@@ -360,6 +378,62 @@
             expect(function () {
                 EJS.utils.topologicalSort(addins);
             }).to.throw('Circular dependency detected in topological sort')
+
+        });
+
+        it('should properly sort multiple indirect dependencies', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '3', order: '>>1'}));
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '>>1,>>3'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(3);
+            expect(verifyAddinsOrder(result, ['1', '3', '2'])).to.be.true;
+
+            addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '>>1,>>3'}));
+            addins.push(new EJS.Addin({id: '3', order: '>>1'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(3);
+            expect(verifyAddinsOrder(result, ['1', '3', '2'])).to.be.true;
+
+            addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '<<1,<<3'}));
+            addins.push(new EJS.Addin({id: '3', order: '>>2,<<1'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(3);
+            expect(verifyAddinsOrder(result, ['2', '3', '1'])).to.be.true;
+        });
+
+        it('should properly sort multiple indirect dependencies with direct dependencies', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '<<3,<1'}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            addins.push(new EJS.Addin({id: '4', order: '>>2,>3'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(4);
+            expect(verifyAddinsOrder(result, ['2', '1', '3', '4'])).to.be.true;
+        });
+
+        it('should throw if direct dependency was not used in the end of a dependency list', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '<1,<<3'}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            expect(function () {
+                EJS.utils.topologicalSort(addins);
+            }).to.throw('< dependency must be last in <1,<<3 at 2');
+
+            addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '>1,<<3'}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            expect(function () {
+                EJS.utils.topologicalSort(addins);
+            }).to.throw('> dependency must be last in >1,<<3 at 2');
 
         });
 
