@@ -7,7 +7,7 @@
         this.mergedIds = {};
         this.addins = [];
         this.addins.push(addin);
-        this.order = 0;
+        this.order = _.isNumber(addin.order) ? addin.order : 0;
         this.dependsOnClusters = {};
         this.activeAddin = addin;
     }
@@ -15,15 +15,6 @@
     Cluster.prototype.containsAddin = function (id) {
         return _.findIndex(this.addins, {id: id}) !== -1;
     };
-
-    //Cluster.prototype.calculateOrder = function () {
-    //    var addin = _.find(this.addins, function (addin) {
-    //        return _.isNumber(addin.order);
-    //    });
-    //    if (addin) {
-    //        this.order = addin.order;
-    //    }
-    //};
 
     //Makes sure that firstId appears before secondId within this cluster
     Cluster.prototype.verifyOrder = function (firstId, secondId, adjecent) {
@@ -108,7 +99,6 @@
         for (i = 0; i < addins.length; i++) {
             clusters.push(new Cluster(addins[i]));
         }
-
 
         while (clusters.length > 0) {
             currentCluster = clusters.pop();
@@ -199,14 +189,64 @@
         return nextClusters;
     }
 
+    function sortClusters(clusters) {
+        var addins = [];
+        var nextClusters = [];
+        var currentClusters = _.clone(clusters);
+        var zeroClusters = [];
+        var i, j, k, ids;
+        var prevLength;
+        while (currentClusters.length > 0) {
+            prevLength = currentClusters.length;
+            zeroClusters = [];
+            nextClusters = [];
+            for (i = 0; i < currentClusters.length; i++) {
+                if (_.keys(currentClusters[i].dependsOnClusters).length === 0) {
+                    zeroClusters.push(currentClusters[i]);
+                } else {
+                    nextClusters.push(currentClusters[i]);
+                }
+            }
+
+            for (i = 0; i < zeroClusters.length; i++) {
+                ids = _.keys(zeroClusters[i].mergedIds);
+                ids.push(String(zeroClusters[i].id));
+                for (k = 0; k < ids.length; k++) {
+                    for (j = 0; j < nextClusters.length; j++) {
+                        delete nextClusters[j].dependsOnClusters[ids[k]];
+                    }
+                }
+            }
+
+            zeroClusters = _.sortBy(zeroClusters, 'order');
+            for (i = 0; i < zeroClusters.length; i++) {
+                for (j = 0; j < zeroClusters[i].addins.length; j++) {
+                    addins.push(zeroClusters[i].addins[j]);
+                }
+            }
+
+            currentClusters = nextClusters;
+            if (prevLength === currentClusters.length) {
+                throw new Error('Circular dependency detected in topological sort');
+            }
+        }
+
+        return addins;
+    }
+
     if (!EJS.utils) {
         EJS.utils = {};
     }
 
     EJS.utils.topologicalSort = function (addins) {
+        var clusters = EJS.utils.topologicalSort._formSortClusters(addins);
+        return EJS.utils.topologicalSort._sortClusters(clusters);
     };
 
     EJS.utils.topologicalSort._formSortClusters = formSortClusters;
 
+    EJS.utils.topologicalSort._sortClusters = sortClusters;
 
-})(window.EJS || (window.EJS = {}));
+
+})
+(window.EJS || (window.EJS = {}));

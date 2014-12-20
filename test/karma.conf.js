@@ -44,7 +44,7 @@ module.exports = function (config) {
             // cf. http://gotwarlost.github.com/istanbul/public/apidocs/
             type: 'lcov',
             dir: 'coverage/'
-        },
+        }
 
     });
 };

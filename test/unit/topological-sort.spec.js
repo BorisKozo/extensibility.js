@@ -249,51 +249,120 @@
         });
 
         describe('general errors', function () {
-            it('should throw if referencing an not existing id', function(){
+            it('should throw if referencing an not existing id', function () {
                 var addins = [];
                 addins.push(new EJS.Addin({id: '1', order: 0}));
                 addins.push(new EJS.Addin({id: '2', order: '>33'}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('Could not find cluster with id 33 for > dependency');
 
                 addins = [];
                 addins.push(new EJS.Addin({id: '1', order: 0}));
                 addins.push(new EJS.Addin({id: '2', order: '<33'}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('Could not find cluster with id 33 for < dependency');
 
                 addins = [];
                 addins.push(new EJS.Addin({id: '1', order: 0}));
                 addins.push(new EJS.Addin({id: '2', order: '>>33'}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('Could not find cluster with id 33 for >> dependency');
 
                 addins = [];
                 addins.push(new EJS.Addin({id: '1', order: 0}));
                 addins.push(new EJS.Addin({id: '2', order: '<<33'}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('Could not find cluster with id 33 for << dependency');
 
             });
 
-            it('should throw if order is in an incorrect format', function(){
+            it('should throw if order is in an incorrect format', function () {
                 var addins = [];
                 addins.push(new EJS.Addin({id: '1', order: true}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('order must begin with <, <<, >, >> or be a number');
 
                 addins = [];
                 addins.push(new EJS.Addin({id: '1', order: 'moo'}));
-                expect(function(){
+                expect(function () {
                     EJS.utils.topologicalSort._formSortClusters(addins);
                 }).to.throw('order must begin with <, <<, >, >> or be a number');
             });
         });
+    });
+
+    describe.only('topologicalSort', function () {
+        function verifyAddinsOrder(addins, ids) {
+            var i;
+            if (addins.length !== ids.length) {
+                return false;
+            }
+            for (i = 0; i < addins.length; i++) {
+                if (addins[i].id !== ids[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        it('should properly sort two dependant addins', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '>>1'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(2);
+            expect(verifyAddinsOrder(result, ['1', '2'])).to.be.true;
+
+            addins = [];
+            addins.push(new EJS.Addin({id: '2', order: '>>1'}));
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(2);
+            expect(verifyAddinsOrder(result, ['1', '2'])).to.be.true;
+        });
+
+        it('should properly sort numerical ordered addins', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 10}));
+            addins.push(new EJS.Addin({id: '2', order: 0}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            addins.push(new EJS.Addin({id: '4', order: 30}));
+            addins.push(new EJS.Addin({id: '5', order: 25}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(5);
+            expect(verifyAddinsOrder(result, ['2', '1', '3', '5', '4'])).to.be.true;
+        });
+
+        it('should properly sort mixed ordered addins', function () {
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 10}));
+            addins.push(new EJS.Addin({id: '2', order: '>1'}));
+            addins.push(new EJS.Addin({id: '3', order: '>>2'}));
+            addins.push(new EJS.Addin({id: '4', order: 20}));
+            addins.push(new EJS.Addin({id: '5', order: '<4'}));
+            var result = EJS.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(5);
+            expect(verifyAddinsOrder(result, ['1', '2', '5', '4', '3'])).to.be.true;
+
+        });
+
+        it('should throw if circular dependency is found', function(){
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: '>>3'}));
+            addins.push(new EJS.Addin({id: '2', order: '>>1'}));
+            addins.push(new EJS.Addin({id: '3', order: '>>2'}));
+            expect(function () {
+                EJS.utils.topologicalSort(addins);
+            }).to.throw('Circular dependency detected in topological sort')
+
+        });
+
     });
 
 });
