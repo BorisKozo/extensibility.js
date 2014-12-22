@@ -5,8 +5,7 @@
     function Cluster(addin) {
         this.id = clusterId++;
         this.mergedIds = {};
-        this.addins = [];
-        this.addins.push(addin);
+        this.addins = [addin];
         this.order = _.isNumber(addin.order) ? addin.order : 0;
         this.dependsOnClusters = {};
         this.activeAddin = addin;
@@ -17,7 +16,7 @@
     };
 
     //Makes sure that firstId appears before secondId within this cluster
-    Cluster.prototype.verifyOrder = function (firstId, secondId, adjecent) {
+    Cluster.prototype.verifyOrder = function (firstId, secondId, adjacent) {
         if (firstId === secondId) {
             return false;
         }
@@ -31,10 +30,8 @@
             throw new Error('Could not find addin with id ' + secondId + ' in cluster ' + this.id);
         }
 
-        if (adjecent) {
-            return (secondIndex - firstIndex) === 1;
-        }
-        return firstIndex < secondIndex;
+        var delta = secondIndex - firstIndex;
+        return adjacent ? (delta == 1) : (delta > 0)
     };
 
     //Returns the first addin in the cluster
@@ -69,6 +66,8 @@
 
         this.mergedIds[cluster.id] = true;
         this.mergedIds = _.assign(this.mergedIds, cluster.mergedIds);
+
+        this.dependsOnClusters = _.assign(this.dependsOnClusters, cluster.dependsOnClusters);
     };
 
 
@@ -99,9 +98,9 @@
         var cluster = null;
         var splitOrder;
 
-        for (i = 0; i < addins.length; i++) {
-            clusters.push(new Cluster(addins[i]));
-        }
+        clusters = _.map(addins, function (addin) {
+            return new Cluster(addin);
+        });
 
         while (clusters.length > 0) {
             currentCluster = clusters.pop();

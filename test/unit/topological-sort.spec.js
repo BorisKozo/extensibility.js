@@ -418,6 +418,18 @@
             expect(verifyAddinsOrder(result, ['2', '1', '3', '4'])).to.be.true;
         });
 
+        it('should throw if there is a circular dependency in mixed indirect after and direct before',function(){
+            var addins = [];
+            addins.push(new EJS.Addin({id: '0', order: 30}));
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '>>3,<<0,>1'}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            addins.push(new EJS.Addin({id: '4', order: '<<2,>>0,<3'}));
+            expect(function () {
+                EJS.utils.topologicalSort(addins);
+            }).to.throw('Circular dependency detected in topological sort');
+        });
+
         it('should throw if direct dependency was not used in the end of a dependency list', function () {
             var addins = [];
             addins.push(new EJS.Addin({id: '1', order: 0}));
