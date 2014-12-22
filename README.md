@@ -1,5 +1,7 @@
 Extensibility - A simple extensibility layer for your JavaScript application
 ==========================================
+[![Build Status](https://travis-ci.org/BorisKozo/extensibility.js.png?branch=master)](https://travis-ci.org/BorisKozo/extensibility.js)
+
 
 ## Unit Tests
 
