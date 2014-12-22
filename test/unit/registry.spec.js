@@ -107,7 +107,7 @@
     });
 
     it('should create a node if the addin is undefined', function () {
-      
+
       EJS.registry.addAddin('a/b/c');
       expect(EJS.registry.nodeExists('a/b/c')).to.be.true;
     });
@@ -127,8 +127,8 @@
     });
 
     it('should get all addins of a node with a specific property', function () {
-      var addin1 = {id:1};
-      var addin2 = {id:2};
+      var addin1 = { id: 1 };
+      var addin2 = { id: 2 };
       EJS.registry.addAddin('ab/cd', addin1);
       EJS.registry.addAddin('ab/cd', addin2);
       expect(EJS.registry.getAddins('ab/cd', { id: 1 })).to.be.eql([addin1]);

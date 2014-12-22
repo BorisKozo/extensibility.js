@@ -9,8 +9,7 @@ module.exports = function (config) {
                 include: true
             },
             'app/vendor/jquery-2.1.1.min.js',
-            'app/vendor/lodash.underscore.min.js',
-            'app/vendor/backbone-min.js',
+            'app/vendor/lodash.min.js',
             'app/lib/*.js',
             'test/unit/**/*.js'
         ],
@@ -45,7 +44,7 @@ module.exports = function (config) {
             // cf. http://gotwarlost.github.com/istanbul/public/apidocs/
             type: 'lcov',
             dir: 'coverage/'
-        },
+        }
 
     });
 };
