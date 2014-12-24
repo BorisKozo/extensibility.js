@@ -1,4 +1,3 @@
-//This could be a JSON file but I wanted comments
 (function (EJS) {
     'use strict';
     var count = 0;
@@ -10,7 +9,7 @@
                 type: null,
                 order: 0,
                 build: function (addin) {
-                    return addin.data;
+                    return addin.content;
                 }
             }
         ]

@@ -27,15 +27,15 @@
         /**
          * Returns an array of all the addins immediately under the given path using the search criteria
          * Search criteria goes as the parameter for lodash filter function, if undefined then all the addins are returned
-         * if isSorted is the boolean value false then the addins will not be sorted by the topological sort, any other value will sort them
+         * if skipSort is true the addins will not be sorted by the topological sort, any falsy value will sort them
          * Returns null if the path doesn't exist
          */
-        getAddins: function (path, searchCriteria, isSorted) {
+        getAddins: function (path, searchCriteria, skipSort) {
             var node = this._getNode(path, false);
             if (node === null) {
                 return null;
             }
-            var result = isSorted === false ? node.addins : EJS.utils.topologicalSort(node.addins);
+            var result = skipSort ? node.addins : EJS.utils.topologicalSort(node.addins);
             if (searchCriteria === undefined) {
                 return _.clone(result);
             }

@@ -51,14 +51,14 @@
             return false;
         },
         /***
-         * Builds a path from the given axes, if one of the axes is invalid an exception will be thrown
+         * Creates a path from the given axes, if one of the axes is invalid an exception will be thrown
          */
-        buildPath: function () {
+        joinPath: function () {
             if (arguments.length === 0) {
                 return '';
             }
             if (arguments[0] instanceof Array) {
-                return EJS.registry.buildPath.apply(this, _.flatten(arguments[0]));
+                return EJS.registry.joinPath.apply(this, _.flatten(arguments[0]));
             }
             var args = Array.prototype.slice.call(arguments, 0);
             return args.reduce(function (previous, current) {
