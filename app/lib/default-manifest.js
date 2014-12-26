@@ -1,6 +1,5 @@
 (function (EJS) {
     'use strict';
-    var count = 0;
 
     EJS.defaultManifest = {
         builders: [
@@ -13,8 +12,8 @@
                 }
             }
         ]
-    }
+    };
 
 
-})(window.EJS || (window.EJS = {}));
+})(EJS);
 

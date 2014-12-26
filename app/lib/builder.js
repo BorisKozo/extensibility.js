@@ -6,7 +6,9 @@
         options = _.isFunction(options) ? options() : options || {};
         options.id = options.id || ('builder' + count++);
         options.order = options.order || 0;
-        return new EJS.Addin(options);
+        var builder = new EJS.Addin(options);
+        builder.type = options.hasOwnProperty('type') ? options.type : '';
+        return builder;
     };
 
     EJS.registry = _.assign(EJS.registry || {}, {
@@ -45,16 +47,16 @@
          * @param skipSort - If truthy the topological sort is skipped
          * @returns {Array} = The built addins
          */
-        build: function(path, searchCriteria, skipSort) {
+        build: function (path, searchCriteria, skipSort) {
             var addins = EJS.registry.getAddins(path, searchCriteria, skipSort);
-            if (addins === null){
+            if (addins === null) {
                 return null;
             }
-            return _.map(addins, function(addin){
+            return _.map(addins, function (addin) {
                 var builder = EJS.registry.getBuilder(addin);
                 return builder.build(addin);
             });
         }
     });
 
-})(window.EJS || (window.EJS = {}));
+})(EJS);

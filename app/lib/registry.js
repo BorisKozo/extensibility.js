@@ -108,4 +108,4 @@
     });
 
     EJS.registry.clear();
-})(window.EJS || (window.EJS = {}));
+})(EJS);

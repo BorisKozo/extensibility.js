@@ -12,6 +12,8 @@ describe('Addin', function () {
             var addin = new EJS.Addin();
             expect(addin.id.indexOf('addin')).to.be.equal(0);
             expect(addin.order).to.be.equal(0);
+            var addin2 = new EJS.Addin();
+            expect(addin.id).not.to.be.equal(addin2.id);
         });
 
         it('Should create an addin with options function', function () {

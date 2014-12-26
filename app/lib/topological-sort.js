@@ -31,7 +31,7 @@
         }
 
         var delta = secondIndex - firstIndex;
-        return adjacent ? (delta == 1) : (delta > 0)
+        return adjacent ? (delta == 1) : (delta > 0);
     };
 
     //Returns the first addin in the cluster
@@ -90,10 +90,10 @@
     }
 
     function formSortClusters(addins) {
-        var clusters = [];
+        var clusters;
         var nextClusters = [];
         var currentCluster;
-        var i, orderAxis, addin;
+        var orderAxis, addin;
         var targetId = null;
         var cluster = null;
         var splitOrder;
@@ -272,5 +272,4 @@
     EJS.utils.topologicalSort._sortClusters = sortClusters;
 
 
-})
-(window.EJS || (window.EJS = {}));
+})(EJS);

@@ -44,4 +44,4 @@
     });
 
 
-})(window.EJS || (window.EJS = {}));
+})(EJS);
