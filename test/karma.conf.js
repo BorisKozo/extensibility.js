@@ -8,9 +8,14 @@ module.exports = function (config) {
                 pattern: 'node_modules/chai/chai.js',
                 include: true
             },
-            'app/vendor/jquery-2.1.1.min.js',
             'app/vendor/lodash.min.js',
-            'app/lib/*.js',
+            'test/test-header.js',
+            'app/lib/events.js',
+            'app/lib/topological-sort.js',
+            'app/lib/registry.js',
+            'app/lib/addin.js',
+            'app/lib/builder.js',
+            'app/lib/default-manifest.js',
             'test/unit/**/*.js'
         ],
 
