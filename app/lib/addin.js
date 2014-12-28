@@ -8,7 +8,7 @@
 
     EJS.Addin = function (options) {
         options = _.isFunction(options) ? options() : options || {};
-        this.id = options.id || ('addin' + count++);
+        this.id = options.id ? String(options.id) : ('addin' + count++);
         this.order = options.order || 0;
     };
 
@@ -33,7 +33,7 @@
         getAddins: function (path, searchCriteria, skipSort) {
             var node = this._getNode(path, false);
             if (node === null) {
-                return null;
+                return [];
             }
             var result = skipSort ? node.addins : EJS.utils.topologicalSort(node.addins);
             if (searchCriteria === undefined) {

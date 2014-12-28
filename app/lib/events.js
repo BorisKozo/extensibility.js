@@ -1,6 +1,7 @@
 (function (EJS) {
     'use strict';
-// ** Note - This file is taken as-is from Backbone 1.1.2 to reduce dependency on Backbone **
+// ** Note - This file is taken as-is from Backbone 1.1.2 to reduce dependency on Backbone.
+// ** I added a convenience function offContext which calls off with the first two arguments as null
 
 // Backbone.Events
 // ---------------
@@ -73,7 +74,7 @@
             return this;
         },
         // Shorthand for removing all the events from a certain context
-        offAll: function (context) {
+        offContext: function (context) {
             this.off(null, null, context);
         },
 

@@ -4,10 +4,14 @@
 
     EJS.Builder = function (options) {
         options = _.isFunction(options) ? options() : options || {};
+        if (!_.isFunction(options.build)){
+            throw new Error('Builder options must contain the "build" function '+JSON.stringify(options));
+        }
         options.id = options.id || ('builder' + count++);
         options.order = options.order || 0;
         var builder = new EJS.Addin(options);
         builder.type = options.hasOwnProperty('type') ? options.type : '';
+        builder.build = options.build;
         return builder;
     };
 
@@ -38,7 +42,7 @@
             if (addins.length > 0) {
                 return addins[0];
             }
-            throw new Error('No builder of type ' + type + ' was defined and no default builder was registered');
+            throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
         },
         /**
          * Returns all the addins in the path after applying the appropriate builder on each
@@ -49,11 +53,12 @@
          */
         build: function (path, searchCriteria, skipSort) {
             var addins = EJS.registry.getAddins(path, searchCriteria, skipSort);
-            if (addins === null) {
-                return null;
+            if (addins.length === 0) {
+                return addins;
             }
             return _.map(addins, function (addin) {
-                var builder = EJS.registry.getBuilder(addin);
+                //TODO: Optimization that tries to guess the builder from previous builder
+                var builder = EJS.registry.getBuilder(addin.type);
                 return builder.build(addin);
             });
         }
