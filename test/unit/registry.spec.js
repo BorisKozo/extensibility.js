@@ -89,10 +89,10 @@
     });
 
     it('should return true for existing nodes', function () {
-      EJS.registry.addAddin('abv');
+      EJS.addAddin('abv');
       expect(EJS.registry.nodeExists('abv')).to.be.true;
 
-      EJS.registry.addAddin('abv/ccc/a');
+      EJS.addAddin('abv/ccc/a');
       expect(EJS.registry.nodeExists('abv/ccc/a')).to.be.true;
       expect(EJS.registry.nodeExists('abv/ccc')).to.be.true;
 
@@ -104,7 +104,7 @@
   describe('Clear', function () {
     it('should clear the registry', function () {
       expect(EJS.registry.nodeExists('aaa')).to.be.false;
-      EJS.registry.addAddin('aaa');
+      EJS.addAddin('aaa');
       expect(EJS.registry.nodeExists('aaa')).to.be.true;
       EJS.registry.clear();
       expect(EJS.registry.nodeExists('aaa')).to.be.false;
