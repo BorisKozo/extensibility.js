@@ -2,11 +2,12 @@
     'use strict';
 
     EJS.defaultManifest = {
-        builders: [
+        paths: [
             {
-                id: 'EJS.default-builder',
+                path: EJS.systemBuildersPath,
+                id: 'EJS.defaultBuilder',
                 type: null,
-                order: 0,
+                order: 100,
                 build: function (addin) {
                     return addin.content;
                 }

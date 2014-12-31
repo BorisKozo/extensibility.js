@@ -15,7 +15,7 @@
         return builder;
     };
 
-    EJS.systemBuildersPath = 'builders';
+    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
 
     /**
      * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
@@ -23,8 +23,7 @@
      */
     EJS.addBuilder = function (builderOptions) {
         var builder = new EJS.Builder(builderOptions);
-        var path = EJS.registry.joinPath(EJS.systemPathPrefix, EJS.systemBuildersPath);
-        EJS.addAddin(path, builder);
+        EJS.addAddin(EJS.systemBuildersPath, builder);
     };
 
     /**
@@ -32,12 +31,11 @@
      * @param type
      */
     EJS.getBuilder = function (type) {
-        var path = EJS.registry.joinPath(EJS.systemPathPrefix, EJS.systemBuildersPath);
-        var addins = EJS.getAddins(path, {type: type});
+        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
         if (addins.length > 0) {
             return addins[0];
         }
-        addins = EJS.getAddins(path, {type: null});
+        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
         if (addins.length > 0) {
             return addins[0];
         }

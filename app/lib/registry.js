@@ -13,7 +13,7 @@
         this.addins.push(addin);
     };
 
-    EJS.systemPathPrefix = 'EJS'; //TODO: move it to the init stage
+
     EJS.registry = {
         getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {

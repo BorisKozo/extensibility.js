@@ -9,12 +9,15 @@ module.exports = function (config) {
                 include: true
             },
             'app/vendor/lodash.min.js',
+            'app/vendor/promise-6.0.1.min.js',
             'test/test-header.js',
             'app/lib/events.js',
             'app/lib/topological-sort.js',
+            'app/lib/app.js',
             'app/lib/registry.js',
             'app/lib/addin.js',
             'app/lib/builder.js',
+            'app/lib/service.js',
             'app/lib/default-manifest.js',
             'test/unit/**/*.js'
         ],
