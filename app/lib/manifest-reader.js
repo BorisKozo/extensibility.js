@@ -1,12 +1,10 @@
 ﻿(function (EJS) {
     'use strict';
-    EJS.manifest = function (manifest) {
-        _.forEach(manifest.paths, function (path) {
-            _.forEach(path.addins, function (addinOptions) {
-                EJS.registry.addAddin(path, new EJS.addin(addinOptions));
+    EJS.readManifest = function (manifest) {
+        _.forEach(manifest.paths, function (pathOptions) {
+            _.forEach(pathOptions.addins, function (addinOptions) {
+                EJS.addAddin(pathOptions.path, new EJS.Addin(addinOptions));
             });
         });
-
-
     };
 })(EJS);

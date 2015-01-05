@@ -68,8 +68,8 @@ describe('Builder', function () {
                 }
             };
 
-            EJS.registry.addBuilder(options);
-            var builder = EJS.registry.getBuilder('monkey');
+            EJS.addBuilder(options);
+            var builder = EJS.getBuilder('monkey');
             expect(builder.id).to.be.equal('abc');
             expect(builder.order).to.be.equal(3);
             expect(builder.type).to.be.equal('monkey');
@@ -84,46 +84,46 @@ describe('Builder', function () {
                 }
             };
 
-            EJS.registry.addBuilder(options);
-            var builder = EJS.registry.getBuilder('monkey');
+            EJS.addBuilder(options);
+            var builder = EJS.getBuilder('monkey');
             expect(builder.type).to.be.equal('monkey');
         });
 
         it('should get a builder with type === null if no appropriate builder is found', function () {
-            EJS.registry.addBuilder({
+            EJS.addBuilder({
                 id: 'a',
                 type: 'monkey',
                 build: function () {
                 }
             });
 
-            EJS.registry.addBuilder({
+            EJS.addBuilder({
                 id: 'b',
                 type: null,
                 build: function () {
                 }
             });
 
-            var builder = EJS.registry.getBuilder('no such type');
+            var builder = EJS.getBuilder('no such type');
             expect(builder.id).to.be.equal('b');
         });
 
         it('should throw if there is no default builder and no appropriate builder is found', function () {
-            EJS.registry.addBuilder({
+            EJS.addBuilder({
                 id: 'a',
                 type: 'monkey',
                 build: function () {
                 }
             });
             expect(function () {
-                EJS.registry.getBuilder('no such type');
+                EJS.getBuilder('no such type');
             }).to.throw('No builder of type "no such type" was defined and no default builder was registered');
         });
     });
 
     describe('Build', function () {
         it('should build a path with a couple of addins in it', function () {
-            EJS.registry.addBuilder({
+            EJS.addBuilder({
                 id: 'a',
                 type: 'monkey',
                 build: function (addin) {
@@ -131,10 +131,10 @@ describe('Builder', function () {
                 }
             });
 
-            EJS.registry.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
-            EJS.registry.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
 
-            var items = EJS.registry.build('aaa');
+            var items = EJS.build('aaa');
             expect(items).to.be.ok;
             expect(items.length).to.be.equal(2);
             expect(items[0]).to.be.equal('1');
@@ -142,7 +142,7 @@ describe('Builder', function () {
         });
 
         it('should return empty array if there are no addins to build', function () {
-            EJS.registry.addBuilder({
+            EJS.addBuilder({
                 id: 'a',
                 type: 'monkey',
                 build: function (addin) {
@@ -150,11 +150,28 @@ describe('Builder', function () {
                 }
             });
 
-            EJS.registry.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
-            EJS.registry.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
 
-            var items = EJS.registry.build('bbb');
+            var items = EJS.build('bbb');
             expect(items.length).to.be.equal(0);
         });
+    });
+
+    describe('Builder builder', function () {
+        it('should build a builder', function () {
+            EJS.Builder.builder.build({
+                id: 'abc',
+                order: 3,
+                type: 'monkey',
+                build: function () {
+                }
+            });
+
+            var builder = EJS.getBuilder('monkey');
+            expect(builder.id).to.be.equal('abc');
+            expect(builder.order).to.be.equal(3);
+            expect(builder.type).to.be.equal('monkey');
+        })
     });
 });

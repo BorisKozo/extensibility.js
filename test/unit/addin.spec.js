@@ -40,45 +40,45 @@ describe('Addin', function () {
     describe('Add Addin', function () {
         it('should add an addin to a specific node', function () {
             var addin = new EJS.Addin({});
-            EJS.registry.addAddin('a/b/c', addin);
-            expect(EJS.registry.getAddins('a/b/c')[0]).to.be.equal(addin);
+            EJS.addAddin('a/b/c', addin);
+            expect(EJS.getAddins('a/b/c')[0]).to.be.equal(addin);
         });
 
         it('should create a node if the addin is undefined', function () {
-            EJS.registry.addAddin('a/b/c');
+            EJS.addAddin('a/b/c');
             expect(EJS.registry.nodeExists('a/b/c')).to.be.true;
         });
     });
 
     describe('Get Addins', function () {
         it('should not get addins of non existing node', function () {
-            expect(EJS.registry.getAddins('abv/ccc/a').length).to.be.equal(0);
+            expect(EJS.getAddins('abv/ccc/a').length).to.be.equal(0);
         });
 
         it('should get all addins of a node', function () {
             var addin1 = new EJS.Addin({order: 1});
             var addin2 = new EJS.Addin({order: 2});
-            EJS.registry.addAddin('ab/cd', addin1);
-            EJS.registry.addAddin('ab/cd', addin2);
-            expect(EJS.registry.getAddins('ab/cd')).to.be.eql([addin1, addin2]);
+            EJS.addAddin('ab/cd', addin1);
+            EJS.addAddin('ab/cd', addin2);
+            expect(EJS.getAddins('ab/cd')).to.be.eql([addin1, addin2]);
         });
 
         it('should get all addins of a node with a specific property', function () {
             var addin1 = new EJS.Addin({id: '1'});
             var addin2 = new EJS.Addin({id: '2'});
-            EJS.registry.addAddin('ab/cd', addin1);
-            EJS.registry.addAddin('ab/cd', addin2);
-            expect(EJS.registry.getAddins('ab/cd', {id: '1'})).to.be.eql([addin1]);
+            EJS.addAddin('ab/cd', addin1);
+            EJS.addAddin('ab/cd', addin2);
+            expect(EJS.getAddins('ab/cd', {id: '1'})).to.be.eql([addin1]);
         });
 
         it('should get all addins of a node without topological sort', function () {
             var addin1 = new EJS.Addin({id: '1', order: 1});
             var addin2 = new EJS.Addin({id: '2', order: 0});
             var addin3 = new EJS.Addin({id: '3', order: 2});
-            EJS.registry.addAddin('ab/cd', addin1);
-            EJS.registry.addAddin('ab/cd', addin2);
-            EJS.registry.addAddin('ab/cd', addin3);
-            var addins = EJS.registry.getAddins('ab/cd', null, true);
+            EJS.addAddin('ab/cd', addin1);
+            EJS.addAddin('ab/cd', addin2);
+            EJS.addAddin('ab/cd', addin3);
+            var addins = EJS.getAddins('ab/cd', null, true);
             expect(addins.length).to.be.equal(3);
             expect(addins[0].id).to.be.equal('1');
             expect(addins[1].id).to.be.equal('2');

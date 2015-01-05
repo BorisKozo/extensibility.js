@@ -13,11 +13,8 @@
         this.addins.push(addin);
     };
 
-
-    EJS.registry = _.assign(EJS.registry || {}, {
-        systemPathPrefix: 'EJS',
-
-        _getNode: function (axes, createIfNotExists) {
+    EJS.registry = {
+        getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = EJS.registry.breakPath(axes);
             }
@@ -94,10 +91,9 @@
          * returns true if the given path exists in the registry and false otherwise
          */
         nodeExists: function (path) {
-            var node = this._getNode(path, false);
+            var node = this.getNode(path, false);
             return node !== null;
         },
-
 
         /**
          * Clears the registry of all the nodes (you shouldn't use this function)
@@ -105,7 +101,7 @@
         clear: function () {
             _registry = new Node('');
         }
-    });
+    };
 
     EJS.registry.clear();
 })(EJS);
