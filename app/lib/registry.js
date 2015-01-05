@@ -13,7 +13,6 @@
         this.addins.push(addin);
     };
 
-
     EJS.registry = {
         getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {

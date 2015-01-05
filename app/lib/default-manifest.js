@@ -5,12 +5,16 @@
         paths: [
             {
                 path: EJS.systemBuildersPath,
-                id: 'EJS.defaultBuilder',
-                type: null,
-                order: 100,
-                build: function (addin) {
-                    return addin.content;
-                }
+                addins: [
+                    {
+                        id: 'EJS.defaultBuilder',
+                        type: null,
+                        order: 100,
+                        build: function (addin) {
+                            return addin.content;
+                        }
+                    }
+                ]
             }
         ]
     };

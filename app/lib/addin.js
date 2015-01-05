@@ -8,10 +8,11 @@
 
     EJS.Addin = function (options) {
         options = _.isFunction(options) ? options() : options || {};
-        this.id = options.id ? String(options.id) : ('addin' + count++);
-        this.order = options.order || 0;
+        var result = _.assign({},options);
+        result.id = result.id ? String(result.id) : ('addin' + count++);
+        result.order = result.order || 0;
+        return result;
     };
-
 
     /**
      * Adds the given addin to the node at the given path

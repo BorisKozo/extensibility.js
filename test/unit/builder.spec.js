@@ -157,4 +157,21 @@ describe('Builder', function () {
             expect(items.length).to.be.equal(0);
         });
     });
+
+    describe('Builder builder', function () {
+        it('should build a builder', function () {
+            EJS.Builder.builder.build({
+                id: 'abc',
+                order: 3,
+                type: 'monkey',
+                build: function () {
+                }
+            });
+
+            var builder = EJS.getBuilder('monkey');
+            expect(builder.id).to.be.equal('abc');
+            expect(builder.order).to.be.equal(3);
+            expect(builder.type).to.be.equal('monkey');
+        })
+    });
 });
