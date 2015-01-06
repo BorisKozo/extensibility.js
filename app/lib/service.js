@@ -22,12 +22,9 @@
             options = options();
         }
         options = options || {};
-        if (options.override) { //allow the user to override any existing service
-            prototype = null;
-        }
         result = _.assign(result, {
             $vent: EJS.createEventBus(),
-            $next: prototype
+            $next: prototype ? prototype : undefined
         }, options);
         return result;
     };
@@ -38,7 +35,7 @@
         order: 100,
         build: function (addin) {
             if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
-                EJS.addService(addin.name, addin.content);
+                EJS.addService(addin.name, addin.content, addin.override);
             } else {
                 throw new Error('Service name must be defined ' + JSON.stringify(addin));
             }
@@ -57,9 +54,12 @@
         return services[name];
     };
 
-    EJS.addService = function (name, options) {
+    EJS.addService = function (name, options, override) {
         name = String(name).trim();
-        var nextService = EJS.getService(name);
+        var nextService;
+        if (!override) {
+            nextService = EJS.getService(name);
+        }
         var service = new EJS.Service(options, nextService);
         services[name] = service;
         return service;

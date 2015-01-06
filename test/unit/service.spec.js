@@ -53,6 +53,16 @@ describe('Service', function () {
             expect(service.$next.b).to.be.equal('bb');
             expect(service.$next.c).to.be.undefined;
         });
+
+        it('should add a service with override', function () {
+            EJS.addService('moo', {b: 'bb'});
+            EJS.addService('moo', {c: 'cc'}, true);
+            var service = EJS.getService('moo');
+            expect(service).to.be.ok;
+            expect(service.b).to.be.undefined;
+            expect(service.c).to.be.equal('cc');
+            expect(service.$next).to.be.undefined;
+        });
     });
 
     describe('getService', function () {
@@ -62,7 +72,7 @@ describe('Service', function () {
             expect(service).to.be.ok;
         });
 
-        it('should not get a service if it was undefined', function(){
+        it('should not get a service if it was undefined', function () {
             var service = EJS.getService('monkey');
             expect(service).to.be.undefined;
         });
