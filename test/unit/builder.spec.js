@@ -76,7 +76,7 @@ describe('Builder', function () {
         });
     });
 
-    describe('Get builders', function () {
+    describe('Get builder(s)', function () {
         it('should get a builder with the given type', function () {
             var options = {
                 type: 'monkey',
@@ -87,6 +87,26 @@ describe('Builder', function () {
             EJS.addBuilder(options);
             var builder = EJS.getBuilder('monkey');
             expect(builder.type).to.be.equal('monkey');
+        });
+
+        it('should get multiple builders with the given type', function () {
+            EJS.addBuilder({
+                id:'a',
+                type: 'monkey',
+                build: function () {
+                }
+            });
+            EJS.addBuilder({
+                id:'b',
+                type: 'monkey',
+                build: function () {
+                }
+            });
+
+            var builders = EJS.getBuilders('monkey');
+            expect(builders.length).to.be.equal(2);
+            expect(builders[0].type).to.be.equal('monkey');
+            expect(builders[1].type).to.be.equal('monkey');
         });
 
         it('should get a builder with type === null if no appropriate builder is found', function () {
@@ -106,6 +126,9 @@ describe('Builder', function () {
 
             var builder = EJS.getBuilder('no such type');
             expect(builder.id).to.be.equal('b');
+            var builders = EJS.getBuilders('no such type');
+            expect(builders.length).to.be.equal(1);
+            expect(builders[0].id).to.be.equal('b');
         });
 
         it('should throw if there is no default builder and no appropriate builder is found', function () {
@@ -119,6 +142,56 @@ describe('Builder', function () {
                 EJS.getBuilder('no such type');
             }).to.throw('No builder of type "no such type" was defined and no default builder was registered');
         });
+
+        it('should get the correct builder if it was overridden',function(){
+            var options1 = {
+                type: 'monkey',
+                order:10,
+                build: function () {
+                }
+            };
+            var options2 = {
+                type: 'monkey',
+                order:100,
+                build: function () {
+                }
+            };
+
+
+            EJS.addBuilder(options1);
+            EJS.addBuilder(options2);
+            var builder = EJS.getBuilder('monkey');
+            expect(builder.order).to.be.equal(10);
+        });
+
+
+    });
+
+    describe('Next Builder', function(){
+       it('should get the next builder if possible',function(){
+           var options1 = {
+               type: 'monkey',
+               order:10,
+               build: function () {
+               }
+           };
+           var options2 = {
+               type: 'monkey',
+               order:100,
+               build: function () {
+               }
+           };
+
+
+           EJS.addBuilder(options1);
+           EJS.addBuilder(options2);
+           var builder = EJS.getBuilder('monkey');
+           expect(builder.order).to.be.equal(10);
+           builder = builder.$next();
+           expect(builder.order).to.be.equal(100);
+           builder = builder.$next();
+           expect(builder).to.be.undefined;
+       });
     });
 
     describe('Build', function () {
@@ -158,20 +231,4 @@ describe('Builder', function () {
         });
     });
 
-    describe('Builder builder', function () {
-        it('should build a builder', function () {
-            EJS.Builder.builder.build({
-                id: 'abc',
-                order: 3,
-                type: 'monkey',
-                build: function () {
-                }
-            });
-
-            var builder = EJS.getBuilder('monkey');
-            expect(builder.id).to.be.equal('abc');
-            expect(builder.order).to.be.equal(3);
-            expect(builder.type).to.be.equal('monkey');
-        })
-    });
 });

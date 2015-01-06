@@ -2,6 +2,7 @@
     'use strict';
     var count = 0;
 
+
     EJS.Builder = function (options) {
         options = _.isFunction(options) ? options() : options || {};
         if (!_.isFunction(options.build)) {
@@ -12,18 +13,17 @@
         var builder = new EJS.Addin(options);
         builder.type = options.hasOwnProperty('type') ? options.type : '';
         builder.build = options.build;
+        builder.$next = EJS.Builder.nextBuilder;
         return builder;
     };
 
-    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
-
-    EJS.Builder.builder = {
-        type: 'EJS.builder',
-        id: 'EJS.builder',
-        build: function (addin) {
-            EJS.addBuilder(addin);
-        }
+    EJS.Builder.nextBuilder = function () {
+        var builders = EJS.getBuilders(this.type);
+        var index = _.indexOf(builders, this);
+        return builders[index + 1];
     };
+
+    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
 
     /**
      * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
@@ -35,20 +35,29 @@
     };
 
     /**
+     * Gets a builders for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
+     * @param type
+     */
+    EJS.getBuilders = function (type) {
+        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
+        if (addins.length > 0) {
+            return addins;
+        }
+        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
+        if (addins.length > 0) {
+            return addins;
+        }
+        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
+    };
+
+    /**
      * Gets a builder for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
      * @param type
      */
     EJS.getBuilder = function (type) {
-        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
-        if (addins.length > 0) {
-            return addins[0];
-        }
-        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
-        if (addins.length > 0) {
-            return addins[0];
-        }
-        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
+        return EJS.getBuilders(type)[0];
     };
+
     /**
      * Returns all the addins in the path after applying the appropriate builder on each
      * @param path - The path to build
@@ -67,7 +76,5 @@
             return builder.build(addin);
         });
     };
-
-    EJS.addBuilder(EJS.Builder.builder);
 
 })(EJS);

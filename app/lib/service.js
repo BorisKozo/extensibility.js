@@ -21,6 +21,10 @@
         if (_.isFunction(options)) {
             options = options();
         }
+        options = options || {};
+        if (options.override) { //allow the user to override any existing service
+            prototype = null;
+        }
         result = _.assign(result, {
             $vent: EJS.createEventBus(),
             $next: prototype
@@ -36,7 +40,7 @@
             if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
                 EJS.addService(addin.name, addin.content);
             } else {
-                throw new Error('Service name must be defined '+JSON.stringify(addin));
+                throw new Error('Service name must be defined ' + JSON.stringify(addin));
             }
         }
     };
@@ -50,10 +54,6 @@
      * @param name - The name of the service to retrieve
      */
     EJS.getService = function (name) {
-        if (services[name] === undefined) {
-            return null;
-        }
-
         return services[name];
     };
 
@@ -65,7 +65,7 @@
         return service;
     };
 
-    EJS.clearServices = function(){
+    EJS.clearServices = function () {
         services = {};
     };
 

@@ -61,6 +61,11 @@ describe('Service', function () {
             var service = EJS.getService('monkey');
             expect(service).to.be.ok;
         });
+
+        it('should not get a service if it was undefined', function(){
+            var service = EJS.getService('monkey');
+            expect(service).to.be.undefined;
+        });
     });
 
     describe('buildServices', function () {
