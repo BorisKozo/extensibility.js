@@ -16,13 +16,18 @@
 //     object.on('expand', function(){ alert('expanded'); });
 //     object.trigger('expand');
 //
+    var array = [];
+    //var push = array.push;
+    var slice = array.slice;
+    //var splice = array.splice;
+
     var Events = {
 
         // Bind an event to a `callback` function. Passing `"all"` will bind
         // the callback to all events fired.
         on: function (name, callback, context) {
             if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
-            this._events = this._events?this._events:{};
+            this._events = this._events ? this._events : {};
             var events = this._events[name] || (this._events[name] = []);
             events.push({callback: callback, context: context, ctx: context || this});
             return this;
@@ -181,4 +186,8 @@
     });
 
     EJS.Events = Events;
+    EJS.createEventBus = function (base) {
+        base = base || {};
+        return _.assign(base, EJS.Events);
+    }
 })(EJS);

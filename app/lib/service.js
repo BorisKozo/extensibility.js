@@ -22,7 +22,7 @@
             options = options();
         }
         result = _.assign(result, {
-            $vent: _.extend({}, EJS.Events),
+            $vent: EJS.createEventBus(),
             $next: prototype
         }, options);
         return result;
