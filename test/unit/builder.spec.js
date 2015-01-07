@@ -91,13 +91,13 @@ describe('Builder', function () {
 
         it('should get multiple builders with the given type', function () {
             EJS.addBuilder({
-                id:'a',
+                id: 'a',
                 type: 'monkey',
                 build: function () {
                 }
             });
             EJS.addBuilder({
-                id:'b',
+                id: 'b',
                 type: 'monkey',
                 build: function () {
                 }
@@ -143,16 +143,16 @@ describe('Builder', function () {
             }).to.throw('No builder of type "no such type" was defined and no default builder was registered');
         });
 
-        it('should get the correct builder if it was overridden',function(){
+        it('should get the correct builder if it was overridden', function () {
             var options1 = {
                 type: 'monkey',
-                order:10,
+                order: 10,
                 build: function () {
                 }
             };
             var options2 = {
                 type: 'monkey',
-                order:100,
+                order: 100,
                 build: function () {
                 }
             };
@@ -167,31 +167,31 @@ describe('Builder', function () {
 
     });
 
-    describe('Next Builder', function(){
-       it('should get the next builder if possible',function(){
-           var options1 = {
-               type: 'monkey',
-               order:10,
-               build: function () {
-               }
-           };
-           var options2 = {
-               type: 'monkey',
-               order:100,
-               build: function () {
-               }
-           };
+    describe('Next Builder', function () {
+        it('should get the next builder if possible', function () {
+            var options1 = {
+                type: 'monkey',
+                order: 10,
+                build: function () {
+                }
+            };
+            var options2 = {
+                type: 'monkey',
+                order: 100,
+                build: function () {
+                }
+            };
 
 
-           EJS.addBuilder(options1);
-           EJS.addBuilder(options2);
-           var builder = EJS.getBuilder('monkey');
-           expect(builder.order).to.be.equal(10);
-           builder = builder.$next();
-           expect(builder.order).to.be.equal(100);
-           builder = builder.$next();
-           expect(builder).to.be.undefined;
-       });
+            EJS.addBuilder(options1);
+            EJS.addBuilder(options2);
+            var builder = EJS.getBuilder('monkey');
+            expect(builder.order).to.be.equal(10);
+            builder = builder.$next();
+            expect(builder.order).to.be.equal(100);
+            builder = builder.$next();
+            expect(builder).to.be.undefined;
+        });
     });
 
     describe('Build', function () {
@@ -229,6 +229,35 @@ describe('Builder', function () {
             var items = EJS.build('bbb');
             expect(items.length).to.be.equal(0);
         });
+    });
+
+    describe('Build Tree', function () {
+        it('should build a path tree', function () {
+            EJS.addBuilder({
+                id: 'a',
+                type: 'monkey',
+                build: function (addin) {
+                    return {id:addin.id};
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            EJS.addAddin('aaa', {id: '3', type: 'monkey', order: 3, itemsProperty: 'stuff'});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '1', type: 'monkey', order: 2});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '2', type: 'monkey', order: 3});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '3'), {id: '1', type: 'monkey', order: 3});
+
+            var items = EJS.buildTree('aaa');
+            expect(items).to.be.ok;
+            expect(items.length).to.be.equal(3);
+            expect(items[1].$items.length).to.be.equal(2);
+            expect(items[1].$items[0].id).to.be.equal('1');
+            expect(items[2].$items).to.be.undefined;
+            expect(items[2].stuff.length).to.be.equal(1);
+            expect(items[2].stuff[0].id).to.be.equal('1');
+        });
+
     });
 
 });

@@ -77,4 +77,24 @@
         });
     };
 
+    /**
+     * Builds a tree out of the given path. Each addin will have child elements at path+addin.id added
+     * to its items property (default $items).
+     * @param path
+     */
+    EJS.buildTree = function (path) {
+        var addins = EJS.getAddins(path);
+        if (addins.length === 0) {
+            return addins;
+        }
+        return _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = EJS.getBuilder(addin.type);
+            var result = builder.build(addin);
+            var itemsProperty = addin.itemsProperty || '$items';
+            result[itemsProperty] = EJS.buildTree(EJS.registry.joinPath(path, addin.id));
+            return result;
+        });
+    }
+
 })(EJS);

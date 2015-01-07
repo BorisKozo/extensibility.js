@@ -47,11 +47,18 @@
       expect(EJS.registry.joinPath('a', 'bcd', 'ef')).to.be.equal('a/bcd/ef');
     });
 
-    it('should throw if one of the axes contains the delimiter', function () {
-      expect(function () {
-        EJS.registry.joinPath('a', 'b/cd', 'ef');
-      }).to.throw('Illegal path axis b/cd for delimiter /');
+    it('should build a path with multiple paths as arguments', function(){
+      expect(EJS.registry.joinPath('a/bcd', 'ef')).to.be.equal('a/bcd/ef');
+      expect(EJS.registry.joinPath('a/bcd', 'ef/g')).to.be.equal('a/bcd/ef/g');
+      expect(EJS.registry.joinPath('a', 'ef/g')).to.be.equal('a/ef/g');
+      expect(EJS.registry.joinPath('', 'ef/g')).to.be.equal('ef/g');
+      expect(EJS.registry.joinPath('ef/g','')).to.be.equal('ef/g');
     });
+
+    it('should return an empty path if all the arguments are empty', function(){
+      expect(EJS.registry.joinPath('','')).to.be.equal('');
+    });
+
   });
 
   describe('Break Path', function () {

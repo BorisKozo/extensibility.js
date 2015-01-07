@@ -58,17 +58,21 @@
                 return EJS.registry.joinPath.apply(this, _.flatten(arguments[0]));
             }
             var args = Array.prototype.slice.call(arguments, 0);
-            return args.reduce(function (previous, current) {
-                if (EJS.registry.verifyAxis(current, _delimiter)) {
-                    if (previous === '') {
-                        return current;
-                    }
-                    return previous + _delimiter + current;
-                } else {
-                    throw new Error('Illegal path axis ' + current + ' for delimiter ' + _delimiter);
+            var result = [];
+            _.forEach(args, function (value) {
+                var axes = EJS.registry.breakPath(value);
+                var i;
+                for (i = 0; i < axes.length; i++) {
+                    result.push(axes[i]);
                 }
-            }, '');
+            });
+            if (result.length === 0) {
+                return ''
+            } else {
+                return result.join(_delimiter);
+            }
         },
+
         /***
          * Breaks the given path to its axes, if the path is invalid an exception is thrown
          */
