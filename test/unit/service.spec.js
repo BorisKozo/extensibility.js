@@ -79,6 +79,14 @@ describe('Service', function () {
     });
 
     describe('buildServices', function () {
+        beforeEach(function () {
+            sinon.spy(EJS.vent, 'trigger');
+        });
+
+        afterEach(function () {
+            EJS.vent.trigger.restore();
+        });
+
         it('should build the services path', function (done) {
             EJS.addBuilder(EJS.Service.builder);
             EJS.readManifest({
@@ -119,7 +127,7 @@ describe('Service', function () {
                     }
                 ]
             });
-            var triggerSpy = sinon.spy(EJS.vent, 'trigger');
+
 
             EJS.buildServices().then(function () {
                 var service = EJS.getService('monkey');
@@ -129,8 +137,8 @@ describe('Service', function () {
                 expect(service.$next).to.be.ok;
                 expect(service.initialize.called).to.be.true;
                 expect(service.$next.initialize.called).to.be.true;
-                expect(triggerSpy.calledWith('before:service:initialized', 'monkey')).to.be.true;
-                expect(triggerSpy.calledWith('after:service:initialized', 'monkey')).to.be.true;
+                expect(EJS.vent.trigger.calledWith('before:service:initialized', 'monkey')).to.be.true;
+                expect(EJS.vent.trigger.calledWith('after:service:initialized', 'monkey')).to.be.true;
                 done();
             });
         });
