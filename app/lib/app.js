@@ -23,5 +23,5 @@
         }
 
         return buildServicesInternal();
-    }
+    };
 })(EJS);

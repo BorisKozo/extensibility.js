@@ -95,6 +95,6 @@
             result[itemsProperty] = EJS.buildTree(EJS.registry.joinPath(path, addin.id));
             return result;
         });
-    }
+    };
 
 })(EJS);

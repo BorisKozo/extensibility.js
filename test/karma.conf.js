@@ -22,6 +22,7 @@ module.exports = function (config) {
             'app/lib/addin.js',
             'app/lib/builder.js',
             'app/lib/service.js',
+            'app/lib/command.js',
             'app/lib/default-manifest.js',
             'app/lib/manifest-reader.js',
             'test/unit/**/*.js'

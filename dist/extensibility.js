@@ -1,5 +1,5 @@
 // extensibility v0.0.1
-// Copyright (c)2014 Boris Kozorovitzky.
+// Copyright (c)2015 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/extensibility.js.git
 
@@ -28,7 +28,8 @@
 
 (function (EJS) {
     'use strict';
-// ** Note - This file is taken as-is from Backbone 1.1.2 to reduce dependency on Backbone **
+// ** Note - This file is taken as-is from Backbone 1.1.2 to reduce dependency on Backbone.
+// ** I added a convenience function offContext which calls off with the first two arguments as null
 
 // Backbone.Events
 // ---------------
@@ -43,13 +44,18 @@
 //     object.on('expand', function(){ alert('expanded'); });
 //     object.trigger('expand');
 //
+    var array = [];
+    //var push = array.push;
+    var slice = array.slice;
+    //var splice = array.splice;
+
     var Events = {
 
         // Bind an event to a `callback` function. Passing `"all"` will bind
         // the callback to all events fired.
         on: function (name, callback, context) {
             if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
-            this._events = this._events?this._events:{};
+            this._events = this._events ? this._events : {};
             var events = this._events[name] || (this._events[name] = []);
             events.push({callback: callback, context: context, ctx: context || this});
             return this;
@@ -101,7 +107,7 @@
             return this;
         },
         // Shorthand for removing all the events from a certain context
-        offAll: function (context) {
+        offContext: function (context) {
             this.off(null, null, context);
         },
 
@@ -208,6 +214,10 @@
     });
 
     EJS.Events = Events;
+    EJS.createEventBus = function (base) {
+        base = base || {};
+        return _.assign(base, EJS.Events);
+    };
 })(EJS);
 (function (EJS) {
     'use strict';
@@ -486,6 +496,33 @@
 })(EJS);
 (function (EJS) {
     'use strict';
+    EJS.systemPathPrefix = 'EJS';
+    EJS.vent = EJS.createEventBus();
+
+    function buildServicesInternal() {
+        if (_.isFunction(EJS.buildServices)) {
+            EJS.vent.trigger('before:buildServices');
+            return EJS.buildServices().then(function () {
+                EJS.vent.trigger('after:buildServices');
+            });
+        } else {
+            return Promise.resolve();
+        }
+    }
+
+    EJS.start = function () {
+
+        if (EJS.defaultManifest) {
+            EJS.vent.trigger('before:readDefaultManifest');
+            EJS.readManifest(EJS.defaultManifest);
+            EJS.vent.trigger('after:readDefaultManifest');
+        }
+
+        return buildServicesInternal();
+    };
+})(EJS);
+(function (EJS) {
+    'use strict';
     var _registry;
     var _delimiter = '/'; //The delimiter that will be used for all the path construction, path axes may not contain this delimiter
 
@@ -499,11 +536,8 @@
         this.addins.push(addin);
     };
 
-
-    EJS.registry = _.assign(EJS.registry || {}, {
-        systemPathPrefix: 'EJS',
-
-        _getNode: function (axes, createIfNotExists) {
+    EJS.registry = {
+        getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = EJS.registry.breakPath(axes);
             }
@@ -547,17 +581,21 @@
                 return EJS.registry.joinPath.apply(this, _.flatten(arguments[0]));
             }
             var args = Array.prototype.slice.call(arguments, 0);
-            return args.reduce(function (previous, current) {
-                if (EJS.registry.verifyAxis(current, _delimiter)) {
-                    if (previous === '') {
-                        return current;
-                    }
-                    return previous + _delimiter + current;
-                } else {
-                    throw new Error('Illegal path axis ' + current + ' for delimiter ' + _delimiter);
+            var result = [];
+            _.forEach(args, function (value) {
+                var axes = EJS.registry.breakPath(value);
+                var i;
+                for (i = 0; i < axes.length; i++) {
+                    result.push(axes[i]);
                 }
-            }, '');
+            });
+            if (result.length === 0) {
+                return '';
+            } else {
+                return result.join(_delimiter);
+            }
         },
+
         /***
          * Breaks the given path to its axes, if the path is invalid an exception is thrown
          */
@@ -580,10 +618,9 @@
          * returns true if the given path exists in the registry and false otherwise
          */
         nodeExists: function (path) {
-            var node = this._getNode(path, false);
+            var node = this.getNode(path, false);
             return node !== null;
         },
-
 
         /**
          * Clears the registry of all the nodes (you shouldn't use this function)
@@ -591,7 +628,7 @@
         clear: function () {
             _registry = new Node('');
         }
-    });
+    };
 
     EJS.registry.clear();
 })(EJS);
@@ -605,117 +642,259 @@
 
     EJS.Addin = function (options) {
         options = _.isFunction(options) ? options() : options || {};
-        this.id = options.id || ('addin' + count++);
-        this.order = options.order || 0;
+        var result = _.assign({},options);
+        result.id = result.id ? String(result.id) : ('addin' + count++);
+        result.order = result.order || 0;
+        return result;
     };
 
-    EJS.registry = _.assign(EJS.registry || {}, {
-        /**
-         * Adds the given addin to the node at the given path
-         * If no addin is specifies creates an empty node at the path
-         */
-        addAddin: function (path, addin) {
-            var node = this._getNode(path, true);
-            if (addin) {
-                node.addAddin(addin);
-            }
-        },
-
-        /**
-         * Returns an array of all the addins immediately under the given path using the search criteria
-         * Search criteria goes as the parameter for lodash filter function, if undefined then all the addins are returned
-         * if skipSort is true the addins will not be sorted by the topological sort, any falsy value will sort them
-         * Returns null if the path doesn't exist
-         */
-        getAddins: function (path, searchCriteria, skipSort) {
-            var node = this._getNode(path, false);
-            if (node === null) {
-                return null;
-            }
-            var result = skipSort ? node.addins : EJS.utils.topologicalSort(node.addins);
-            if (searchCriteria === undefined) {
-                return _.clone(result);
-            }
-            return _.filter(result, searchCriteria);
+    /**
+     * Adds the given addin to the node at the given path
+     * If no addin is specifies creates an empty node at the path
+     */
+    EJS.addAddin = function (path, addin) {
+        var node = EJS.registry.getNode(path, true);
+        if (addin) {
+            node.addAddin(addin);
         }
-    });
+    };
 
+    /**
+     * Returns an array of all the addins immediately under the given path using the search criteria
+     * Search criteria goes as the parameter for lodash filter function, if undefined then all the addins are returned
+     * if skipSort is true the addins will not be sorted by the topological sort, any falsy value will sort them
+     * Returns null if the path doesn't exist
+     */
+    EJS.getAddins = function (path, searchCriteria, skipSort) {
+        var node = EJS.registry.getNode(path, false);
+        if (node === null) {
+            return [];
+        }
+        var result = skipSort ? node.addins : EJS.utils.topologicalSort(node.addins);
+        if (searchCriteria === undefined) {
+            return _.clone(result);
+        }
+        return _.filter(result, searchCriteria);
+    };
 
 })(EJS);
 (function (EJS) {
     'use strict';
     var count = 0;
 
+
     EJS.Builder = function (options) {
         options = _.isFunction(options) ? options() : options || {};
+        if (!_.isFunction(options.build)) {
+            throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
+        }
         options.id = options.id || ('builder' + count++);
         options.order = options.order || 0;
         var builder = new EJS.Addin(options);
         builder.type = options.hasOwnProperty('type') ? options.type : '';
+        builder.build = options.build;
+        builder.$next = EJS.Builder.nextBuilder;
         return builder;
     };
 
-    EJS.registry = _.assign(EJS.registry || {}, {
-        systemBuildersPath: 'builders',
+    EJS.Builder.nextBuilder = function () {
+        var builders = EJS.getBuilders(this.type);
+        var index = _.indexOf(builders, this);
+        return builders[index + 1];
+    };
 
-        /**
-         * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
-         * @param builderOptions
-         */
-        addBuilder: function (builderOptions) {
-            var builder = new EJS.Builder(builderOptions);
-            var path = this.joinPath(this.systemPathPrefix, this.systemBuildersPath);
-            this.addAddin(path, builder);
-        },
+    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
 
-        /**
-         * Gets a builder for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
-         * @param type
-         */
-        getBuilder: function (type) {
-            var path = this.joinPath(this.systemPathPrefix, this.systemBuildersPath);
-            var addins = this.getAddins(path, {type: type});
-            if (addins.length > 0) {
-                return addins[0];
-            }
-            addins = this.getAddins(path, {type: null});
-            if (addins.length > 0) {
-                return addins[0];
-            }
-            throw new Error('No builder of type ' + type + ' was defined and no default builder was registered');
-        },
-        /**
-         * Returns all the addins in the path after applying the appropriate builder on each
-         * @param path - The path to build
-         * @param searchCriteria - The search criteria for the underscore filter function
-         * @param skipSort - If truthy the topological sort is skipped
-         * @returns {Array} = The built addins
-         */
-        build: function (path, searchCriteria, skipSort) {
-            var addins = EJS.registry.getAddins(path, searchCriteria, skipSort);
-            if (addins === null) {
-                return null;
-            }
-            return _.map(addins, function (addin) {
-                var builder = EJS.registry.getBuilder(addin);
-                return builder.build(addin);
-            });
+    /**
+     * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
+     * @param builderOptions
+     */
+    EJS.addBuilder = function (builderOptions) {
+        var builder = new EJS.Builder(builderOptions);
+        EJS.addAddin(EJS.systemBuildersPath, builder);
+    };
+
+    /**
+     * Gets a builders for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
+     * @param type
+     */
+    EJS.getBuilders = function (type) {
+        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
+        if (addins.length > 0) {
+            return addins;
         }
-    });
+        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
+        if (addins.length > 0) {
+            return addins;
+        }
+        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
+    };
 
+    /**
+     * Gets a builder for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
+     * @param type
+     */
+    EJS.getBuilder = function (type) {
+        return EJS.getBuilders(type)[0];
+    };
+
+    /**
+     * Returns all the addins in the path after applying the appropriate builder on each
+     * @param path - The path to build
+     * @param searchCriteria - The search criteria for the underscore filter function
+     * @param skipSort - If truthy the topological sort is skipped
+     * @returns {Array} = The built addins
+     */
+    EJS.build = function (path, searchCriteria, skipSort) {
+        var addins = EJS.getAddins(path, searchCriteria, skipSort);
+        if (addins.length === 0) {
+            return addins;
+        }
+        return _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = EJS.getBuilder(addin.type);
+            return builder.build(addin);
+        });
+    };
+
+    /**
+     * Builds a tree out of the given path. Each addin will have child elements at path+addin.id added
+     * to its items property (default $items).
+     * @param path
+     */
+    EJS.buildTree = function (path) {
+        var addins = EJS.getAddins(path);
+        if (addins.length === 0) {
+            return addins;
+        }
+        return _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = EJS.getBuilder(addin.type);
+            var result = builder.build(addin);
+            var itemsProperty = addin.itemsProperty || '$items';
+            result[itemsProperty] = EJS.buildTree(EJS.registry.joinPath(path, addin.id));
+            return result;
+        });
+    };
+
+})(EJS);
+(function (EJS) {
+    'use strict';
+    var services = {};
+
+    function initializeServiceRecursive(service) {
+        if (service) {
+            return initializeServiceRecursive(service.$next).then(function () {
+                if (service.hasOwnProperty('initialize') && _.isFunction(service.initialize)) {
+                    return service.initialize();
+                } else {
+                    return Promise.resolve();
+                }
+            });
+        } else {
+            return Promise.resolve();
+        }
+    }
+
+    EJS.Service = function (options, prototype) {
+        var result = Object.create(prototype || {});
+        if (_.isFunction(options)) {
+            options = options();
+        }
+        options = options || {};
+        result = _.assign(result, {
+            $vent: EJS.createEventBus(),
+            $next: prototype ? prototype : undefined
+        }, options);
+        return result;
+    };
+
+    EJS.Service.builder = {
+        type: 'EJS.service',
+        id: 'EJS.serviceBuilder',
+        order: 100,
+        build: function (addin) {
+            if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
+                EJS.addService(addin.name, addin.content, addin.override);
+            } else {
+                throw new Error('Service name must be defined ' + JSON.stringify(addin));
+            }
+        }
+    };
+
+    EJS.systemServicesPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'services');
+
+    EJS.addBuilder(EJS.Service.builder);
+
+    /**
+     * Returns the service instance by the given name or null if no service by that name can be found or instantiated
+     * @param name - The name of the service to retrieve
+     */
+    EJS.getService = function (name) {
+        return services[name];
+    };
+
+    EJS.addService = function (name, options, override) {
+        name = String(name).trim();
+        var nextService;
+        if (!override) {
+            nextService = EJS.getService(name);
+        }
+        var service = new EJS.Service(options, nextService);
+        services[name] = service;
+        return service;
+    };
+
+    EJS.clearServices = function () {
+        services = {};
+    };
+
+    /**
+     * Builds and initializes all the registered services
+     * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
+     */
+    EJS.buildServices = function () {
+        EJS.build(EJS.systemServicesPath);
+        var promises = [];
+        _.forEach(_.keys(services), function (name) {
+            EJS.vent.trigger('before:service:initialized', name);
+            promises.push(initializeServiceRecursive(EJS.getService(name)).then(function () {
+                EJS.vent.trigger('after:service:initialized', name, EJS.getService(name));
+            }));
+        });
+        return Promise.all(promises);
+    };
+
+})(EJS);
+(function (EJS) {
+    'use strict';
+    var count = 0;
+
+    EJS.Command = function (options) {
+        options = _.isFunction(options) ? options() : options || {};
+        var result = _.assign({}, options);
+        result.id = result.id ? String(result.id) : ('addin' + count++);
+        result.order = result.order || 0;
+        return result;
+    };
 })(EJS);
 (function (EJS) {
     'use strict';
 
     EJS.defaultManifest = {
-        builders: [
+        paths: [
             {
-                id: 'EJS.default-builder',
-                type: null,
-                order: 0,
-                build: function (addin) {
-                    return addin.content;
-                }
+                path: EJS.systemBuildersPath,
+                addins: [
+                    {
+                        id: 'EJS.defaultBuilder',
+                        type: null,
+                        order: 100,
+                        build: function (addin) {
+                            return addin.content;
+                        }
+                    }
+                ]
             }
         ]
     };
@@ -724,4 +903,14 @@
 })(EJS);
 
 
+(function (EJS) {
+    'use strict';
+    EJS.readManifest = function (manifest) {
+        _.forEach(manifest.paths, function (pathOptions) {
+            _.forEach(pathOptions.addins, function (addinOptions) {
+                EJS.addAddin(pathOptions.path, new EJS.Addin(addinOptions));
+            });
+        });
+    };
+})(EJS);
 });

@@ -82,6 +82,7 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/addin.js',
                     '<%= meta.app %>/lib/builder.js',
                     '<%= meta.app %>/lib/service.js',
+                    '<%= meta.app %>/lib/command.js',
                     '<%= meta.app %>/lib/default-manifest.js',
                     '<%= meta.app %>/lib/manifest-reader.js',
                     '<%= meta.app %>/lib/partials/footer.jst'

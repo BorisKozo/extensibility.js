@@ -41,6 +41,6 @@
             return _.clone(result);
         }
         return _.filter(result, searchCriteria);
-    }
+    };
 
 })(EJS);

@@ -83,6 +83,6 @@
             }));
         });
         return Promise.all(promises);
-    }
+    };
 
 })(EJS);

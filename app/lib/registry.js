@@ -67,7 +67,7 @@
                 }
             });
             if (result.length === 0) {
-                return ''
+                return '';
             } else {
                 return result.join(_delimiter);
             }

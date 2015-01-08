@@ -189,5 +189,5 @@
     EJS.createEventBus = function (base) {
         base = base || {};
         return _.assign(base, EJS.Events);
-    }
+    };
 })(EJS);
