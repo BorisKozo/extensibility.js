@@ -231,13 +231,99 @@ describe('Builder', function () {
         });
     });
 
+    describe('Build Async', function () {
+        it('should build a path with a couple of addins in it', function (done) {
+            EJS.addBuilder({
+                id: 'a',
+                type: 'monkey',
+                build: function (addin) {
+                    return addin.id;
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            EJS.build.async('aaa').then(function (items) {
+                expect(items).to.be.ok;
+                expect(items.length).to.be.equal(2);
+                expect(items[0]).to.be.equal('1');
+                expect(items[1]).to.be.equal('2');
+                done();
+            });
+        });
+
+        it('should build a path with a couple of addins in it (async build)', function (done) {
+            EJS.addBuilder({
+                id: 'a',
+                type: 'monkey',
+                build: function (addin) {
+                    return new Promise(function(resolver){
+                        setTimeout(function(){
+                           resolver(addin.id);
+                        },0);
+                    });
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            EJS.build.async('aaa').then(function (items) {
+                expect(items).to.be.ok;
+                expect(items.length).to.be.equal(2);
+                expect(items[0]).to.be.equal('1');
+                expect(items[1]).to.be.equal('2');
+                done();
+            });
+        });
+
+        it('should return empty array if there are no addins to build', function (done) {
+            EJS.addBuilder({
+                id: 'a',
+                type: 'monkey',
+                build: function (addin) {
+                    return addin.id;
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            EJS.build.async('bbb').then(function (items) {
+                expect(items.length).to.be.equal(0);
+                done();
+            });
+        });
+
+        it('should fail if there is an error during build', function (done) {
+            EJS.addBuilder({
+                id: 'a',
+                type: 'monkey',
+                build: function (addin) {
+                    throw new Error('Hello');
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            EJS.build.async('aaa').then(function () {
+                done('Should not get here');
+            }, function(error){
+                expect(error.message).to.be.equal('Hello');
+                done();
+            });
+        });
+    });
+
     describe('Build Tree', function () {
         it('should build a path tree', function () {
             EJS.addBuilder({
                 id: 'a',
                 type: 'monkey',
                 build: function (addin) {
-                    return {id:addin.id};
+                    return {id: addin.id};
                 }
             });
 

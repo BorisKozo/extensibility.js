@@ -78,6 +78,32 @@
     };
 
     /**
+     * Returns all the addins in the path after applying the appropriate builder on each
+     * @param path - The path to build
+     * @param searchCriteria - The search criteria for the underscore filter function
+     * @param skipSort - If truthy the topological sort is skipped
+     * @returns {Array} = A promise that resolves with an array of the built addins
+     */
+    EJS.build.async = function (path, searchCriteria, skipSort) {
+        var addins = EJS.getAddins(path, searchCriteria, skipSort);
+        if (addins.length === 0) {
+            return Promise.resolve(addins);
+        }
+        var promises = _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = EJS.getBuilder(addin.type);
+            try {
+                return Promise.resolve(builder.build(addin));
+            }
+            catch (ex) {
+                return Promise.reject(ex);
+            }
+        });
+
+        return Promise.all(promises);
+    };
+
+    /**
      * Builds a tree out of the given path. Each addin will have child elements at path+addin.id added
      * to its items property (default $items).
      * @param path
