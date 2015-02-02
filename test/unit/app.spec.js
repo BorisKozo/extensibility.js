@@ -15,7 +15,7 @@ describe('Addin', function () {
         EJS.readManifest({
             paths: [
                 {
-                    path: EJS.systemServicesPath,
+                    path: EJS.systemPaths.services,
                     addins: [
                         {
                             type: 'EJS.service',

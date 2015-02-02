@@ -23,18 +23,18 @@
         return builders[index + 1];
     };
 
-    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
+    EJS.systemPaths.builders = EJS.registry.joinPath(EJS.systemPaths.prefix, 'builders');
 
 
     EJS.defaultManifest.paths.push({
-        path: EJS.systemBuildersPath,
+        path: EJS.systemPaths.builders,
         addins: [
             {
                 id: 'EJS.defaultBuilder',
                 type: null,
                 order: 100,
                 build: function (addin) {
-                    return addin.content;
+                    return _.cloneDeep(addin);
                 }
             }
         ]
@@ -46,7 +46,7 @@
      */
     EJS.addBuilder = function (builderOptions) {
         var builder = new EJS.Builder(builderOptions);
-        EJS.addAddin(EJS.systemBuildersPath, builder);
+        EJS.addAddin(EJS.systemPaths.builders, builder);
     };
 
     /**
@@ -54,11 +54,11 @@
      * @param type
      */
     EJS.getBuilders = function (type) {
-        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
+        var addins = EJS.getAddins(EJS.systemPaths.builders, {type: type});
         if (addins.length > 0) {
             return addins;
         }
-        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
+        addins = EJS.getAddins(EJS.systemPaths.builders, {type: null});
         if (addins.length > 0) {
             return addins;
         }

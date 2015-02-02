@@ -93,7 +93,7 @@ describe('Service', function () {
             EJS.readManifest({
                 paths: [
                     {
-                        path: EJS.systemServicesPath,
+                        path: EJS.systemPaths.services,
                         addins: [
                             {
                                 id: 'service1',
@@ -154,7 +154,7 @@ describe('Service', function () {
             EJS.readManifest({
                 paths: [
                     {
-                        path: EJS.systemServicesPath,
+                        path: EJS.systemPaths.services,
                         addins: [
                             {
                                 id: 'service1',
@@ -169,7 +169,7 @@ describe('Service', function () {
             });
 
             expect(function () {
-                EJS.build(EJS.systemServicesPath);
+                EJS.build(EJS.systemPaths.services);
             }).to.throw('Service name must be defined');
         });
     });

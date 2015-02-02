@@ -1,6 +1,9 @@
 (function (EJS) {
     'use strict';
-    EJS.systemPathPrefix = 'EJS';
+    EJS.systemPaths = {
+        prefix: 'EJS'
+    };
+
     EJS.vent = EJS.createEventBus();
 
     function buildServicesInternal() {

@@ -29,10 +29,10 @@
         return result;
     };
 
-    EJS.systemServicesPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'services');
+    EJS.systemPaths.services = EJS.registry.joinPath(EJS.systemPaths.prefix, 'services');
 
     EJS.defaultManifest.paths.push({
-        path: EJS.systemBuildersPath,
+        path: EJS.systemPaths.builders,
         addins: [{
             type: 'EJS.service',
             id: 'EJS.serviceBuilder',
@@ -76,7 +76,7 @@
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
     EJS.buildServices = function () {
-        EJS.build(EJS.systemServicesPath); //TODO: This assumes that there is a builder side effect that adds the services to the services map
+        EJS.build(EJS.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {
             EJS.vent.trigger('before:service:initialized', name);
