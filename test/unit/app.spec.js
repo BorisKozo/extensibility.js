@@ -28,7 +28,7 @@ describe('Addin', function () {
                 }
             ]
         });
-        EJS.addBuilder(EJS.Service.builder);
+
 
         EJS.start().then(function () {
             expect(EJS.vent.trigger.calledWith('before:buildServices')).to.be.true;
@@ -37,6 +37,8 @@ describe('Addin', function () {
             expect(service).to.be.ok;
             expect(service.hello).to.be.equal('world');
             done();
+        }, function(error){
+            done(error);
         });
 
     });

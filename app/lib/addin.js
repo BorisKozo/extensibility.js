@@ -19,6 +19,9 @@
      * If no addin is specifies creates an empty node at the path
      */
     EJS.addAddin = function (path, addin) {
+        if (path === undefined || path === null){
+            throw new Error('path was not defined for addin '+JSON.stringify(addin));
+        }
         var node = EJS.registry.getNode(path, true);
         if (addin) {
             node.addAddin(addin);
@@ -42,5 +45,6 @@
         }
         return _.filter(result, searchCriteria);
     };
+
 
 })(EJS);

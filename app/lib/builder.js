@@ -25,6 +25,21 @@
 
     EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
 
+
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemBuildersPath,
+        addins: [
+            {
+                id: 'EJS.defaultBuilder',
+                type: null,
+                order: 100,
+                build: function (addin) {
+                    return addin.content;
+                }
+            }
+        ]
+    });
+
     /**
      * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
      * @param builderOptions
@@ -122,5 +137,4 @@
             return result;
         });
     };
-
 })(EJS);

@@ -29,22 +29,24 @@
         return result;
     };
 
-    EJS.Service.builder = {
-        type: 'EJS.service',
-        id: 'EJS.serviceBuilder',
-        order: 100,
-        build: function (addin) {
-            if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
-                EJS.addService(addin.name, addin.content, addin.override);
-            } else {
-                throw new Error('Service name must be defined ' + JSON.stringify(addin));
-            }
-        }
-    };
-
     EJS.systemServicesPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'services');
 
-    EJS.addBuilder(EJS.Service.builder);
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemBuildersPath,
+        addins: [{
+            type: 'EJS.service',
+            id: 'EJS.serviceBuilder',
+            order: 100,
+            build: function (addin) {
+                if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
+                    EJS.addService(addin.name, addin.content, addin.override);
+                } else {
+                    throw new Error('Service name must be defined ' + JSON.stringify(addin));
+                }
+            }
+        }]
+    });
+
 
     /**
      * Returns the service instance by the given name or null if no service by that name can be found or instantiated
@@ -74,7 +76,7 @@
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
     EJS.buildServices = function () {
-        EJS.build(EJS.systemServicesPath);
+        EJS.build(EJS.systemServicesPath); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {
             EJS.vent.trigger('before:service:initialized', name);

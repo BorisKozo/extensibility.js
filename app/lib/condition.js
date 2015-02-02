@@ -59,7 +59,17 @@
 
     EJS.$clearConditions = function(){
         conditions = {};
-    }
+    };
+
+    EJS.addBuilder({
+        type:'EJS.conditionOperation',
+        id:'EJS.conditionOperationBuilder',
+        order:100,
+        build: function(addin){
+
+        }
+    })
+
 
 
 })(EJS);

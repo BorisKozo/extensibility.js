@@ -79,12 +79,12 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/topological-sort.js',
                     '<%= meta.app %>/lib/app.js',
                     '<%= meta.app %>/lib/registry.js',
+                    '<%= meta.app %>/lib/default-manifest.js',
                     '<%= meta.app %>/lib/addin.js',
                     '<%= meta.app %>/lib/builder.js',
                     '<%= meta.app %>/lib/service.js',
                     '<%= meta.app %>/lib/command.js',
                     '<%= meta.app %>/lib/condition.js',
-                    '<%= meta.app %>/lib/default-manifest.js',
                     '<%= meta.app %>/lib/manifest-reader.js',
                     '<%= meta.app %>/lib/partials/footer.jst'
                 ],

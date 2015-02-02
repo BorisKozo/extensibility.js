@@ -81,6 +81,7 @@ describe('Service', function () {
     describe('buildServices', function () {
         beforeEach(function () {
             sinon.spy(EJS.vent, 'trigger');
+            EJS.readManifest(EJS.defaultManifest);
         });
 
         afterEach(function () {
@@ -88,7 +89,7 @@ describe('Service', function () {
         });
 
         it('should build the services path', function (done) {
-            EJS.addBuilder(EJS.Service.builder);
+
             EJS.readManifest({
                 paths: [
                     {
@@ -145,17 +146,30 @@ describe('Service', function () {
     });
 
     describe('service builder', function () {
+        beforeEach(function () {
+            EJS.readManifest(EJS.defaultManifest);
+        });
+
         it('should throw an error if name was not defined', function () {
-            expect(function () {
-                EJS.Service.builder.build(
+            EJS.readManifest({
+                paths: [
                     {
-                        id: 'service1',
-                        type: 'EJS.service',
-                        order: 1,
-                        content: {
-                            a: 'aa'
-                        }
-                    });
+                        path: EJS.systemServicesPath,
+                        addins: [
+                            {
+                                id: 'service1',
+                                type: 'EJS.service',
+                                order: 1,
+                                content: {
+                                    a: 'aa',
+                                    initialize: sinon.stub()
+                                }
+                            }]
+                    }]
+            });
+
+            expect(function () {
+                EJS.build(EJS.systemServicesPath);
             }).to.throw('Service name must be defined');
         });
     });
