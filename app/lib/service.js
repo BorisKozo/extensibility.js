@@ -65,7 +65,7 @@
         return service;
     };
 
-    EJS.clearServices = function () {
+    EJS.$clearServices = function () {
         services = {};
     };
 

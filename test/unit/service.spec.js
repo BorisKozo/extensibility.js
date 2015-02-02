@@ -4,7 +4,7 @@ describe('Service', function () {
     var EJS = window.EJS;
 
     beforeEach(function () {
-        EJS.clearServices();
+        EJS.$clearServices();
     });
 
     describe('Create a service', function () {
