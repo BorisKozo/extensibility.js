@@ -7,9 +7,13 @@
     // order - can be a number, >id, >>id, <id, <<id
 
     EJS.Addin = function (options) {
+        return EJS.Addin.internalConstructor('addin', count++, options);
+    };
+
+    EJS.Addin.internalConstructor = function (name, counter, options) {
         options = _.isFunction(options) ? options() : options || {};
-        var result = _.assign({},options);
-        result.id = result.id ? String(result.id) : ('addin' + count++);
+        var result = _.assign({}, options);
+        result.id = result.id ? String(result.id) : (name + counter);
         result.order = result.order || 0;
         return result;
     };
@@ -19,8 +23,8 @@
      * If no addin is specifies creates an empty node at the path
      */
     EJS.addAddin = function (path, addin) {
-        if (path === undefined || path === null){
-            throw new Error('path was not defined for addin '+JSON.stringify(addin));
+        if (path === undefined || path === null) {
+            throw new Error('path was not defined for addin ' + JSON.stringify(addin));
         }
         var node = EJS.registry.getNode(path, true);
         if (addin) {

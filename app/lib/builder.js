@@ -4,13 +4,10 @@
 
 
     EJS.Builder = function (options) {
-        options = _.isFunction(options) ? options() : options || {};
-        if (!_.isFunction(options.build)) {
+        var builder = EJS.Addin.internalConstructor('builder', count, options);
+        if (options && !_.isFunction(options.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
-        options.id = options.id || ('builder' + count++);
-        options.order = options.order || 0;
-        var builder = new EJS.Addin(options);
         builder.type = options.hasOwnProperty('type') ? options.type : '';
         builder.build = options.build;
         builder.$next = EJS.Builder.nextBuilder;

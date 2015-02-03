@@ -4,15 +4,11 @@
     var conditions = {};
 
     EJS.Condition = function (options) {
-        options = _.isFunction(options) ? options() : options || {};
-        var result = _.assign({}, options);
-        result.id = result.id ? String(result.id) : ('condition' + count++);
+        var result = EJS.Addin.internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
-        result.order = result.order || 0;
         if (!_.isFunction(result.isValid)) {
-            throw  new Error('A condition must have an isValid function + ' + result.id);
+            throw  new Error('A condition must have an isValid function ' + result.id);
         }
-
         return result;
     };
 
@@ -42,7 +38,7 @@
         if (conditions[condition.name] && !force) {
             throw new Error('A condition with the name ' + condition.name + ' already exists')
         }
-        conditions[name] = condition;
+        conditions[condition.name] = condition;
         if (_.isFunction(condition.initialize)) {
             condition.initialize();
         }
@@ -135,6 +131,4 @@
             }
         ]
     })
-
-
 })(EJS);
