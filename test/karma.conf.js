@@ -26,6 +26,7 @@ module.exports = function (config) {
             'app/lib/command.js',
             'app/lib/condition.js',
             'app/lib/manifest-reader.js',
+            'app/lib/boolean-phrase-parser.js',
             'test/unit/**/*.js'
         ],
 
