@@ -4,12 +4,11 @@
 
 
     EJS.Builder = function (options) {
-        var builder = EJS.Addin.internalConstructor('builder', count, options);
-        if (options && !_.isFunction(options.build)) {
+        var builder = EJS.Addin.internalConstructor('builder', count++, options);
+        if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
-        builder.type = options.hasOwnProperty('type') ? options.type : '';
-        builder.build = options.build;
+        builder.type = builder.type === undefined ? '' : builder.type;
         builder.$next = EJS.Builder.nextBuilder;
         return builder;
     };

@@ -11,6 +11,12 @@ Extensibility - A simple extensibility layer for your JavaScript application
 
 3. From the project folder, run `npm run-script test1` to execute the unit tests
 
+## Building
+
+1. Run `grunt build`
+
+If all went well, the appropriate files should be generated in the dist directory
+
 ##License
 (MIT License)
 Copyright (c) 2014 Boris Kozorovitzky, 
