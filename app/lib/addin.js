@@ -26,7 +26,7 @@
         if (path === undefined || path === null) {
             throw new Error('path was not defined for addin ' + JSON.stringify(addin));
         }
-        var node = EJS.registry.getNode(path, true);
+        var node = EJS.registry.$getNode(path, true);
         if (addin) {
             node.addAddin(addin);
         }
@@ -39,7 +39,7 @@
      * Returns null if the path doesn't exist
      */
     EJS.getAddins = function (path, searchCriteria, skipSort) {
-        var node = EJS.registry.getNode(path, false);
+        var node = EJS.registry.$getNode(path, false);
         if (node === null) {
             return [];
         }

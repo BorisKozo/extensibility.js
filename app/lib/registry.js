@@ -14,7 +14,7 @@
     };
 
     EJS.registry = {
-        getNode: function (axes, createIfNotExists) {
+        $getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = EJS.registry.breakPath(axes);
             }
@@ -95,7 +95,7 @@
          * returns true if the given path exists in the registry and false otherwise
          */
         nodeExists: function (path) {
-            var node = this.getNode(path, false);
+            var node = this.$getNode(path, false);
             return node !== null;
         },
 

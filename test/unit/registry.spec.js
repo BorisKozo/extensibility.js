@@ -106,8 +106,6 @@
     });
   });
 
-
-
   describe('Clear', function () {
     it('should clear the registry', function () {
       expect(EJS.registry.nodeExists('aaa')).to.be.false;
@@ -117,6 +115,5 @@
       expect(EJS.registry.nodeExists('aaa')).to.be.false;
     });
   });
-
 
 });
