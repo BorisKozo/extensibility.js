@@ -38,7 +38,7 @@ singleton.
  The Registry API is encapsulated within the ```EJS.registry``` object and is as follows:
 
  #### EJS.registry.$getNode(axes, createIfNotExists) -> node
- A function that tries to get a tree node from the registry based on the given _axes_. _axes_ can be a valid path string or
+ Tries to get a tree node from the registry tree based on the given _axes_. _axes_ can be a valid path string or
  an array of node names. If the requested node or any of the nodes in the path to the requested node do not exist,
  creates the node based on the _createIfNotExists_ argument. If the requested node is not found ```null``` is returned.
 
@@ -48,6 +48,19 @@ singleton.
  console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
  ```
 
+#### EJS.registry.verifyAxis(axis) -> boolean
+Determines if the given axis is a valid axis name for the registry (i.e. can be used as a node name). The axis should be
+a non empty string which does not contain the delimiter.
+
+```js
+  EJS.registry.verifyAxis(null); //false
+  EJS.registry.verifyAxis(undefined); //false
+  EJS.registry.verifyAxis(10); //false
+  EJS.registry.verifyAxis(''); //false
+  EJS.registry.verifyAxis('foo'); //true
+  EJS.registry.verifyAxis('foo/boo'); //false
+  EJS.registry.verifyAxis('You can put almost any string here'); //true
+```
 
 ## Unit Tests
 

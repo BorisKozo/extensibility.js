@@ -10,24 +10,24 @@
   describe('Verify Axis', function () {
 
     it('should return false if axis is null, undefined, number, etc', function () {
-      expect(EJS.registry.verifyAxis(null, '/')).to.be.false;
-      expect(EJS.registry.verifyAxis(undefined, '/')).to.be.false;
-      expect(EJS.registry.verifyAxis(10, '/')).to.be.false;
-      expect(EJS.registry.verifyAxis(true, '/')).to.be.false;
+      expect(EJS.registry.verifyAxis(null)).to.be.false;
+      expect(EJS.registry.verifyAxis(undefined)).to.be.false;
+      expect(EJS.registry.verifyAxis(10)).to.be.false;
+      expect(EJS.registry.verifyAxis(true)).to.be.false;
     });
 
     it('should return false if axis an empty string', function () {
-      expect(EJS.registry.verifyAxis('', '/')).to.be.false;
+      expect(EJS.registry.verifyAxis('')).to.be.false;
     });
 
     it('should return false if axis contains the delimiter', function () {
-      expect(EJS.registry.verifyAxis('Hello/world', '/')).to.be.false;
-      expect(EJS.registry.verifyAxis('/d', '/')).to.be.false;
-      expect(EJS.registry.verifyAxis('/', '/')).to.be.false;
+      expect(EJS.registry.verifyAxis('Hello/world')).to.be.false;
+      expect(EJS.registry.verifyAxis('/d')).to.be.false;
+      expect(EJS.registry.verifyAxis('/')).to.be.false;
     });
 
     it('should return true for a valid axis', function () {
-      expect(EJS.registry.verifyAxis('Hello world', '/')).to.be.true;
+      expect(EJS.registry.verifyAxis('Hello world')).to.be.true;
     });
 
   });

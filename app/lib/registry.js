@@ -37,9 +37,9 @@
         /***
          * Returns true if the axis is valid for the given delimiter
          */
-        verifyAxis: function (axis, delimiter) {
+        verifyAxis: function (axis) {
             if (_.isString(axis)) {
-                if (_.isEmpty(axis) || _.indexOf(axis, delimiter) >= 0) {
+                if (_.isEmpty(axis) || _.indexOf(axis, _delimiter) >= 0) {
                     return false;
                 }
 
@@ -85,7 +85,7 @@
             }
             var splitPath = path.split(_delimiter);
             _.forEach(splitPath, function (axis) {
-                if (!EJS.registry.verifyAxis(axis, _delimiter)) {
+                if (!EJS.registry.verifyAxis(axis)) {
                     throw new Error('Invalid axis ' + axis);
                 }
             });
