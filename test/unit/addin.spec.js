@@ -4,7 +4,7 @@ describe('Addin', function () {
     var EJS = window.EJS;
 
     afterEach(function () {
-        EJS.registry.clear();
+        EJS.registry.$clear();
     });
 
     describe('Create an addin', function () {
@@ -46,7 +46,7 @@ describe('Addin', function () {
 
         it('should create a node if the addin is undefined', function () {
             EJS.addAddin('a/b/c');
-            expect(EJS.registry.nodeExists('a/b/c')).to.be.true;
+            expect(EJS.registry.pathExists('a/b/c')).to.be.true;
         });
     });
 

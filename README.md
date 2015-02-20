@@ -48,6 +48,10 @@ singleton.
  console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
  ```
 
+#### EJS.registry.$clear()
+Forcefully removes all the nodes and their content from the registry. You should never call this function unless you
+are absolutley sure you know what you are doing.
+
 #### EJS.registry.verifyAxis(axis) -> boolean
 Determines if the given axis is a valid axis name for the registry (i.e. can be used as a node name). The axis should be
 a non empty string which does not contain the delimiter.
@@ -61,6 +65,38 @@ a non empty string which does not contain the delimiter.
   EJS.registry.verifyAxis('foo/boo'); //false
   EJS.registry.verifyAxis('You can put almost any string here'); //true
 ```
+
+#### EJS.registry.joinPath(<axes|paths>) -> path
+Creates a single path out of the given _axes_ or _paths_. The axes or paths can be any number of separate strings
+or an array containing strings up to any depth. The proper delimiter is automatically added between the
+axes and paths as the path is built.
+
+```js
+  EJS.registry.joinPath('a', 'bcd', 'ef'); // 'a/bcd/ef'
+  EJS.registry.joinPath('a/bcd', 'ef/g');  //'a/bcd/ef/g');
+  EJS.registry.joinPath(['a', ['bcd'], ['ef', 'g']]); //'a/bcd/ef/g';
+```
+
+
+#### EJS.registry.splitPath(path) -> [axes]
+Breaks the given path to its individual axes. Returns an array containing all the axes as strings.
+
+```js
+  EJS.registry.breakPath('abv/efg/aaa'); //['abv', 'efg', 'aaa']
+```js
+
+#### EJS.registry.pathExists(path) -> boolean
+Returns true if the tree node for the given path exists in the tree. Note that when you create a node at some path,
+all the nodes along the path are also created. For example if you insert into the path a/b/c then a, a/b, and a/b/c
+will be created.
+
+```js
+ EJS.registry.$getNode(['foo','boo'],true);
+ EJS.registry.pathExists('foo'); //true
+ EJS.registry.pathExists('foo/boo'); //true
+ EJS.registry.pathExists('boo'); //false
+```
+
 
 ## Unit Tests
 

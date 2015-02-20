@@ -4,7 +4,7 @@ describe('Condition', function () {
     var EJS = window.EJS;
 
     afterEach(function () {
-        EJS.registry.clear();
+        EJS.registry.$clear();
         EJS.$clearConditions();
     });
 

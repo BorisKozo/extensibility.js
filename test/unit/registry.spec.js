@@ -4,7 +4,7 @@
   var EJS = window.EJS;
 
   afterEach(function () {
-    EJS.registry.clear();
+    EJS.registry.$clear();
   });
 
   describe('Verify Axis', function () {
@@ -89,30 +89,30 @@
     });
   });
 
-  describe('Node Exists', function () {
+  describe('Path Exists', function () {
     it('should return false for non existing nodes', function () {
-      expect(EJS.registry.nodeExists('abv')).to.be.false;
-      expect(EJS.registry.nodeExists('abv/aaa')).to.be.false;
+      expect(EJS.registry.pathExists('abv')).to.be.false;
+      expect(EJS.registry.pathExists('abv/aaa')).to.be.false;
     });
 
     it('should return true for existing nodes', function () {
       EJS.addAddin('abv');
-      expect(EJS.registry.nodeExists('abv')).to.be.true;
+      expect(EJS.registry.pathExists('abv')).to.be.true;
 
       EJS.addAddin('abv/ccc/a');
-      expect(EJS.registry.nodeExists('abv/ccc/a')).to.be.true;
-      expect(EJS.registry.nodeExists('abv/ccc')).to.be.true;
+      expect(EJS.registry.pathExists('abv/ccc/a')).to.be.true;
+      expect(EJS.registry.pathExists('abv/ccc')).to.be.true;
 
     });
   });
 
   describe('Clear', function () {
     it('should clear the registry', function () {
-      expect(EJS.registry.nodeExists('aaa')).to.be.false;
+      expect(EJS.registry.pathExists('aaa')).to.be.false;
       EJS.addAddin('aaa');
-      expect(EJS.registry.nodeExists('aaa')).to.be.true;
-      EJS.registry.clear();
-      expect(EJS.registry.nodeExists('aaa')).to.be.false;
+      expect(EJS.registry.pathExists('aaa')).to.be.true;
+      EJS.registry.$clear();
+      expect(EJS.registry.pathExists('aaa')).to.be.false;
     });
   });
 
