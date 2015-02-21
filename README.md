@@ -96,6 +96,96 @@ will be created.
  EJS.registry.pathExists('foo/boo'); //true
  EJS.registry.pathExists('boo'); //false
 ```
+## Addins
+The registry can contain anything in its nodes but it main purpose is to hold addins. "Addin" is just a fancy name
+for a JavaScript object that has certain properties. In fact, anything this library adds for you into the registry is
+ an addin.
+
+#### EJS.Addin(options) -> Addin (The Addin constructor)
+Creates a new addin and shallow copies all the properties from _options_ onto it. If _options_ is a function, shallow
+copies all the properties from the object returned by the function. An addin contains at least two properties:
+
+ * **id** - A unique string that identifies this addin within a path in the registry. Note that two addins may have the
+  same id if they are added into different paths in the registry.
+
+ * **order** - A valid order operator (more on ordering addins in the next section).
+
+```js
+  var myAddin = new EJS.Addin({myVar:1, myString:"aaa", order:123}); //an id will be auto generated
+  console.log(myAddin); // {id:"addin0", myVar:1, myString:"aaa", order:123}
+  var myOtherAddin = new EJS.Addin(function(){
+    return {id:"myId"};
+  });
+  console.log(myOtherAddin); //{id:"myId", order:0}
+```
+
+#### EJS.addAddin(path, addin)
+Adds the given _addin_ to the given _path_ in the registry. There is no check that the _addin_ was constructed with the
+````EJS.Addin```` constructor so you can send any object there as long as it has the appropriate signature.
+
+#### EJS.getAddins(path, searchCriteria, skipSort) -> [Addin]
+Returns an array containing all the addins in the given _path_ that match the _searchCriteria_. If _searchCriteria_ is
+````undefined````, returns all the addins in the path. Set _skipSort_ to true if you don't want to sort the returned addins by
+order (more on ordering addins in the next section). The syntax for the _searchCriteria_ is determined by the lodash
+[filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
+
+```js
+  EJS.addAddin('aaa',new EJS.Addin({name:"Bob"}));
+  EJS.addAddin('aaa',new EJS.Addin({name:"Alice"}));
+  EJS.getAddins('aaa'); //[{name:"Bob" ...},{name:"Alice" ...}]
+  EJS.getAddins('aaa',{name:"Alice"}); //[{name:"Alice" ...}]
+  EJS.getAddins('aaa',function(addin){
+    return addin.name === "Alice";
+  }); //[{name:"Alice" ...}]
+```
+
+## Topological Sort
+For each addin that goes into the registry we define an ````order```` property. This field is used to sort the addins within
+a given path. The values for the ````order```` property can be one of the following:
+
+* Number - The absolute order of the addin, during the sort addins with lower number order will appear first.
+
+* ">>id" - (After) The addin with this order must be somewhere after the addin with the given _id_. For example ">>foo" means
+  that the addin with this order value will be after the addin with id === "foo".
+
+* ">id" - (Immediately after) The addin with this order must be immediately after the addin with the given _id_. For example ">foo" means
+               that the addin with this order value will be immediately after the addin with id === "foo".
+
+* "<<id" - (Before) The addin with this order must be somewhere before the addin with the given _id_. For example "<<foo" means
+  that the addin with this order value will be before the addin with id === "foo".
+
+* "<id" - (Immediately before) The addin with this order must be immediately before the addin with the given _id_. For example "<foo" means
+               that the addin with this order value will be immediately before the addin with id === "foo".
+
+It is possible to mix the non absolute values by creating a comma separated list. This list must contain at most one "Immediately" order
+and this order must appear last. For example "<<foo,>>bar,>moo" is valid while "<<foo,>moo,>>bar" is not.
+
+The order is evaluated in priority, first the immediately orders are calculated then the non immediate and the absolute are calculated last.
+
+#### EJS.utils.topologicalSort(addins) -> [addins]
+Sorts the given array of _addins_ with the rules mentioned above. Returns a copy of the array with all the addins sorted (does not change the original array).
+Note: You should probably never call this yourself, this function is used internally to retrieve addins.
+
+```js
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 10}));
+            addins.push(new EJS.Addin({id: '2', order: 0}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            addins.push(new EJS.Addin({id: '4', order: 30}));
+            addins.push(new EJS.Addin({id: '5', order: 25}));
+            var result = EJS.utils.topologicalSort(addins); //[{id:2},{id:1},{id:3},{id:5},{id:4}]
+```
+
+```js
+            var addins = [];
+            addins.push(new EJS.Addin({id: '1', order: 0}));
+            addins.push(new EJS.Addin({id: '2', order: '<<3,<1'}));
+            addins.push(new EJS.Addin({id: '3', order: 20}));
+            addins.push(new EJS.Addin({id: '4', order: '>>2,>3'}));
+            var result = EJS.utils.topologicalSort(addins); //[{id:2},{id:1},{id:3},{id:4}]
+```
+
+
 
 
 ## Unit Tests

@@ -7,10 +7,10 @@
     // order - can be a number, >id, >>id, <id, <<id
 
     EJS.Addin = function (options) {
-        return EJS.Addin.internalConstructor('addin', count++, options);
+        return EJS.Addin.$internalConstructor('addin', count++, options);
     };
 
-    EJS.Addin.internalConstructor = function (name, counter, options) {
+    EJS.Addin.$internalConstructor = function (name, counter, options) {
         options = _.isFunction(options) ? options() : options || {};
         var result = _.assign({}, options);
         result.id = result.id ? String(result.id) : (name + counter);

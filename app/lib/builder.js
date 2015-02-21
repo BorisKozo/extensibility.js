@@ -4,7 +4,7 @@
 
 
     EJS.Builder = function (options) {
-        var builder = EJS.Addin.internalConstructor('builder', count++, options);
+        var builder = EJS.Addin.$internalConstructor('builder', count++, options);
         if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }

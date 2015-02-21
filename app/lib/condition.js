@@ -4,7 +4,7 @@
     var conditions = {};
 
     EJS.Condition = function (options) {
-        var result = EJS.Addin.internalConstructor('condition', count++, options);
+        var result = EJS.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
         if (!_.isFunction(result.isValid)) {
             throw  new Error('A condition must have an isValid function ' + result.id);
