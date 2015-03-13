@@ -1,4 +1,4 @@
-describe.only('BooleanPhraseParser', function () {
+describe('BooleanPhraseParser', function () {
     'use strict';
     var expect = chai.expect;
     var EJS = window.EJS;
