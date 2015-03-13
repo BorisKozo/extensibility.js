@@ -77,6 +77,7 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/partials/header.jst',
                     '<%= meta.app %>/lib/events.js',
                     '<%= meta.app %>/lib/topological-sort.js',
+                    '<%= meta.app %>/lib/boolean-phrase-parser.js',
                     '<%= meta.app %>/lib/app.js',
                     '<%= meta.app %>/lib/registry.js',
                     '<%= meta.app %>/lib/default-manifest.js',

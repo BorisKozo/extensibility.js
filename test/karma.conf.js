@@ -17,6 +17,7 @@ module.exports = function (config) {
             'test/test-header.js',
             'app/lib/events.js',
             'app/lib/topological-sort.js',
+            'app/lib/boolean-phrase-parser.js',
             'app/lib/app.js',
             'app/lib/registry.js',
             'app/lib/default-manifest.js',
