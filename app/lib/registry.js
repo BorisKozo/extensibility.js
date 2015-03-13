@@ -14,7 +14,7 @@
     };
 
     EJS.registry = {
-        getNode: function (axes, createIfNotExists) {
+        $getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = EJS.registry.breakPath(axes);
             }
@@ -37,9 +37,9 @@
         /***
          * Returns true if the axis is valid for the given delimiter
          */
-        verifyAxis: function (axis, delimiter) {
+        verifyAxis: function (axis) {
             if (_.isString(axis)) {
-                if (_.isEmpty(axis) || _.indexOf(axis, delimiter) >= 0) {
+                if (_.isEmpty(axis) || _.indexOf(axis, _delimiter) >= 0) {
                     return false;
                 }
 
@@ -85,7 +85,7 @@
             }
             var splitPath = path.split(_delimiter);
             _.forEach(splitPath, function (axis) {
-                if (!EJS.registry.verifyAxis(axis, _delimiter)) {
+                if (!EJS.registry.verifyAxis(axis)) {
                     throw new Error('Invalid axis ' + axis);
                 }
             });
@@ -94,18 +94,18 @@
         /**
          * returns true if the given path exists in the registry and false otherwise
          */
-        nodeExists: function (path) {
-            var node = this.getNode(path, false);
+        pathExists: function (path) {
+            var node = this.$getNode(path, false);
             return node !== null;
         },
 
         /**
          * Clears the registry of all the nodes (you shouldn't use this function)
          */
-        clear: function () {
+        $clear: function () {
             _registry = new Node('');
         }
     };
 
-    EJS.registry.clear();
+    EJS.registry.$clear();
 })(EJS);

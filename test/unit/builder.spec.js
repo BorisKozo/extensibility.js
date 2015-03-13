@@ -4,7 +4,7 @@ describe('Builder', function () {
     var EJS = window.EJS;
 
     afterEach(function () {
-        EJS.registry.clear();
+        EJS.registry.$clear();
     });
 
     describe('Create a builder', function () {

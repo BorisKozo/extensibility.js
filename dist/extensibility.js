@@ -496,7 +496,10 @@
 })(EJS);
 (function (EJS) {
     'use strict';
-    EJS.systemPathPrefix = 'EJS';
+    EJS.systemPaths = {
+        prefix: 'EJS'
+    };
+
     EJS.vent = EJS.createEventBus();
 
     function buildServicesInternal() {
@@ -634,6 +637,17 @@
 })(EJS);
 (function (EJS) {
     'use strict';
+
+    EJS.defaultManifest = {
+        paths: []
+    };
+
+
+})(EJS);
+
+
+(function (EJS) {
+    'use strict';
     var count = 0;
 
     // Addin Fields:
@@ -641,9 +655,13 @@
     // order - can be a number, >id, >>id, <id, <<id
 
     EJS.Addin = function (options) {
+        return EJS.Addin.internalConstructor('addin', count++, options);
+    };
+
+    EJS.Addin.internalConstructor = function (name, counter, options) {
         options = _.isFunction(options) ? options() : options || {};
-        var result = _.assign({},options);
-        result.id = result.id ? String(result.id) : ('addin' + count++);
+        var result = _.assign({}, options);
+        result.id = result.id ? String(result.id) : (name + counter);
         result.order = result.order || 0;
         return result;
     };
@@ -653,6 +671,9 @@
      * If no addin is specifies creates an empty node at the path
      */
     EJS.addAddin = function (path, addin) {
+        if (path === undefined || path === null) {
+            throw new Error('path was not defined for addin ' + JSON.stringify(addin));
+        }
         var node = EJS.registry.getNode(path, true);
         if (addin) {
             node.addAddin(addin);
@@ -677,6 +698,7 @@
         return _.filter(result, searchCriteria);
     };
 
+
 })(EJS);
 (function (EJS) {
     'use strict';
@@ -684,15 +706,11 @@
 
 
     EJS.Builder = function (options) {
-        options = _.isFunction(options) ? options() : options || {};
-        if (!_.isFunction(options.build)) {
+        var builder = EJS.Addin.internalConstructor('builder', count++, options);
+        if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
-        options.id = options.id || ('builder' + count++);
-        options.order = options.order || 0;
-        var builder = new EJS.Addin(options);
-        builder.type = options.hasOwnProperty('type') ? options.type : '';
-        builder.build = options.build;
+        builder.type = builder.type === undefined ? '' : builder.type;
         builder.$next = EJS.Builder.nextBuilder;
         return builder;
     };
@@ -703,7 +721,22 @@
         return builders[index + 1];
     };
 
-    EJS.systemBuildersPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'builders');
+    EJS.systemPaths.builders = EJS.registry.joinPath(EJS.systemPaths.prefix, 'builders');
+
+
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemPaths.builders,
+        addins: [
+            {
+                id: 'EJS.defaultBuilder',
+                type: null,
+                order: 100,
+                build: function (addin) {
+                    return _.cloneDeep(addin);
+                }
+            }
+        ]
+    });
 
     /**
      * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
@@ -711,7 +744,7 @@
      */
     EJS.addBuilder = function (builderOptions) {
         var builder = new EJS.Builder(builderOptions);
-        EJS.addAddin(EJS.systemBuildersPath, builder);
+        EJS.addAddin(EJS.systemPaths.builders, builder);
     };
 
     /**
@@ -719,11 +752,11 @@
      * @param type
      */
     EJS.getBuilders = function (type) {
-        var addins = EJS.getAddins(EJS.systemBuildersPath, {type: type});
+        var addins = EJS.getAddins(EJS.systemPaths.builders, {type: type});
         if (addins.length > 0) {
             return addins;
         }
-        addins = EJS.getAddins(EJS.systemBuildersPath, {type: null});
+        addins = EJS.getAddins(EJS.systemPaths.builders, {type: null});
         if (addins.length > 0) {
             return addins;
         }
@@ -758,6 +791,32 @@
     };
 
     /**
+     * Returns all the addins in the path after applying the appropriate builder on each
+     * @param path - The path to build
+     * @param searchCriteria - The search criteria for the underscore filter function
+     * @param skipSort - If truthy the topological sort is skipped
+     * @returns {Array} = A promise that resolves with an array of the built addins
+     */
+    EJS.build.async = function (path, searchCriteria, skipSort) {
+        var addins = EJS.getAddins(path, searchCriteria, skipSort);
+        if (addins.length === 0) {
+            return Promise.resolve(addins);
+        }
+        var promises = _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = EJS.getBuilder(addin.type);
+            try {
+                return Promise.resolve(builder.build(addin));
+            }
+            catch (ex) {
+                return Promise.reject(ex);
+            }
+        });
+
+        return Promise.all(promises);
+    };
+
+    /**
      * Builds a tree out of the given path. Each addin will have child elements at path+addin.id added
      * to its items property (default $items).
      * @param path
@@ -776,7 +835,6 @@
             return result;
         });
     };
-
 })(EJS);
 (function (EJS) {
     'use strict';
@@ -809,22 +867,24 @@
         return result;
     };
 
-    EJS.Service.builder = {
-        type: 'EJS.service',
-        id: 'EJS.serviceBuilder',
-        order: 100,
-        build: function (addin) {
-            if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
-                EJS.addService(addin.name, addin.content, addin.override);
-            } else {
-                throw new Error('Service name must be defined ' + JSON.stringify(addin));
+    EJS.systemPaths.services = EJS.registry.joinPath(EJS.systemPaths.prefix, 'services');
+
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemPaths.builders,
+        addins: [{
+            type: 'EJS.service',
+            id: 'EJS.serviceBuilder',
+            order: 100,
+            build: function (addin) {
+                if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
+                    EJS.addService(addin.name, addin.content, addin.override);
+                } else {
+                    throw new Error('Service name must be defined ' + JSON.stringify(addin));
+                }
             }
-        }
-    };
+        }]
+    });
 
-    EJS.systemServicesPath = EJS.registry.joinPath(EJS.systemPathPrefix, 'services');
-
-    EJS.addBuilder(EJS.Service.builder);
 
     /**
      * Returns the service instance by the given name or null if no service by that name can be found or instantiated
@@ -845,7 +905,7 @@
         return service;
     };
 
-    EJS.clearServices = function () {
+    EJS.$clearServices = function () {
         services = {};
     };
 
@@ -854,7 +914,7 @@
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
     EJS.buildServices = function () {
-        EJS.build(EJS.systemServicesPath);
+        EJS.build(EJS.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {
             EJS.vent.trigger('before:service:initialized', name);
@@ -871,37 +931,156 @@
     var count = 0;
 
     EJS.Command = function (options) {
-        options = _.isFunction(options) ? options() : options || {};
-        var result = _.assign({}, options);
-        result.id = result.id ? String(result.id) : ('addin' + count++);
-        result.order = result.order || 0;
-        return result;
+        return EJS.Addin.internalConstructor('command', count++, options);
     };
 })(EJS);
 (function (EJS) {
     'use strict';
+    var count = 0;
+    var conditions = {};
 
-    EJS.defaultManifest = {
-        paths: [
-            {
-                path: EJS.systemBuildersPath,
-                addins: [
-                    {
-                        id: 'EJS.defaultBuilder',
-                        type: null,
-                        order: 100,
-                        build: function (addin) {
-                            return addin.content;
-                        }
-                    }
-                ]
-            }
-        ]
+    EJS.Condition = function (options) {
+        var result = EJS.Addin.internalConstructor('condition', count++, options);
+        result.name = options.name || result.id;
+        if (!_.isFunction(result.isValid)) {
+            throw  new Error('A condition must have an isValid function ' + result.id);
+        }
+        return result;
     };
 
+    EJS.systemPaths.conditions = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditions');
 
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemPaths.builders,
+        addins: [{
+            type: 'EJS.condition',
+            id: 'EJS.conditionBuilder',
+            order: 100,
+            build: function (addin) {
+                var condition = new EJS.Condition(addin);
+                EJS.addCondition(condition);
+            }
+        }]
+    });
+
+    EJS.getCondition = function (name) {
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        return conditions[name];
+    };
+
+    EJS.addCondition = function (condition, force) {
+        if (!condition){
+            throw new Error('condition must be a condition object: '+condition);
+        }
+        var name = condition.name;
+
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        if (conditions[name] && !force) {
+            throw new Error('A condition with the name ' + condition.name + ' already exists');
+        }
+
+        EJS.removeCondition(name);
+
+        conditions[name] = condition;
+        if (_.isFunction(condition.initialize)) {
+            condition.initialize();
+        }
+    };
+
+    EJS.removeCondition = function (name) {
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        if (conditions[name] && _.isFunction(conditions[name].destroy)) {
+            conditions[name].destroy();
+        }
+        conditions[name] = undefined;
+    };
+
+    EJS.$clearConditions = function () {
+        conditions = {};
+    };
+
+    EJS.systemPaths.conditionOperations = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditionOperations');
+
+    EJS.Condition.$conditionOperationBuilder = {
+        type: 'EJS.conditionOperation',
+        id: 'EJS.conditionOperationBuilder',
+        order: 100,
+        build: function (addin) {
+            return {
+                literal: addin.literal,
+                generator: addin.generator
+            };
+        }
+    };
+
+    EJS.addBuilder(EJS.Condition.$conditionOperationBuilder);
+
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemPaths.conditionOperations,
+        addins: [
+            {
+                id: 'NotConditionOperation',
+                literal: '!',
+                type: 'EJS.conditionOperation',
+                generator: function (element) {
+                    return {
+                        isValid: function () {
+                            if (_.isFunction(element.isValid)) {
+                                return !Boolean(element.isValid());
+                            } else {
+                                throw new Error('Cannot evaluate "!" operation because the target has no isValid function ' + JSON.stringify(element));
+                            }
+                        }
+                    };
+                }
+            },
+            {
+                id: 'OrConditionOperation',
+                literal: '|',
+                type: 'EJS.conditionOperation',
+                generator: function (leftElement, rightElement) {
+                    return {
+                        isValid: function () {
+                            if (!_.isFunction(leftElement.isValid)) {
+                                throw new Error('Cannot evaluate "|" operation because the first target has no isValid function ' + JSON.stringify(leftElement));
+                            }
+                            if (!_.isFunction(rightElement.isValid)) {
+                                throw new Error('Cannot evaluate "|" operation because the second target has no isValid function ' + JSON.stringify(rightElement));
+                            }
+
+                            return Boolean(leftElement.isValid()) || Boolean(rightElement.isValid());
+                        }
+                    };
+                }
+            },
+            {
+                id: 'AndConditionOperation',
+                literal: '&',
+                type: 'EJS.conditionOperation',
+                generator: function (leftElement, rightElement) {
+                    return {
+                        isValid: function () {
+                            if (!_.isFunction(leftElement.isValid)) {
+                                throw new Error('Cannot evaluate "&" operation because the first target has no isValid function ' + JSON.stringify(leftElement));
+                            }
+                            if (!_.isFunction(rightElement.isValid)) {
+                                throw new Error('Cannot evaluate "&" operation because the second target has no isValid function ' + JSON.stringify(rightElement));
+                            }
+
+                            return Boolean(leftElement.isValid()) && Boolean(rightElement.isValid());
+                        }
+                    };
+                }
+            }
+        ]
+    });
 })(EJS);
-
 
 (function (EJS) {
     'use strict';

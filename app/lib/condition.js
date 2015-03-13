@@ -4,7 +4,7 @@
     var conditions = {};
 
     EJS.Condition = function (options) {
-        var result = EJS.Addin.internalConstructor('condition', count++, options);
+        var result = EJS.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
         if (!_.isFunction(result.isValid)) {
             throw  new Error('A condition must have an isValid function ' + result.id);
@@ -35,10 +35,21 @@
     };
 
     EJS.addCondition = function (condition, force) {
-        if (conditions[condition.name] && !force) {
-            throw new Error('A condition with the name ' + condition.name + ' already exists')
+        if (!condition){
+            throw new Error('condition must be a condition object: '+condition);
         }
-        conditions[condition.name] = condition;
+        var name = condition.name;
+
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        if (conditions[name] && !force) {
+            throw new Error('A condition with the name ' + condition.name + ' already exists');
+        }
+
+        EJS.removeCondition(name);
+
+        conditions[name] = condition;
         if (_.isFunction(condition.initialize)) {
             condition.initialize();
         }
@@ -48,7 +59,7 @@
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
-        if (_.isFunction(conditions[name].destory)) {
+        if (conditions[name] && _.isFunction(conditions[name].destroy)) {
             conditions[name].destroy();
         }
         conditions[name] = undefined;
@@ -60,7 +71,7 @@
 
     EJS.systemPaths.conditionOperations = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditionOperations');
 
-    EJS.addBuilder({
+    EJS.Condition.$conditionOperationBuilder = {
         type: 'EJS.conditionOperation',
         id: 'EJS.conditionOperationBuilder',
         order: 100,
@@ -68,9 +79,11 @@
             return {
                 literal: addin.literal,
                 generator: addin.generator
-            }
+            };
         }
-    });
+    };
+
+    EJS.addBuilder(EJS.Condition.$conditionOperationBuilder);
 
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.conditionOperations,
@@ -85,7 +98,7 @@
                             if (_.isFunction(element.isValid)) {
                                 return !Boolean(element.isValid());
                             } else {
-                                throw new Error('Cannot evaluate "!" operation because the target has no isValid function ' + JSON.stringify(element))
+                                throw new Error('Cannot evaluate "!" operation because the target has no isValid function ' + JSON.stringify(element));
                             }
                         }
                     };
@@ -99,10 +112,10 @@
                     return {
                         isValid: function () {
                             if (!_.isFunction(leftElement.isValid)) {
-                                throw new Error('Cannot evaluate "|" operation because the first target has no isValid function ' + JSON.stringify(leftElement))
+                                throw new Error('Cannot evaluate "|" operation because the first target has no isValid function ' + JSON.stringify(leftElement));
                             }
                             if (!_.isFunction(rightElement.isValid)) {
-                                throw new Error('Cannot evaluate "|" operation because the second target has no isValid function ' + JSON.stringify(rightElement))
+                                throw new Error('Cannot evaluate "|" operation because the second target has no isValid function ' + JSON.stringify(rightElement));
                             }
 
                             return Boolean(leftElement.isValid()) || Boolean(rightElement.isValid());
@@ -118,10 +131,10 @@
                     return {
                         isValid: function () {
                             if (!_.isFunction(leftElement.isValid)) {
-                                throw new Error('Cannot evaluate "&" operation because the first target has no isValid function ' + JSON.stringify(leftElement))
+                                throw new Error('Cannot evaluate "&" operation because the first target has no isValid function ' + JSON.stringify(leftElement));
                             }
                             if (!_.isFunction(rightElement.isValid)) {
-                                throw new Error('Cannot evaluate "&" operation because the second target has no isValid function ' + JSON.stringify(rightElement))
+                                throw new Error('Cannot evaluate "&" operation because the second target has no isValid function ' + JSON.stringify(rightElement));
                             }
 
                             return Boolean(leftElement.isValid()) && Boolean(rightElement.isValid());
@@ -130,5 +143,5 @@
                 }
             }
         ]
-    })
+    });
 })(EJS);
