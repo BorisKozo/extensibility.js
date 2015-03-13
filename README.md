@@ -35,18 +35,21 @@ of the tree root, we need to use the path ```boo/foo```. The root node is denote
 ```/boo/foo``` is also correct. The path delimiter is ```/``` and it is (currently) hardcoded. The registry is a global
 singleton.
 
- The Registry API is encapsulated within the ```EJS.registry``` object and is as follows:
+The Registry API is encapsulated within the ```EJS.registry``` object and is as follows:
 
- #### EJS.registry.$getNode(axes, createIfNotExists) -> node
- Tries to get a tree node from the registry tree based on the given _axes_. _axes_ can be a valid path string or
- an array of node names. If the requested node or any of the nodes in the path to the requested node do not exist,
- creates the node based on the _createIfNotExists_ argument. If the requested node is not found ```null``` is returned.
+#### EJS.registry.$getNode(axes, createIfNotExists) -> node
+Tries to get a tree node from the registry tree based on the given _axes_. _axes_ can be a valid path string or
+an array of node names. If the requested node or any of the nodes in the path to the requested node do not exist,
+creates the node based on the _createIfNotExists_ argument. If the requested node is not found ```null``` is returned.
 
- ```js
- var newNode = EJS.registry.$getNode(['foo','boo'],true); //creates the node foo under the root node and the node boo
-                                                          //under the foo node. The last node (i.e. boo) is returned
- console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
- ```
+```js
+var newNode = EJS.registry.$getNode(['foo','boo'],true);
+
+//creates the node foo under the root node and the node boo
+//under the foo node. The last node (i.e. boo) is returned
+
+console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
+```
 
 #### EJS.registry.$clear()
 Forcefully removes all the nodes and their content from the registry. You should never call this function unless you
@@ -78,12 +81,12 @@ axes and paths as the path is built.
 ```
 
 
-#### EJS.registry.splitPath(path) -> [axes]
+#### EJS.registry.breakPath(path) -> [axes]
 Breaks the given path to its individual axes. Returns an array containing all the axes as strings.
 
 ```js
   EJS.registry.breakPath('abv/efg/aaa'); //['abv', 'efg', 'aaa']
-```js
+```
 
 #### EJS.registry.pathExists(path) -> boolean
 Returns true if the tree node for the given path exists in the tree. Note that when you create a node at some path,
@@ -110,8 +113,11 @@ copies all the properties from the object returned by the function. An addin con
 
  * **order** - A valid order operator (more on ordering addins in the next section).
 
+
 ```js
-  var myAddin = new EJS.Addin({myVar:1, myString:"aaa", order:123}); //an id will be auto generated
+  var myAddin = new EJS.Addin({myVar:1, myString:"aaa", order:123});
+  //an id will be auto generated
+
   console.log(myAddin); // {id:"addin0", myVar:1, myString:"aaa", order:123}
   var myOtherAddin = new EJS.Addin(function(){
     return {id:"myId"};
@@ -173,7 +179,8 @@ Note: You should probably never call this yourself, this function is used intern
             addins.push(new EJS.Addin({id: '3', order: 20}));
             addins.push(new EJS.Addin({id: '4', order: 30}));
             addins.push(new EJS.Addin({id: '5', order: 25}));
-            var result = EJS.utils.topologicalSort(addins); //[{id:2},{id:1},{id:3},{id:5},{id:4}]
+            var result = EJS.utils.topologicalSort(addins);
+            //[{id:2},{id:1},{id:3},{id:5},{id:4}]
 ```
 
 ```js
@@ -182,7 +189,8 @@ Note: You should probably never call this yourself, this function is used intern
             addins.push(new EJS.Addin({id: '2', order: '<<3,<1'}));
             addins.push(new EJS.Addin({id: '3', order: 20}));
             addins.push(new EJS.Addin({id: '4', order: '>>2,>3'}));
-            var result = EJS.utils.topologicalSort(addins); //[{id:2},{id:1},{id:3},{id:4}]
+            var result = EJS.utils.topologicalSort(addins);
+            //[{id:2},{id:1},{id:3},{id:4}]
 ```
 
 
