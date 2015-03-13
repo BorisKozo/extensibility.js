@@ -1,4 +1,4 @@
-(function (_) {
+(function () {
     'use strict';
 
     //constants:
@@ -41,7 +41,7 @@
                 new ExpressionNode(result.rightOperand, this.depth + 1),
                 result.binaryOperator);
         } else {
-            throw new Error('this should not have happened');
+            throw new Error('could not analyze expression: ' + stringExpression);
         }
     }
 
@@ -139,7 +139,7 @@
     };
 
     ExpressionNode.prototype.isWhiteSpaceChar = function (char) {
-        return char === ' ' || char === '\t' || char === '\n' || char === '\r';
+        return char !== char.trim();
     };
 
     ExpressionNode.prototype.createUnaryNotNodeData = function (childNode) {
@@ -203,6 +203,5 @@
         return this.parse(stringExpression)(context);
     };
 
-    window.EJS.BooleanPhraseParser = BooleanPhraseParser;
-})
-(_);
+    EJS.BooleanPhraseParser = BooleanPhraseParser;
+})();

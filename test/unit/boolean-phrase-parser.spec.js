@@ -1,4 +1,4 @@
-describe.only('booleanPhraseParser', function () {
+describe.only('BooleanPhraseParser', function () {
     'use strict';
     var expect = chai.expect;
     var EJS = window.EJS;
@@ -79,6 +79,11 @@ describe.only('booleanPhraseParser', function () {
 
         it('should handle an expresion that is padded with spaces on the left and right', function () {
             expect(booleanPhraseParser.evaluate(' !f ', context)).to.be.true;
+        });
+
+        it('should handle all different white spaces', function () {
+            expect(booleanPhraseParser.evaluate(' !\t\r\nf ', context)).to.be.true;
+            expect(booleanPhraseParser.evaluate(' !\t\r\n(f & \t\r\n (t & \t\r\n f))', context)).to.be.true;
         });
 
         it('should handle an expresion with parentheses', function () {

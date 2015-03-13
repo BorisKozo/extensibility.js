@@ -1,4 +1,4 @@
-describe.only('Condition', function () {
+describe('Condition', function () {
     'use strict';
     var expect = chai.expect;
     var EJS = window.EJS;
