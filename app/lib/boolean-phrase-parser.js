@@ -203,5 +203,9 @@
         return this.parse(stringExpression)(context);
     };
 
-    EJS.BooleanPhraseParser = BooleanPhraseParser;
+    if (!EJS.utils) {
+        EJS.utils = {};
+    }
+
+    EJS.utils.BooleanPhraseParser = BooleanPhraseParser;
 })();

@@ -27,7 +27,7 @@ describe('BooleanPhraseParser', function () {
     }
 
     beforeEach(function () {
-        booleanPhraseParser = new window.EJS.BooleanPhraseParser();
+        booleanPhraseParser = new window.EJS.utils.BooleanPhraseParser();
     });
 
     describe('parse', function () {

@@ -6,10 +6,36 @@
     EJS.Condition = function (options) {
         var result = EJS.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
+        if (_.isString(result.isValid)) { //In this case we need to build the actual isValid function from the boolean parser
+            var context = EJS.Condition.$buildContext();
+            var booleanParser = new EJS.utils.BooleanPhraseParser();
+            var parsedCondition = booleanParser.evaluate(result.isValid, context);
+            result.isValid = function () {
+                return parsedCondition.isValid();
+            }
+        }
         if (!_.isFunction(result.isValid)) {
-            throw  new Error('A condition must have an isValid function ' + result.id);
+            throw new Error('A condition must have an isValid function ' + result.id);
         }
         return result;
+    };
+
+    EJS.Condition.$buildContext = function () {
+        var notConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '!'})[0];
+        var andConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '&'})[0];
+        var orConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '|'})[0];
+        if (notConditionOperator && andConditionOperator && orConditionOperator) {
+            return {
+                not: notConditionOperator.generator,
+                and: andConditionOperator.generator,
+                or: orConditionOperator.generator,
+                literal: function (conditionName) {
+                    return EJS.getCondition(conditionName);
+                }
+            }
+        } else {
+            throw new Error('Condition operators for "not", "and", "or" must exist');
+        }
     };
 
     EJS.systemPaths.conditions = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditions');
@@ -22,7 +48,7 @@
             order: 100,
             build: function (addin) {
                 var condition = new EJS.Condition(addin);
-                EJS.addCondition(condition);
+               return condition;
             }
         }]
     });
@@ -35,8 +61,8 @@
     };
 
     EJS.addCondition = function (condition, force) {
-        if (!condition){
-            throw new Error('condition must be a condition object: '+condition);
+        if (!condition) {
+            throw new Error('condition must be a condition object: ' + condition);
         }
         var name = condition.name;
 

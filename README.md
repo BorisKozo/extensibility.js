@@ -99,6 +99,7 @@ will be created.
  EJS.registry.pathExists('foo/boo'); //true
  EJS.registry.pathExists('boo'); //false
 ```
+
 ## Addins
 The registry can contain anything in its nodes but it main purpose is to hold addins. "Addin" is just a fancy name
 for a JavaScript object that has certain properties. In fact, anything this library adds for you into the registry is

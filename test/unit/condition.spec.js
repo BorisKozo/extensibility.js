@@ -212,7 +212,7 @@ describe('Condition', function () {
 
             EJS.addBuilder(EJS.Condition.$conditionOperationBuilder);
 
-            var result = EJS.build(EJS.systemPaths.conditionOperations,{literal:'aaa'});
+            var result = EJS.build(EJS.systemPaths.conditionOperations, {literal: 'aaa'});
             expect(result.length).to.be.equal(1);
             expect(result[0].literal).to.be.equal('aaa');
             expect(result[0].generator('bbb')).to.be.equal('bbb');
@@ -253,5 +253,166 @@ describe('Condition', function () {
 
     });
 
-})
-;
+    describe('Condition with parsed isValid', function () {
+        beforeEach(function () {
+            EJS.readManifest(EJS.defaultManifest);
+            EJS.addCondition({
+                name: "trueCondition",
+                isValid: function () {
+                    return true;
+                }
+            });
+            EJS.addCondition({
+                name: "falseCondition",
+                isValid: function () {
+                    return false;
+                }
+            });
+        });
+
+        it('should be able to duplicate an existing condition', function () {
+            EJS.addCondition(new EJS.Condition({
+                name: "duplicateFalseCondition",
+                isValid: "falseCondition"
+            }));
+
+            var condition = EJS.getCondition("duplicateFalseCondition");
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.false;
+        });
+
+        it('should be able to create a not condition', function () {
+            EJS.addCondition(new EJS.Condition({
+                name: "notFalseCondition",
+                isValid: "!falseCondition"
+            }));
+
+            var condition = EJS.getCondition("notFalseCondition");
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.true;
+        });
+
+
+        it('should be able to create a not not condition', function () {
+            EJS.addCondition(new EJS.Condition({
+                name: "notFalseCondition",
+                isValid: "!falseCondition"
+            }));
+
+            EJS.addCondition(new EJS.Condition({
+                name: "notNotFalseCondition",
+                isValid: "!notFalseCondition"
+            }));
+
+            var condition = EJS.getCondition("notNotFalseCondition");
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.false;
+        });
+
+        it('should be able to create an and condition', function () {
+            EJS.addCondition(new EJS.Condition({
+                name: "andTrueFalseCondition",
+                isValid: "(trueCondition & falseCondition)"
+            }));
+
+            var condition = EJS.getCondition("andTrueFalseCondition");
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.false;
+        });
+
+        it('should be able to create an or condition', function () {
+            EJS.addCondition(new EJS.Condition({
+                name: "orTrueFalseCondition",
+                isValid: "(trueCondition | falseCondition)"
+            }));
+
+            var condition = EJS.getCondition("orTrueFalseCondition");
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.true;
+        });
+
+        it('should be able to create a complex condition - de Morgan', function () {
+            var a = true;
+            var b = false;
+
+            EJS.addCondition(new EJS.Condition({
+                name: "a",
+                isValid: function () {
+                    return a;
+                }
+            }));
+
+            EJS.addCondition(new EJS.Condition({
+                name: "b",
+                isValid: function () {
+                    return b;
+                }
+            }));
+
+
+            EJS.addCondition(new EJS.Condition({
+                name: "deMorganLeft",
+                isValid: "!(a | b)"
+            }));
+
+            EJS.addCondition(new EJS.Condition({
+                name: "deMorganRight",
+                isValid: "!a & !b"
+            }));
+
+            EJS.addCondition(new EJS.Condition({
+                name: "deMorganFull",
+                isValid: "deMorganLeft | !deMorganRight"
+            }));
+
+
+            var condition = EJS.getCondition("deMorganFull");
+            expect(condition).to.be.ok;
+            a = true;
+            b = true;
+            expect(condition.isValid()).to.be.true;
+            a = true;
+            b = false;
+            expect(condition.isValid()).to.be.true;
+            a = false;
+            b = true;
+            expect(condition.isValid()).to.be.true;
+            a = false;
+            b = false;
+            expect(condition.isValid()).to.be.true;
+
+        });
+
+    });
+
+    describe('Condition builder', function () {
+        it('should build a condition', function () {
+            EJS.readManifest(EJS.defaultManifest);
+            EJS.readManifest({
+                paths: [
+                    {
+                        path: EJS.systemPaths.conditions,
+                        addins: [
+                            {
+                                id: 'condition1',
+                                name: 'monkey',
+                                type: 'EJS.condition',
+                                order: 1,
+                                isValid: function () {
+                                    return true;
+
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            var condition = EJS.build(EJS.systemPaths.conditions, {name: 'monkey'})[0];
+            expect(condition).to.be.ok;
+            expect(condition.isValid()).to.be.true;
+
+        });
+    });
+
+});
