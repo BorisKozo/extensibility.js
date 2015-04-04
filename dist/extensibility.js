@@ -699,7 +699,11 @@
         return this.parse(stringExpression)(context);
     };
 
-    EJS.BooleanPhraseParser = BooleanPhraseParser;
+    if (!EJS.utils) {
+        EJS.utils = {};
+    }
+
+    EJS.utils.BooleanPhraseParser = BooleanPhraseParser;
 })();
 (function (EJS) {
     'use strict';
@@ -727,6 +731,8 @@
             EJS.readManifest(EJS.defaultManifest);
             EJS.vent.trigger('after:readDefaultManifest');
         }
+
+        EJS.buildBuilders();
 
         return buildServicesInternal();
     };
@@ -910,6 +916,8 @@
 (function (EJS) {
     'use strict';
     var count = 0;
+    var builders;
+    var defaultBuilder;
 
 
     EJS.Builder = function (options) {
@@ -917,26 +925,19 @@
         if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
-        builder.type = builder.type === undefined ? '' : builder.type;
-        builder.$next = EJS.Builder.nextBuilder;
+        builder.target = builder.target === undefined ? '' : builder.target;
         return builder;
     };
 
-    EJS.Builder.nextBuilder = function () {
-        var builders = EJS.getBuilders(this.type);
-        var index = _.indexOf(builders, this);
-        return builders[index + 1];
-    };
-
     EJS.systemPaths.builders = EJS.registry.joinPath(EJS.systemPaths.prefix, 'builders');
-
 
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [
             {
                 id: 'EJS.defaultBuilder',
-                type: null,
+                type: 'EJS.builder',
+                target: null,
                 order: 100,
                 build: function (addin) {
                     return _.cloneDeep(addin);
@@ -946,28 +947,30 @@
     });
 
     /**
-     * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
-     * @param builderOptions
+     * Adds a new builder created from the options to the list of known builders.
+     * If a builder that builds the given type already exists then
+     * the new builder is added based on the forced option. If force is truthy it is added anyway otherwise does nothing
+     * Returns true if a builder was added and false otherwise
+     *
      */
-    EJS.addBuilder = function (builderOptions) {
-        var builder = new EJS.Builder(builderOptions);
-        EJS.addAddin(EJS.systemPaths.builders, builder);
-    };
+    EJS.addBuilder = function (options, force) {
+        var builder = new EJS.Builder(options);
+        if (builder.target === null) {
+            if (!defaultBuilder || force) {
+                defaultBuilder = builder;
+                return true;
+            } else {
+                return false;
+            }
+        }
 
-    /**
-     * Gets a builders for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
-     * @param type
-     */
-    EJS.getBuilders = function (type) {
-        var addins = EJS.getAddins(EJS.systemPaths.builders, {type: type});
-        if (addins.length > 0) {
-            return addins;
+        if (!builders.hasOwnProperty(builder.target) || force) {
+            builders[builder.target] = builder;
+            return true;
+        } else {
+            return false;
         }
-        addins = EJS.getAddins(EJS.systemPaths.builders, {type: null});
-        if (addins.length > 0) {
-            return addins;
-        }
-        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
+
     };
 
     /**
@@ -975,7 +978,18 @@
      * @param type
      */
     EJS.getBuilder = function (type) {
-        return EJS.getBuilders(type)[0];
+        if (type === null && defaultBuilder) {
+            return defaultBuilder;
+        } else {
+            if (builders.hasOwnProperty(type)) {
+                return builders[type];
+            }
+            if (defaultBuilder) {
+                return defaultBuilder;
+            }
+        }
+
+        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
     };
 
     /**
@@ -1042,10 +1056,29 @@
             return result;
         });
     };
+
+    EJS.buildBuilders = function () {
+        EJS.$clearBuilders();
+        var addins = EJS.getAddins(EJS.systemPaths.builders, {target: null});
+        if (addins.length > 0) {
+            defaultBuilder = new EJS.Builder(addins[0]);
+        }
+        addins = EJS.getAddins(EJS.systemPaths.builders);
+        _.forEach(addins, function (addin) {
+            EJS.addBuilder(addin);
+        });
+    };
+
+    EJS.$clearBuilders = function(){
+        builders = {};
+        defaultBuilder = null;
+    };
+
+    EJS.$clearBuilders();
 })(EJS);
 (function (EJS) {
     'use strict';
-    var services = {};
+    var services;
 
     function initializeServiceRecursive(service) {
         if (service) {
@@ -1079,7 +1112,7 @@
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [{
-            type: 'EJS.service',
+            target: 'EJS.service',
             id: 'EJS.serviceBuilder',
             order: 100,
             build: function (addin) {
@@ -1121,6 +1154,7 @@
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
     EJS.buildServices = function () {
+        EJS.$clearServices();
         EJS.build(EJS.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {
@@ -1147,12 +1181,39 @@
     var conditions = {};
 
     EJS.Condition = function (options) {
+        options = options || {};
         var result = EJS.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
+        if (_.isString(result.isValid)) { //In this case we need to build the actual isValid function from the boolean parser
+            var context = EJS.Condition.$buildContext();
+            var booleanParser = new EJS.utils.BooleanPhraseParser();
+            var parsedCondition = booleanParser.evaluate(result.isValid, context);
+            result.isValid = function () {
+                return parsedCondition.isValid();
+            };
+        }
         if (!_.isFunction(result.isValid)) {
-            throw  new Error('A condition must have an isValid function ' + result.id);
+            throw new Error('A condition must have an isValid function ' + result.id);
         }
         return result;
+    };
+
+    EJS.Condition.$buildContext = function () {
+        var notConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '!'})[0];
+        var andConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '&'})[0];
+        var orConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '|'})[0];
+        if (notConditionOperator && andConditionOperator && orConditionOperator) {
+            return {
+                not: notConditionOperator.generator,
+                and: andConditionOperator.generator,
+                or: orConditionOperator.generator,
+                literal: function (conditionName) {
+                    return EJS.getCondition(conditionName);
+                }
+            };
+        } else {
+            throw new Error('Condition operators for "not", "and", "or" must exist');
+        }
     };
 
     EJS.systemPaths.conditions = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditions');
@@ -1160,12 +1221,12 @@
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [{
-            type: 'EJS.condition',
+            target: 'EJS.condition',
             id: 'EJS.conditionBuilder',
             order: 100,
             build: function (addin) {
                 var condition = new EJS.Condition(addin);
-                EJS.addCondition(condition);
+                return condition;
             }
         }]
     });
@@ -1177,17 +1238,16 @@
         return conditions[name];
     };
 
-    EJS.addCondition = function (condition, force) {
-        if (!condition){
-            throw new Error('condition must be a condition object: '+condition);
-        }
+    EJS.addCondition = function (options, force) {
+        var condition = new EJS.Condition(options);
+
         var name = condition.name;
 
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
         if (conditions[name] && !force) {
-            throw new Error('A condition with the name ' + condition.name + ' already exists');
+            return false;
         }
 
         EJS.removeCondition(name);
@@ -1196,6 +1256,7 @@
         if (_.isFunction(condition.initialize)) {
             condition.initialize();
         }
+        return true;
     };
 
     EJS.removeCondition = function (name) {
@@ -1215,7 +1276,7 @@
     EJS.systemPaths.conditionOperations = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditionOperations');
 
     EJS.Condition.$conditionOperationBuilder = {
-        type: 'EJS.conditionOperation',
+        target: 'EJS.conditionOperation',
         id: 'EJS.conditionOperationBuilder',
         order: 100,
         build: function (addin) {

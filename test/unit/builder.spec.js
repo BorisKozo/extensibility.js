@@ -3,7 +3,8 @@ describe('Builder', function () {
     var expect = chai.expect;
     var EJS = window.EJS;
 
-    afterEach(function () {
+    beforeEach(function () {
+        EJS.$clearBuilders();
         EJS.registry.$clear();
     });
 
@@ -21,7 +22,7 @@ describe('Builder', function () {
             });
             expect(builder.id.indexOf('builder')).to.be.equal(0);
             expect(builder.order).to.be.equal(0);
-            expect(builder.type).to.be.equal('');
+            expect(builder.target).to.be.equal('');
             var builder2 = new EJS.Builder({
                 build: function () {
                 }
@@ -34,27 +35,27 @@ describe('Builder', function () {
                 return {
                     id: 'abc',
                     order: 3,
-                    type: 'monkey',
+                    target: 'monkey',
                     build: function () {
                     }
                 }
             });
             expect(builder.id).to.be.equal('abc');
             expect(builder.order).to.be.equal(3);
-            expect(builder.type).to.be.equal('monkey');
+            expect(builder.target).to.be.equal('monkey');
         });
 
         it('Should create an addin with options object', function () {
             var builder = new EJS.Builder({
                 id: 'abc',
                 order: 3,
-                type: 'monkey',
+                target: 'monkey',
                 build: function () {
                 }
             });
             expect(builder.id).to.be.equal('abc');
             expect(builder.order).to.be.equal(3);
-            expect(builder.type).to.be.equal('monkey');
+            expect(builder.target).to.be.equal('monkey');
         });
     });
 
@@ -63,7 +64,7 @@ describe('Builder', function () {
             var options = {
                 id: 'abc',
                 order: 3,
-                type: 'monkey',
+                target: 'monkey',
                 build: function () {
                 }
             };
@@ -72,69 +73,60 @@ describe('Builder', function () {
             var builder = EJS.getBuilder('monkey');
             expect(builder.id).to.be.equal('abc');
             expect(builder.order).to.be.equal(3);
-            expect(builder.type).to.be.equal('monkey');
+            expect(builder.target).to.be.equal('monkey');
         });
     });
 
-    describe('Get builder(s)', function () {
+    describe('Get builder', function () {
         it('should get a builder with the given type', function () {
             var options = {
-                type: 'monkey',
+                target: 'monkey',
                 build: function () {
                 }
             };
 
             EJS.addBuilder(options);
             var builder = EJS.getBuilder('monkey');
-            expect(builder.type).to.be.equal('monkey');
+            expect(builder.target).to.be.equal('monkey');
         });
 
-        it('should get multiple builders with the given type', function () {
-            EJS.addBuilder({
-                id: 'a',
-                type: 'monkey',
+        it('should get the default builder', function () {
+            var options = {
+                id: 'hello',
+                target: null,
                 build: function () {
                 }
-            });
-            EJS.addBuilder({
-                id: 'b',
-                type: 'monkey',
-                build: function () {
-                }
-            });
+            };
 
-            var builders = EJS.getBuilders('monkey');
-            expect(builders.length).to.be.equal(2);
-            expect(builders[0].type).to.be.equal('monkey');
-            expect(builders[1].type).to.be.equal('monkey');
+            EJS.addBuilder(options, true);
+            var builder = EJS.getBuilder(null);
+            expect(builder.id).to.be.equal('hello');
         });
+
 
         it('should get a builder with type === null if no appropriate builder is found', function () {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function () {
                 }
             });
 
             EJS.addBuilder({
                 id: 'b',
-                type: null,
+                target: null,
                 build: function () {
                 }
             });
 
             var builder = EJS.getBuilder('no such type');
             expect(builder.id).to.be.equal('b');
-            var builders = EJS.getBuilders('no such type');
-            expect(builders.length).to.be.equal(1);
-            expect(builders[0].id).to.be.equal('b');
         });
 
         it('should throw if there is no default builder and no appropriate builder is found', function () {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function () {
                 }
             });
@@ -145,13 +137,13 @@ describe('Builder', function () {
 
         it('should get the correct builder if it was overridden', function () {
             var options1 = {
-                type: 'monkey',
+                target: 'monkey',
                 order: 10,
                 build: function () {
                 }
             };
             var options2 = {
-                type: 'monkey',
+                target: 'monkey',
                 order: 100,
                 build: function () {
                 }
@@ -165,40 +157,13 @@ describe('Builder', function () {
         });
 
 
-    });
-
-    describe('Next Builder', function () {
-        it('should get the next builder if possible', function () {
-            var options1 = {
-                type: 'monkey',
-                order: 10,
-                build: function () {
-                }
-            };
-            var options2 = {
-                type: 'monkey',
-                order: 100,
-                build: function () {
-                }
-            };
-
-
-            EJS.addBuilder(options1);
-            EJS.addBuilder(options2);
-            var builder = EJS.getBuilder('monkey');
-            expect(builder.order).to.be.equal(10);
-            builder = builder.$next();
-            expect(builder.order).to.be.equal(100);
-            builder = builder.$next();
-            expect(builder).to.be.undefined;
-        });
     });
 
     describe('Build', function () {
         it('should build a path with a couple of addins in it', function () {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
                     return addin.id;
                 }
@@ -235,7 +200,7 @@ describe('Builder', function () {
         it('should build a path with a couple of addins in it', function (done) {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
                     return addin.id;
                 }
@@ -256,12 +221,12 @@ describe('Builder', function () {
         it('should build a path with a couple of addins in it (async build)', function (done) {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
-                    return new Promise(function(resolver){
-                        setTimeout(function(){
-                           resolver(addin.id);
-                        },0);
+                    return new Promise(function (resolver) {
+                        setTimeout(function () {
+                            resolver(addin.id);
+                        }, 0);
                     });
                 }
             });
@@ -281,7 +246,7 @@ describe('Builder', function () {
         it('should return empty array if there are no addins to build', function (done) {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
                     return addin.id;
                 }
@@ -299,7 +264,7 @@ describe('Builder', function () {
         it('should fail if there is an error during build', function (done) {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
                     throw new Error('Hello');
                 }
@@ -310,7 +275,7 @@ describe('Builder', function () {
 
             EJS.build.async('aaa').then(function () {
                 done('Should not get here');
-            }, function(error){
+            }, function (error) {
                 expect(error.message).to.be.equal('Hello');
                 done();
             });
@@ -321,7 +286,7 @@ describe('Builder', function () {
         it('should build a path tree', function () {
             EJS.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'monkey',
                 build: function (addin) {
                     return {id: addin.id};
                 }

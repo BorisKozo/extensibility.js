@@ -195,6 +195,33 @@ Note: You should probably never call this yourself, this function is used intern
 ```
 
 
+## Builders
+An addin can be anything including a metadata for creating an actual object. The builders are used to transform
+  an adding to another object or value by processing the addin content. Each addin may habe a ````type````
+  property which tells the library which builder is assigned to build that addin.
+
+
+#### EJS.Builder(options) -> Builder (The builder constructor)
+Creates a new Builder from the given _options_. A builder is a type of addin therefore the addin constructor
+ is called for the builder with the given _options_. A builder must have one function called _build(addin)_ which
+ takes an addin definition and returns anything. The builder should have a _type_ property which defines the type of
+ addin this builder can build. If the _type_ of a builder is ````null```` then the builder is the default builder for
+ all addin types. You may manipulate the builders order within the registry by using the _order_ property of the builder
+ addin.
+
+ ```js
+   //Create a builder that can build addins of type monkey
+   var builder = new EJS.Builder({
+                 id: 'abc',
+                 order: 3,
+                 type: 'monkey',
+                 build: function (addin) {
+                     return {
+                        food: addin.food
+                     };
+                 }
+             });
+ ```
 
 
 ## Unit Tests

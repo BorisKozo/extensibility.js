@@ -1,6 +1,8 @@
 (function (EJS) {
     'use strict';
     var count = 0;
+    var builders;
+    var defaultBuilder;
 
 
     EJS.Builder = function (options) {
@@ -8,26 +10,19 @@
         if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
-        builder.type = builder.type === undefined ? '' : builder.type;
-        builder.$next = EJS.Builder.nextBuilder;
+        builder.target = builder.target === undefined ? '' : builder.target;
         return builder;
     };
 
-    EJS.Builder.nextBuilder = function () {
-        var builders = EJS.getBuilders(this.type);
-        var index = _.indexOf(builders, this);
-        return builders[index + 1];
-    };
-
     EJS.systemPaths.builders = EJS.registry.joinPath(EJS.systemPaths.prefix, 'builders');
-
 
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [
             {
                 id: 'EJS.defaultBuilder',
-                type: null,
+                type: 'EJS.builder',
+                target: null,
                 order: 100,
                 build: function (addin) {
                     return _.cloneDeep(addin);
@@ -37,28 +32,30 @@
     });
 
     /**
-     * Adds a new builder with the given builder options to the systemPathPrefix/systemBuildersPath path
-     * @param builderOptions
+     * Adds a new builder created from the options to the list of known builders.
+     * If a builder that builds the given type already exists then
+     * the new builder is added based on the forced option. If force is truthy it is added anyway otherwise does nothing
+     * Returns true if a builder was added and false otherwise
+     *
      */
-    EJS.addBuilder = function (builderOptions) {
-        var builder = new EJS.Builder(builderOptions);
-        EJS.addAddin(EJS.systemPaths.builders, builder);
-    };
+    EJS.addBuilder = function (options, force) {
+        var builder = new EJS.Builder(options);
+        if (builder.target === null) {
+            if (!defaultBuilder || force) {
+                defaultBuilder = builder;
+                return true;
+            } else {
+                return false;
+            }
+        }
 
-    /**
-     * Gets a builders for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
-     * @param type
-     */
-    EJS.getBuilders = function (type) {
-        var addins = EJS.getAddins(EJS.systemPaths.builders, {type: type});
-        if (addins.length > 0) {
-            return addins;
+        if (!builders.hasOwnProperty(builder.target) || force) {
+            builders[builder.target] = builder;
+            return true;
+        } else {
+            return false;
         }
-        addins = EJS.getAddins(EJS.systemPaths.builders, {type: null});
-        if (addins.length > 0) {
-            return addins;
-        }
-        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
+
     };
 
     /**
@@ -66,7 +63,18 @@
      * @param type
      */
     EJS.getBuilder = function (type) {
-        return EJS.getBuilders(type)[0];
+        if (type === null && defaultBuilder) {
+            return defaultBuilder;
+        } else {
+            if (builders.hasOwnProperty(type)) {
+                return builders[type];
+            }
+            if (defaultBuilder) {
+                return defaultBuilder;
+            }
+        }
+
+        throw new Error('No builder of type "' + type + '" was defined and no default builder was registered');
     };
 
     /**
@@ -133,4 +141,23 @@
             return result;
         });
     };
+
+    EJS.buildBuilders = function () {
+        EJS.$clearBuilders();
+        var addins = EJS.getAddins(EJS.systemPaths.builders, {target: null});
+        if (addins.length > 0) {
+            defaultBuilder = new EJS.Builder(addins[0]);
+        }
+        addins = EJS.getAddins(EJS.systemPaths.builders);
+        _.forEach(addins, function (addin) {
+            EJS.addBuilder(addin);
+        });
+    };
+
+    EJS.$clearBuilders = function(){
+        builders = {};
+        defaultBuilder = null;
+    };
+
+    EJS.$clearBuilders();
 })(EJS);

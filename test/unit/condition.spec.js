@@ -3,8 +3,9 @@ describe('Condition', function () {
     var expect = chai.expect;
     var EJS = window.EJS;
 
-    afterEach(function () {
+    beforeEach(function () {
         EJS.registry.$clear();
+        EJS.$clearBuilders();
         EJS.$clearConditions();
     });
 
@@ -74,12 +75,12 @@ describe('Condition', function () {
 
     describe('Add a condition', function () {
         it('should add a condition and initialize it', function () {
-            EJS.addCondition(new EJS.Condition({
+            EJS.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub()
-            }));
+            });
 
             var condition = EJS.getCondition('monkey');
             expect(condition).to.be.ok;
@@ -90,69 +91,60 @@ describe('Condition', function () {
         it('should throw if the condition is not valid', function () {
             expect(function () {
                 EJS.addCondition();
-            }).to.throw('condition must be a condition object: undefined');
+            }).to.throw('A condition must have an isValid function');
 
         });
 
-        it('should throw if the name is undefined or null', function () {
-            expect(function () {
-                EJS.addCondition({
-                    name: null
-                });
-            }).to.throw('name must not be undefined or null');
-
-            expect(function () {
-                EJS.addCondition({});
-            }).to.throw('name must not be undefined or null');
-        });
-
-        it('should throw if the condition already exists and force was false', function () {
-            EJS.addCondition(new EJS.Condition({
+        it('should return false if the condition already exists and force was false', function () {
+            EJS.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub()
-            }));
-            expect(function () {
-                EJS.addCondition(new EJS.Condition({
-                    name: 'monkey',
-                    isValid: function () {
-                    },
-                    initialize: sinon.stub()
-                }));
-            }).to.throw('A condition with the name monkey already exists');
+            });
+            var conditionAddResult = EJS.addCondition({
+                name: 'monkey',
+                isValid: function () {
+                },
+                initialize: sinon.stub()
+            });
+
+            expect(conditionAddResult).to.be.false;
+
         });
 
         it('should add a condition with the same name if force was true', function () {
-            var firstCondition = new EJS.Condition({
+
+            var firstCondition = {
+                id: '1',
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub(),
                 destroy: sinon.stub()
-            });
-
+            };
             EJS.addCondition(firstCondition);
-            EJS.addCondition(new EJS.Condition({
+            EJS.addCondition({
+                id: '2',
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub()
-            }), true);
+            }, true);
             expect(firstCondition.destroy.calledOnce).to.be.true;
             expect(EJS.getCondition('monkey')).to.be.ok;
-            expect(EJS.getCondition('monkey')).not.to.be.equal(firstCondition);
+            expect(EJS.getCondition('monkey').id).to.be.equal('2');
         });
     });
 
     describe('Remove a condition', function () {
         it('should remove an existing condition and call its destroy function', function () {
-            var condition = new EJS.Condition({
+            var condition = {
                 name: 'monkey',
                 isValid: function () {
                 },
                 destroy: sinon.stub()
-            });
+            };
 
             EJS.addCondition(condition);
             EJS.removeCondition('monkey');
@@ -189,6 +181,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
+            EJS.buildBuilders();
             operations = EJS.build(EJS.systemPaths.conditionOperations)
 
         });
@@ -268,6 +261,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
+            EJS.buildBuilders();
         });
 
         it('should be able to duplicate an existing condition', function () {
@@ -407,6 +401,7 @@ describe('Condition', function () {
                     }
                 ]
             });
+            EJS.buildBuilders();
 
             var condition = EJS.build(EJS.systemPaths.conditions, {name: 'monkey'})[0];
             expect(condition).to.be.ok;

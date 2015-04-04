@@ -1,6 +1,6 @@
 (function (EJS) {
     'use strict';
-    var services = {};
+    var services;
 
     function initializeServiceRecursive(service) {
         if (service) {
@@ -34,7 +34,7 @@
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [{
-            type: 'EJS.service',
+            target: 'EJS.service',
             id: 'EJS.serviceBuilder',
             order: 100,
             build: function (addin) {
@@ -76,6 +76,7 @@
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
     EJS.buildServices = function () {
+        EJS.$clearServices();
         EJS.build(EJS.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {

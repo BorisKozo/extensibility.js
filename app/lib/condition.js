@@ -4,6 +4,7 @@
     var conditions = {};
 
     EJS.Condition = function (options) {
+        options = options || {};
         var result = EJS.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
         if (_.isString(result.isValid)) { //In this case we need to build the actual isValid function from the boolean parser
@@ -12,7 +13,7 @@
             var parsedCondition = booleanParser.evaluate(result.isValid, context);
             result.isValid = function () {
                 return parsedCondition.isValid();
-            }
+            };
         }
         if (!_.isFunction(result.isValid)) {
             throw new Error('A condition must have an isValid function ' + result.id);
@@ -32,7 +33,7 @@
                 literal: function (conditionName) {
                     return EJS.getCondition(conditionName);
                 }
-            }
+            };
         } else {
             throw new Error('Condition operators for "not", "and", "or" must exist');
         }
@@ -43,12 +44,12 @@
     EJS.defaultManifest.paths.push({
         path: EJS.systemPaths.builders,
         addins: [{
-            type: 'EJS.condition',
+            target: 'EJS.condition',
             id: 'EJS.conditionBuilder',
             order: 100,
             build: function (addin) {
                 var condition = new EJS.Condition(addin);
-               return condition;
+                return condition;
             }
         }]
     });
@@ -60,17 +61,16 @@
         return conditions[name];
     };
 
-    EJS.addCondition = function (condition, force) {
-        if (!condition) {
-            throw new Error('condition must be a condition object: ' + condition);
-        }
+    EJS.addCondition = function (options, force) {
+        var condition = new EJS.Condition(options);
+
         var name = condition.name;
 
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
         if (conditions[name] && !force) {
-            throw new Error('A condition with the name ' + condition.name + ' already exists');
+            return false;
         }
 
         EJS.removeCondition(name);
@@ -79,6 +79,7 @@
         if (_.isFunction(condition.initialize)) {
             condition.initialize();
         }
+        return true;
     };
 
     EJS.removeCondition = function (name) {
@@ -98,7 +99,7 @@
     EJS.systemPaths.conditionOperations = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditionOperations');
 
     EJS.Condition.$conditionOperationBuilder = {
-        type: 'EJS.conditionOperation',
+        target: 'EJS.conditionOperation',
         id: 'EJS.conditionOperationBuilder',
         order: 100,
         build: function (addin) {
