@@ -200,6 +200,26 @@ An addin can be anything including a metadata for creating an actual object. The
   an adding to another object or value by processing the addin content. Each addin may habe a ````type````
   property which tells the library which builder is assigned to build that addin.
 
+#### Builders path in the registry
+ ````
+ EJS.systemPaths.builders
+ ````
+
+#### The default builder
+The default builder is added to the registry (via the default manifest, see details below) with the following
+definition
+
+```js
+ {
+                id: 'EJS.defaultBuilder',
+                type: 'EJS.builder',
+                target: null,
+                order: 100,
+                build: function (addin) {
+                    return _.cloneDeep(addin);
+                }
+            }
+```
 
 #### EJS.Builder(options) -> Builder (The builder constructor)
 Creates a new Builder from the given _options_. A builder is a type of addin therefore the addin constructor
@@ -223,6 +243,107 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
              });
  ```
 
+#### EJS.addBuilder(options, force) -> Boolean
+Creates and adds a new builder based on the provided _options_ (see builder constructor). If a builder for the given
+target already exists then it is replaced with the new builder only if _force_ is truthy. Returns true if a builder was
+added and false otherwise. To add a default builder use ````target = null```` in the provided _options_.
+
+```js
+            var options = {
+                id: 'abc',
+                order: 3,
+                target: 'monkey',
+                build: function () {
+                }
+            };
+
+            EJS.addBuilder(options);
+            var builder = EJS.getBuilder('monkey'); //returns the builder with id 'abc'
+```
+
+#### EJS.getBuilder(type) -> Builder
+Returns a builder for the given _type_ or the default builder if a builder with the given _type_ was not registered.
+Pass ''''null'''' as the argument to get the default builder. If no builder is found for the given _type_ and there is no
+default builder defined then an exception is thrown.
+
+```js
+            var options = {
+                id: 'hello',
+                target: null,
+                build: function () {
+                }
+            };
+
+            EJS.addBuilder(options, true); //Replace the default builder with a new one
+            var builder = EJS.getBuilder(null);
+            var builder2 = EJS.getBuilder('no such type');
+            console.log(builder === builder2); //true
+```
+
+#### EJS.build(path, searchCriteria, skipSort)-> Array
+Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type.
+If _searchCriteria_ is specified the syntax for the is determined by the lodash
+[filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
+Set _skipSort_ to true if you don't want to sort the returned addins by order.
+
+```js
+            EJS.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin) {
+                    return addin.id;
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            var items = EJS.build('aaa'); //['1','2']
+```
+
+#### EJS.build.async(path, searchCriteria, skipSort)-> Promise
+Same as ````EJS.build```` but returns a Promise that resolves with the result array. Does not assume that any of the
+builders involved in building the given _path_ are asynchronous. Use this variant if any of the builders for the
+_path_ are asynchronous.
+
+#### EJS.buildTree(path)-> Array
+Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type but also
+builds all the sub-paths of the given path. When an addin of a sub path is built it is added to the items property of the
+parent addin identified by the addin id. For example, if in the path "aaa" there is an addin with id "myId" and in the path
+"aaa/myId" there is an addin with id "innerAddinId" then the result of building a tree on the path "aaa" with this
+function is the built addin "myId" and in its items property is the built addin "innerAddinId" (see example below).
+The default items property is ````$items```` but it can be changed by specifying the ````itemsProperty```` property on
+the addin definition.
+
+```js
+            EJS.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin) {
+                    return {id: addin.id};
+                }
+            });
+
+            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            EJS.addAddin('aaa', {id: '3', type: 'monkey', order: 3, itemsProperty: 'stuff'});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '1', type: 'monkey', order: 2});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '2', type: 'monkey', order: 3});
+            EJS.addAddin(EJS.registry.joinPath('aaa', '3'), {id: '1', type: 'monkey', order: 3});
+
+            var items = EJS.buildTree('aaa');
+            // [{
+            //      id:'1',
+            //      $items:[{id:'1'},{id:'2'}]
+            //  },
+            //  {
+            //      id:'2'
+            //  },
+            //  {
+            //      id:'3',
+            //      stuff:[{id:'1'}]
+            //  }]
+```
 
 ## Unit Tests
 

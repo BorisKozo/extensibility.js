@@ -20,6 +20,7 @@
         path: EJS.systemPaths.builders,
         addins: [
             {
+                ///Update docs if this changes
                 id: 'EJS.defaultBuilder',
                 type: 'EJS.builder',
                 target: null,
