@@ -53,7 +53,7 @@ console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
 
 #### EJS.registry.$clear()
 Forcefully removes all the nodes and their content from the registry. You should never call this function unless you
-are absolutley sure you know what you are doing.
+are absolutely sure you know what you are doing.
 
 #### EJS.registry.verifyAxis(axis) -> boolean
 Determines if the given axis is a valid axis name for the registry (i.e. can be used as a node name). The axis should be
@@ -194,6 +194,57 @@ Note: You should probably never call this yourself, this function is used intern
             //[{id:2},{id:1},{id:3},{id:4}]
 ```
 
+## Manifest (and manifest-reader)
+The manifest is a declarative way to define addins via a simple JavaScript object (or JSON).
+ The manifest has the following structure:
+ ```js
+ var myManifest : {
+   paths:[
+     {
+        path: 'some/path/to/my/addins',
+        addins: [
+                 {
+                   target:'my.addin.target',
+                   id:'addinId',
+                   order: 123
+                   //any other properties your addin needs
+                 },
+                 {
+                   target:'my.addin.target',
+                   id:'addinId2',
+                   order: '<addinId'
+                   //any other properties your addin needs
+                 }
+                ]
+     },
+     {
+        path: 'some/other/path',
+        addins: [
+                 {
+                   target:'my.target',
+                   id:'addinId',
+                   order: 123
+                   //any other properties your addin needs
+                 },
+                 {
+                   target:'my.target',
+                   id:'addinId2',
+                   order: 345
+                   //any other properties your addin needs
+                 }
+                ]
+     }
+     //etc...
+   ]
+ }
+ ```
+
+The same path may appear more than once in a single manifest, the manifest reader will
+join all the addins for a certain path. The only limitation is that the ids
+within a given path are unique.
+
+#### EJS.readManifest(manifest)
+Adds all the addins within the given _manifest_ into the registry.
 
 ## Builders
 An addin can be anything including a metadata for creating an actual object. The builders are used to transform
@@ -201,9 +252,15 @@ An addin can be anything including a metadata for creating an actual object. The
   property which tells the library which builder is assigned to build that addin.
 
 #### Builders path in the registry
- ````
+ **in code**
+ ```js
  EJS.systemPaths.builders
- ````
+ ```
+
+ **in manifest**
+ ```js
+ EJS/builders
+ ```
 
 #### The default builder
 The default builder is added to the registry (via the default manifest, see details below) with the following
@@ -344,6 +401,16 @@ the addin definition.
             //      stuff:[{id:'1'}]
             //  }]
 ```
+
+#### EJS.generateBuilders()
+Adds all the builders registered to the builders path in the registry into the internal
+builders list. You normally don't need to call this function as it is called automatically
+at the initialization of the library. Functions like ````getBuilder```` and ````addBuilder````
+ work with the internal structure and not the path.
+
+#### EJS.$clearBuilders()
+Forcefully clears all the builders from the internal structures. You should never call this function unless you
+are absolutely sure you know what you are doing.
 
 ## Unit Tests
 

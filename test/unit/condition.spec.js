@@ -181,7 +181,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
-            EJS.buildBuilders();
+            EJS.generateBuilders();
             operations = EJS.build(EJS.systemPaths.conditionOperations)
 
         });
@@ -261,7 +261,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
-            EJS.buildBuilders();
+            EJS.generateBuilders();
         });
 
         it('should be able to duplicate an existing condition', function () {
@@ -401,7 +401,7 @@ describe('Condition', function () {
                     }
                 ]
             });
-            EJS.buildBuilders();
+            EJS.generateBuilders();
 
             var condition = EJS.build(EJS.systemPaths.conditions, {name: 'monkey'})[0];
             expect(condition).to.be.ok;

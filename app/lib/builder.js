@@ -143,7 +143,7 @@
         });
     };
 
-    EJS.buildBuilders = function () {
+    EJS.generateBuilders = function () {
         EJS.$clearBuilders();
         var addins = EJS.getAddins(EJS.systemPaths.builders, {target: null});
         if (addins.length > 0) {

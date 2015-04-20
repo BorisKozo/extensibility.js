@@ -25,7 +25,7 @@
             EJS.vent.trigger('after:readDefaultManifest');
         }
 
-        EJS.buildBuilders();
+        EJS.generateBuilders();
 
         return buildServicesInternal();
     };

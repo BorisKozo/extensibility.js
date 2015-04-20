@@ -82,7 +82,7 @@ describe('Service', function () {
         beforeEach(function () {
             sinon.spy(EJS.vent, 'trigger');
             EJS.readManifest(EJS.defaultManifest);
-            EJS.buildBuilders();
+            EJS.generateBuilders();
         });
 
         afterEach(function () {
@@ -149,7 +149,7 @@ describe('Service', function () {
     describe('service builder', function () {
         beforeEach(function () {
             EJS.readManifest(EJS.defaultManifest);
-            EJS.buildBuilders();
+            EJS.generateBuilders();
         });
 
         it('should throw an error if name was not defined', function () {
