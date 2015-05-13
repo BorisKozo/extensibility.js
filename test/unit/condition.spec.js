@@ -39,11 +39,11 @@ describe('Condition', function () {
 
     describe('Get a condition', function () {
         it('should get a condition with the given name', function () {
-            EJS.addCondition(new EJS.Condition({
+            EJS.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 }
-            }));
+            });
 
             var condition = EJS.getCondition('monkey');
             expect(condition).to.be.ok;
@@ -51,11 +51,11 @@ describe('Condition', function () {
         });
 
         it('should not get a condition with the given name', function () {
-            EJS.addCondition(new EJS.Condition({
+            EJS.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 }
-            }));
+            });
 
             var condition = EJS.getCondition('monkey2');
             expect(condition).to.be.undefined;
