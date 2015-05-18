@@ -31,7 +31,7 @@
         }
 
         var delta = secondIndex - firstIndex;
-        return adjacent ? (delta == 1) : (delta > 0);
+        return adjacent ? (delta === 1) : (delta > 0);
     };
 
     //Returns the first addin in the cluster
@@ -89,7 +89,9 @@
         return null;
     }
 
+
     function formSortClusters(addins) {
+        /*jshint maxcomplexity:100 */
         var clusters;
         var nextClusters = [];
         var currentCluster;

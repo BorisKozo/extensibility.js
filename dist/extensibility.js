@@ -54,7 +54,9 @@
         // Bind an event to a `callback` function. Passing `"all"` will bind
         // the callback to all events fired.
         on: function (name, callback, context) {
-            if (!eventsApi(this, 'on', name, [callback, context]) || !callback) return this;
+            if (!eventsApi(this, 'on', name, [callback, context]) || !callback) {
+                return this;
+            }
             this._events = this._events ? this._events : {};
             var events = this._events[name] || (this._events[name] = []);
             events.push({callback: callback, context: context, ctx: context || this});
@@ -64,7 +66,9 @@
         // Bind an event to only be triggered a single time. After the first time
         // the callback is invoked, it will be removed.
         once: function (name, callback, context) {
-            if (!eventsApi(this, 'once', name, [callback, context]) || !callback) return this;
+            if (!eventsApi(this, 'once', name, [callback, context]) || !callback) {
+                return this;
+            }
             var self = this;
             var once = _.once(function () {
                 self.off(name, once);
@@ -80,7 +84,9 @@
         // callbacks for all events.
         off: function (name, callback, context) {
             var retain, ev, events, names, i, l, j, k;
-            if (!this._events || !eventsApi(this, 'off', name, [callback, context])) return this;
+            if (!this._events || !eventsApi(this, 'off', name, [callback, context])) {
+                return this;
+            }
             if (!name && !callback && !context) {
                 this._events = void 0;
                 return this;
@@ -100,7 +106,9 @@
                             }
                         }
                     }
-                    if (!retain.length) delete this._events[name];
+                    if (!retain.length) {
+                        delete this._events[name];
+                    }
                 }
             }
 
@@ -116,13 +124,22 @@
         // (unless you're listening on `"all"`, which will cause your callback to
         // receive the true name of the event as the first argument).
         trigger: function (name) {
-            if (!this._events) return this;
+            if (!this._events) {
+                return this;
+            }
             var args = slice.call(arguments, 1);
-            if (!eventsApi(this, 'trigger', name, args)) return this;
+            if (!eventsApi(this, 'trigger', name, args)) {
+                return this;
+            }
+
             var events = this._events[name];
             var allEvents = this._events.all;
-            if (events) triggerEvents(events, args);
-            if (allEvents) triggerEvents(allEvents, arguments);
+            if (events) {
+                triggerEvents(events, args);
+            }
+            if (allEvents) {
+                triggerEvents(allEvents, arguments);
+            }
             return this;
         },
 
@@ -130,14 +147,22 @@
         // to every object it's currently listening to.
         stopListening: function (obj, name, callback) {
             var listeningTo = this._listeningTo;
-            if (!listeningTo) return this;
+            if (!listeningTo) {
+                return this;
+            }
             var remove = !name && !callback;
-            if (!callback && typeof name === 'object') callback = this;
-            if (obj) (listeningTo = {})[obj._listenId] = obj;
+            if (!callback && typeof name === 'object') {
+                callback = this;
+            }
+            if (obj) {
+                (listeningTo = {})[obj._listenId] = obj;
+            }
             for (var id in listeningTo) {
                 obj = listeningTo[id];
                 obj.off(name, callback, this);
-                if (remove || _.isEmpty(obj._events)) delete this._listeningTo[id];
+                if (remove || _.isEmpty(obj._events)) {
+                    delete this._listeningTo[id];
+                }
             }
             return this;
         }
@@ -151,7 +176,10 @@
 // names `"change blur"` and jQuery-style event maps `{change: action}`
 // in terms of the existing API.
     var eventsApi = function (obj, action, name, rest) {
-        if (!name) return true;
+        if (!name) {
+            return true;
+        }
+
 
         // Handle event maps.
         if (typeof name === 'object') {
@@ -180,19 +208,29 @@
         var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
         switch (args.length) {
             case 0:
-                while (++i < l) (ev = events[i]).callback.call(ev.ctx);
+                while (++i < l) {
+                    (ev = events[i]).callback.call(ev.ctx);
+                }
                 return;
             case 1:
-                while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1);
+                while (++i < l) {
+                    (ev = events[i]).callback.call(ev.ctx, a1);
+                }
                 return;
             case 2:
-                while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2);
+                while (++i < l) {
+                    (ev = events[i]).callback.call(ev.ctx, a1, a2);
+                }
                 return;
             case 3:
-                while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3);
+                while (++i < l) {
+                    (ev = events[i]).callback.call(ev.ctx, a1, a2, a3);
+                }
                 return;
             default:
-                while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
+                while (++i < l) {
+                    (ev = events[i]).callback.apply(ev.ctx, args);
+                }
                 return;
         }
     };
@@ -207,7 +245,9 @@
             var listeningTo = this._listeningTo || (this._listeningTo = {});
             var id = obj._listenId || (obj._listenId = _.uniqueId('l'));
             listeningTo[id] = obj;
-            if (!callback && typeof name === 'object') callback = this;
+            if (!callback && typeof name === 'object') {
+                callback = this;
+            }
             obj[implementation](name, callback, this);
             return this;
         };
@@ -252,7 +292,7 @@
         }
 
         var delta = secondIndex - firstIndex;
-        return adjacent ? (delta == 1) : (delta > 0);
+        return adjacent ? (delta === 1) : (delta > 0);
     };
 
     //Returns the first addin in the cluster
@@ -310,7 +350,9 @@
         return null;
     }
 
+
     function formSortClusters(addins) {
+        /*jshint maxcomplexity:100 */
         var clusters;
         var nextClusters = [];
         var currentCluster;
@@ -732,7 +774,7 @@
             EJS.vent.trigger('after:readDefaultManifest');
         }
 
-        EJS.buildBuilders();
+        EJS.generateBuilders();
 
         return buildServicesInternal();
     };
@@ -935,6 +977,7 @@
         path: EJS.systemPaths.builders,
         addins: [
             {
+                ///Update docs if this changes
                 id: 'EJS.defaultBuilder',
                 type: 'EJS.builder',
                 target: null,
@@ -1057,7 +1100,7 @@
         });
     };
 
-    EJS.buildBuilders = function () {
+    EJS.generateBuilders = function () {
         EJS.$clearBuilders();
         var addins = EJS.getAddins(EJS.systemPaths.builders, {target: null});
         if (addins.length > 0) {
@@ -1170,11 +1213,100 @@
 (function (EJS) {
     'use strict';
     var count = 0;
+    var commands = {};
+
+    function trueFunction() {
+        return true;
+    }
+
 
     EJS.Command = function (options) {
-        return EJS.Addin.$internalConstructor('command', count++, options);
+        options = options || {};
+        var result = EJS.Addin.$internalConstructor('command', count++, options);
+        result.name = options.name || result.id;
+        if (!_.isFunction(result.execute)) {
+            throw new Error('Command options must contain the "execute" function ' + JSON.stringify(options));
+        }
+        if (!_.isFunction(result.isValid)) {
+            result.isValid = trueFunction;
+        }
+        if (!result.hasOwnProperty('canExecute')) {
+            result.canExecute = EJS.Command.$canExecute;
+        }
+
+        return result;
     };
-})(EJS);
+
+    EJS.Command.$canExecute = function(){
+        var condition = this.condition;
+        if (_.isString(condition)) {
+            condition = EJS.getCondition(condition);
+        }
+        //If a condition was defined then the condition isValid function
+        // AND
+        //If isValid was defined then the value of the isValid function
+        return (!Boolean(condition) || condition.isValid()) && (!_.isFunction(this.isValid) || this.isValid());
+    };
+
+
+    EJS.systemPaths.commands = EJS.registry.joinPath(EJS.systemPaths.prefix, 'commands');
+
+    EJS.defaultManifest.paths.push({
+        path: EJS.systemPaths.builders,
+        addins: [{
+            target: 'EJS.command',
+            id: 'EJS.commandBuilder',
+            order: 100,
+            build: function (addin) {
+                var condition = new EJS.Command(addin);
+                return condition;
+            }
+        }]
+    });
+
+    EJS.getCommand = function (name) {
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        return commands[name];
+    };
+
+    EJS.addCommand = function (options, force) {
+        var command = new EJS.Command(options);
+
+        var name = command.name;
+
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        if (commands[name] && !force) {
+            return false;
+        }
+
+        EJS.removeCommand(name);
+
+        commands[name] = command;
+        if (_.isFunction(command.initialize)) {
+            command.initialize();
+        }
+        return true;
+    };
+
+    EJS.removeCommand = function (name) {
+        if (name === undefined || name === null) {
+            throw new Error('name must not be undefined or null');
+        }
+        if (commands[name] && _.isFunction(commands[name].destroy)) {
+            commands[name].destroy();
+        }
+        commands[name] = undefined;
+    };
+
+    EJS.$clearCommands = function () {
+        commands = {};
+    };
+})
+(EJS);
 (function (EJS) {
     'use strict';
     var count = 0;

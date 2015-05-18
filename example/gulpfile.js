@@ -56,6 +56,12 @@ gulp.task('watch', function () {
   gulp.watch('./src/js/**/*.js', ['copy:js']);
   gulp.watch('./src/js/**/*.hbs', ['templates']);
   gulp.watch('./src/**/*.html', ['copy:html']);
+  gulp.watch('./src/**/*.less',['less']);
+});
+
+gulp.task('copy:ejs', function(){
+  gulp.src('./../dist/extensibility.js')
+  .pipe(gulp.dest('./public/vendor'));
 });
 
 gulp.task('build', ['jshint', 'copy:js', 'copy:html', 'templates', 'less', 'watch'], function () {
@@ -64,6 +70,8 @@ gulp.task('build', ['jshint', 'copy:js', 'copy:html', 'templates', 'less', 'watc
     root: 'public'
   })
 });
+
+
 
 // Clean all and build from scratch
 gulp.task('default', ['build'], function () {

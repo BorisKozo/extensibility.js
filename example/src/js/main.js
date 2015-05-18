@@ -2,6 +2,7 @@
 
 import Marionette from 'marionette';
 import AppLayout from 'js/envelope/app_layout';
+import EJS from 'vendor/extensibility'
 
 var App = new Marionette.Application();
 
