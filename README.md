@@ -412,6 +412,13 @@ at the initialization of the library. Functions like ````getBuilder```` and ````
 Forcefully clears all the builders from the internal structures. You should never call this function unless you
 are absolutely sure you know what you are doing.
 
+
+## Optional Concepts
+All the concepts in the following paragraphs are completely optional. They are here to help
+you organize your code into well known patterns with the help of this library.
+
+## Services
+
 ## Unit Tests
 
 1. Be sure you have NodeJS and NPM installed on your system

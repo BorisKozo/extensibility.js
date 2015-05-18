@@ -11,7 +11,7 @@ class AppLayout extends Marionette.LayoutView {
 
   serializeData() {
     return {
-      'world': 'XXCCXX'
+      'world': 'gfhgh'
     };
   }
 }

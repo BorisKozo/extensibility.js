@@ -9,3 +9,4 @@ coverage
 *.sln
 *.sou
 /*.suo
+/example/public
