@@ -5,6 +5,9 @@ var defineModule = require('gulp-define-module');
 var del = require('del');
 var shell = require('gulp-shell');
 var connect = require('gulp-connect');
+var less = require('gulp-less');
+var minifyCss = require('gulp-minify-css');
+var concatCss = require('gulp-concat-css');
 
 
 gulp.task('jshint', function () {
@@ -33,6 +36,14 @@ gulp.task('copy:html', function () {
 
 });
 
+gulp.task('less', function () {
+  gulp.src('./src/**/*.less')
+    .pipe(less())
+    .pipe(minifyCss())
+    .pipe(concatCss('main.css'))
+    .pipe(gulp.dest('./public/css'));
+
+});
 //gulp.task('clean', function (callback) {
 //  del('./public', callback);
 //});
@@ -47,7 +58,7 @@ gulp.task('watch', function () {
   gulp.watch('./src/**/*.html', ['copy:html']);
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:html', 'templates', 'watch'], function () {
+gulp.task('build', ['jshint', 'copy:js', 'copy:html', 'templates', 'less', 'watch'], function () {
   connect.server({
     port: 8000,
     root: 'public'
