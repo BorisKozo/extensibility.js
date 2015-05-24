@@ -13,8 +13,7 @@ App.on('start', function () {
     console.log('EJS Started');
     Backbone.history.start();
   });
-  //App.rootLayout = new AppLayout({el: '#main'});
-  //App.rootLayout.render();
+
 
 });
 
@@ -22,8 +21,10 @@ var AppRouter = Marionette.AppRouter.extend({
   routes: {
     '*any': 'doRouting'
   },
-  doRouting: function () {
-    console.log('Routed');
+  doRouting: function (route, queryString) {
+    console.log(arguments);
+    var routingService = EJS.getService('RoutingService');
+    routingService.route(route, queryString);
   }
 });
 

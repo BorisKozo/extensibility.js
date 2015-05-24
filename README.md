@@ -100,6 +100,19 @@ will be created.
  EJS.registry.pathExists('boo'); //false
 ```
 
+#### EJS.registry.getSubPaths(path) -> Array
+Returns a list of all the immediate subpaths of the given path. For example if the registry contains the paths: a/b/c,
+a/b/d, a/b/e then calling this function with the path a/b will return ['c','d','e'] (the order is not guaranteed).
+If the path doesn't exist then null is returned.
+
+```js
+ EJS.addAddin('a/b/c');
+ EJS.addAddin('a/b/d');
+ EJS.addAddin('a/b/e');
+ EJS.registry.getSubPaths('a/b'); //['c','d','e']
+ EJS.registry.getSubPaths('x/y'); //null
+```
+
 ## Addins
 The registry can contain anything in its nodes but it main purpose is to hold addins. "Addin" is just a fancy name
 for a JavaScript object that has certain properties. In fact, anything this library adds for you into the registry is

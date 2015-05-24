@@ -881,6 +881,18 @@
         },
 
         /**
+         * Returns all the paths that exist under the given path
+         */
+        getSubPaths: function(path) {
+            var node = this.$getNode(path, false);
+            if (node !== null){
+                return _.keys(node.nodes);
+            } else {
+                return null;
+            }
+        },
+
+        /**
          * Clears the registry of all the nodes (you shouldn't use this function)
          */
         $clear: function () {

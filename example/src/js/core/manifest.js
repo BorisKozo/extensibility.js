@@ -9,6 +9,7 @@ var manifest = {
     addins: [
       {
         id: 'RoutingService',
+        name: 'RoutingService',
         type: 'EJS.service',
         order: 1,
         content: routingService
@@ -16,4 +17,5 @@ var manifest = {
     ]
   }]
 };
+
 EJS.readManifest(manifest);

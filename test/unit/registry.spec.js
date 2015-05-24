@@ -106,6 +106,25 @@
     });
   });
 
+  describe('Sub Paths', function () {
+    it('should return all the subpaths of a given node', function () {
+      EJS.addAddin('abv/ccc/a');
+      EJS.addAddin('abv/ccc/b');
+      EJS.addAddin('abv/ccc/c');
+      var subpaths = EJS.registry.getSubPaths('abv/ccc');
+      expect(subpaths).to.be.ok;
+      expect(subpaths.length).to.be.equal(3);
+      expect(subpaths.indexOf('a')).to.not.be.equal(-1);
+      expect(subpaths.indexOf('b')).to.not.be.equal(-1);
+      expect(subpaths.indexOf('c')).to.not.be.equal(-1);
+    });
+
+    it('should return null for non existing path', function () {
+      var subpaths = EJS.registry.getSubPaths('abv/ccc');
+      expect(subpaths).to.be.null;
+    });
+  });
+
   describe('Clear', function () {
     it('should clear the registry', function () {
       expect(EJS.registry.pathExists('aaa')).to.be.false;

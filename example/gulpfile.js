@@ -57,6 +57,7 @@ gulp.task('watch', function () {
   gulp.watch('./src/js/**/*.hbs', ['templates']);
   gulp.watch('./src/**/*.html', ['copy:html']);
   gulp.watch('./src/**/*.less',['less']);
+  gulp.watch('./../dist/extensibility.js',['copy:ejs']);
 });
 
 gulp.task('copy:ejs', function(){
@@ -64,7 +65,7 @@ gulp.task('copy:ejs', function(){
   .pipe(gulp.dest('./public/vendor'));
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:html', 'templates', 'less', 'watch'], function () {
+gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'less', 'watch'], function () {
   connect.server({
     port: 8000,
     root: 'public'
