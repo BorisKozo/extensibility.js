@@ -1,18 +1,17 @@
 'use strict';
 
 import EJS from 'vendor/extensibility';
-//import routingService from 'js/dashboard/routing_service';
 
 var manifest = {
   paths: [{
     path: 'navbar',
     addins: [
       {
-        id: 'Envelope',
+        id: 'Campaign',
+        order: '>>Reports',
         type: 'NavButton',
-        order: 10,
         content:{
-          title: 'Dashboard'
+          title: 'Campaign'
         }
       }
     ]

@@ -5,8 +5,7 @@ import _ from 'lodash';
 
 var service = {
   route: function (route, queryString) {
-    route = route || '';
-    var axes = route.split('/');
+    var axes = route ? route.split('/') : [];
     var i, handlers, paths;
     var currentAxes = ['routes'];
     handlers = EJS.build(EJS.registry.joinPath(currentAxes));
