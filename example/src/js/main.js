@@ -1,8 +1,8 @@
 'use strict';
 
+import Bootstrap from 'bootstrap';
 import Marionette from 'marionette';
 import Backbone from 'backbone';
-//import AppLayout from 'js/envelope/app_layout';
 import EJS from 'vendor/extensibility';
 
 var App = new Marionette.Application();

@@ -1,8 +1,5 @@
 'use strict';
 
-//App.rootLayout = new AppLayout({el: '#main'});
-//App.rootLayout.render();
-
 import EJS from 'vendor/extensibility';
 import AppLayout from 'js/envelope/views/app_layout';
 

@@ -9,10 +9,16 @@ import navButtonTemplate from 'templates/envelope/templates/nav_button';
 
 var NavItemView = Marionette.ItemView.extend({
   template: navButtonTemplate,
+  className: 'envelope-left-nav-button',
+  tagName: 'li',
   serializeData: function () {
     return {
-      title: this.model.get('title')
-    }
+      title: this.model.get('title'),
+      link: this.model.get('link')
+    };
+  },
+  onRender: function(){
+    this.$el.attr('role','presentation');
   }
 });
 
@@ -25,9 +31,6 @@ var NavView = Marionette.CompositeView.extend({
   initialize: function () {
     var buttons = EJS.build('navbar');
     this.collection = new Backbone.Collection(buttons);
-  },
-  onRender: function () {
-
   }
 });
 

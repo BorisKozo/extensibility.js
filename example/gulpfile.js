@@ -1,13 +1,16 @@
+'use strict';
+
 var jshint = require('gulp-jshint');
 var gulp = require('gulp');
 var handlebars = require('gulp-handlebars');
 var defineModule = require('gulp-define-module');
-var del = require('del');
-var shell = require('gulp-shell');
+//var del = require('del');
+//var shell = require('gulp-shell');
 var connect = require('gulp-connect');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var concatCss = require('gulp-concat-css');
+var flatten = require('gulp-flatten');
 
 
 gulp.task('jshint', function () {
@@ -36,6 +39,13 @@ gulp.task('copy:html', function () {
 
 });
 
+gulp.task('copy:vendor:css', function () {
+  return gulp.src('./public/jspm_packages/**/*.css')
+    .pipe(flatten())
+    .pipe(gulp.dest('./public/css'));
+
+});
+
 gulp.task('less', function () {
   gulp.src('./src/**/*.less')
     .pipe(less())
@@ -56,22 +66,21 @@ gulp.task('watch', function () {
   gulp.watch('./src/js/**/*.js', ['copy:js']);
   gulp.watch('./src/js/**/*.hbs', ['templates']);
   gulp.watch('./src/**/*.html', ['copy:html']);
-  gulp.watch('./src/**/*.less',['less']);
-  gulp.watch('./../dist/extensibility.js',['copy:ejs']);
+  gulp.watch('./src/**/*.less', ['less']);
+  gulp.watch('./../dist/extensibility.js', ['copy:ejs']);
 });
 
-gulp.task('copy:ejs', function(){
+gulp.task('copy:ejs', function () {
   gulp.src('./../dist/extensibility.js')
-  .pipe(gulp.dest('./public/vendor'));
+    .pipe(gulp.dest('./public/vendor'));
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'less', 'watch'], function () {
+gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'copy:vendor:css', 'less', 'watch'], function () {
   connect.server({
     port: 8000,
     root: 'public'
-  })
+  });
 });
-
 
 
 // Clean all and build from scratch

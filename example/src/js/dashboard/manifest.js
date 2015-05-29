@@ -12,7 +12,8 @@ var manifest = {
         type: 'NavButton',
         order: 10,
         content:{
-          title: 'Dashboard'
+          title: 'Dashboard',
+          link: 'dashboard'
         }
       }
     ]
