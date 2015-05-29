@@ -32,8 +32,7 @@
       "backbone.wreqr": "github:marionettejs/backbone.wreqr@^1.3.2",
       "bootstrap": "github:twbs/bootstrap@^3.3.4",
       "handlebars": "github:components/handlebars.js@^3.0.0",
-      "highcharts": "github:highslide-software/highcharts-release@^4.1.5",
-      "jquery": "github:compnents/jquery@^2.1.3",
+      "jquery": "github:components/jquery@^2.1.4",
       "lodash": "npm:lodash@^3.8.0",
       "marionette": "github:marionettejs/backbone.marionette@^2.4.1",
       "underscore": "npm:underscore@^1.8.2"

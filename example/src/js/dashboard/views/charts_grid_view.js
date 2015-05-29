@@ -10,7 +10,23 @@ import chartViewTemplate from 'templates/dashboard/templates/chart_view';
 var ChartItemView = Marionette.ItemView.extend({
   template: chartViewTemplate,
   className: 'envelope-left-nav-button',
-  tagName: 'li'
+  tagName: 'li',
+  ui:{
+    'container':'.js-dashboard-chart-container'
+  },
+  serializeData: function () {
+    return {
+      title: this.model.get('title')
+    };
+  },
+  onRender:function(){
+    var config = this.model.get('config');
+    if (config) {
+      this.ui.container.highcharts(config);
+      this.chart = this.ui.container.highcharts();
+      this.model.get('setData')(this.chart);
+    }
+  }
 });
 
 var ChartsGridView = Marionette.CompositeView.extend({
@@ -18,10 +34,17 @@ var ChartsGridView = Marionette.CompositeView.extend({
   className: 'dashboard-charts-grid',
   childView: ChartItemView,
   childViewContainer: '.js-dashboard-charts-grid-container',
+  ui: {
+    'container': '.js-dashboard-charts-grid-container'
+  },
   initialize: function () {
     var charts = EJS.build(EJS.registry.joinPath('dashboard', 'charts'));
     this.collection = new Backbone.Collection(charts);
+  },
+  onRender: function () {
+    this.ui.container.sortable();
   }
+
 });
 
 export default ChartsGridView;
