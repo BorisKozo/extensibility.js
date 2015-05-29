@@ -1,6 +1,5 @@
 'use strict';
 
-import Bootstrap from 'bootstrap';
 import Marionette from 'marionette';
 import Backbone from 'backbone';
 import EJS from 'vendor/extensibility';

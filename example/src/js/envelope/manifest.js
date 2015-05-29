@@ -10,9 +10,11 @@ var manifest = {
       {
         id: 'envelope',
         order: 100,
-        handleRoute: function () {
+        handleRoute: function (options) {
           var rootLayout = new AppLayout({el: '#main'});
           rootLayout.render();
+          options.contentRegion = rootLayout.getRegion('content');
+          return options;
         }
 
       }

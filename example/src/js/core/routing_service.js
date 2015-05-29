@@ -8,10 +8,12 @@ var service = {
     var axes = route ? route.split('/') : [];
     var i, handlers, paths;
     var currentAxes = ['routes'];
+    var options = {};
     handlers = EJS.build(EJS.registry.joinPath(currentAxes));
     _.forEach(handlers, function (handler) {
       if (_.isFunction(handler.handleRoute)) {
-        handler.handleRoute('', queryString);
+        var returnedOptions = handler.handleRoute(options, '', queryString);
+        options = returnedOptions || options;
       }
     });
 
@@ -29,7 +31,8 @@ var service = {
       }
       _.forEach(handlers, function (handler) {
         if (_.isFunction(handler.handleRoute)) {
-          handler.handleRoute(axes.slice(0, i + 1), queryString);
+          var returnedOptions = handler.handleRoute(options,axes.slice(0, i + 1), queryString);
+          options = returnedOptions || options;
         }
       });
     }

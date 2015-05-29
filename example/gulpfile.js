@@ -40,7 +40,11 @@ gulp.task('copy:html', function () {
 });
 
 gulp.task('copy:vendor:css', function () {
-  return gulp.src('./public/jspm_packages/**/*.css')
+  gulp.src('./public/jspm_packages/**/*.css')
+    .pipe(flatten())
+    .pipe(gulp.dest('./public/css'));
+
+  gulp.src('./vendor/**/*.css')
     .pipe(flatten())
     .pipe(gulp.dest('./public/css'));
 
@@ -75,7 +79,12 @@ gulp.task('copy:ejs', function () {
     .pipe(gulp.dest('./public/vendor'));
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'copy:vendor:css', 'less', 'watch'], function () {
+gulp.task('copy:vendor', function () {
+  gulp.src('./vendor/**/*.js')
+    .pipe(gulp.dest('./public/vendor'));
+});
+
+gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
   connect.server({
     port: 8000,
     root: 'public'

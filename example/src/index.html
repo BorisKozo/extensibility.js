@@ -3,12 +3,23 @@
 <head lang="en">
   <meta charset="UTF-8">
   <title>Extensibility Example</title>
+  <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/main.css">
   <script src="jspm_packages/system.js"></script>
   <script src="config.js"></script>
   <script>
-    System.import('js/loader');
+    System.import('jquery').then(function () {
+      Promise.all([
+        System.import('vendor/jquery-ui/jquery-ui.min'),
+        System.import('bootstrap'),
+        System.import('highcharts')
+      ]).then(function () {
+        System.import('js/loader');
+      });
+    });
+
+
   </script>
 </head>
 <body>
