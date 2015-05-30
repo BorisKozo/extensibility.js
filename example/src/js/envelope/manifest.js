@@ -1,25 +1,21 @@
 'use strict';
 
 import EJS from 'vendor/extensibility';
-import AppLayout from 'js/envelope/views/app_layout';
+import router from 'js/envelope/router.ejs';
 
 var manifest = {
-  paths: [{
-    path: 'routes',
-    addins: [
-      {
-        id: 'envelope',
-        order: 100,
-        handleRoute: function (options) {
-          var rootLayout = new AppLayout({el: '#main'});
-          rootLayout.render();
-          options.contentRegion = rootLayout.getRegion('content');
-          return options;
-        }
+  paths: [
+    {
+      path: 'routes',
+      addins: [
+        {
+          id: 'envelope',
+          order: 100,
+          handleRoute: router.handleBaseRoute
 
-      }
-    ]
-  },
+        }
+      ]
+    },
     {
       path: EJS.systemPaths.builders,
       addins: [

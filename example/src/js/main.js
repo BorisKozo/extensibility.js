@@ -21,7 +21,6 @@ var AppRouter = Marionette.AppRouter.extend({
     '*any': 'doRouting'
   },
   doRouting: function (route, queryString) {
-    console.log(arguments);
     var routingService = EJS.getService('RoutingService');
     routingService.route(route, queryString);
   }

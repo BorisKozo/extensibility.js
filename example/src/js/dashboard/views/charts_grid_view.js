@@ -9,22 +9,27 @@ import chartViewTemplate from 'templates/dashboard/templates/chart_view';
 
 var ChartItemView = Marionette.ItemView.extend({
   template: chartViewTemplate,
-  className: 'envelope-left-nav-button',
+  className: 'panel panel-default dashboard-chart-panel',
   tagName: 'li',
-  ui:{
-    'container':'.js-dashboard-chart-container'
+  ui: {
+    'container': '.js-dashboard-chart-container'
   },
   serializeData: function () {
     return {
       title: this.model.get('title')
     };
   },
-  onRender:function(){
+  onRender: function () {
     var config = this.model.get('config');
+    var chart;
     if (config) {
       this.ui.container.highcharts(config);
-      this.chart = this.ui.container.highcharts();
+      chart = this.ui.container.highcharts();
+      this.chart = chart;
       this.model.get('setData')(this.chart);
+      setTimeout(function () {
+        chart.reflow();
+      }, 0);
     }
   }
 });
@@ -42,7 +47,9 @@ var ChartsGridView = Marionette.CompositeView.extend({
     this.collection = new Backbone.Collection(charts);
   },
   onRender: function () {
-    this.ui.container.sortable();
+    this.ui.container.sortable({
+      handle: '.js-dashboard-chart-handle'
+    });
   }
 
 });

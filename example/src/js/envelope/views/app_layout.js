@@ -14,7 +14,12 @@ var AppLayout = Marionette.LayoutView.extend({
 
   onRender: function () {
     this.showChildView('nav', new NavView());
+  },
+
+  onDestroy: function () {
+    console.log('Destroy');
   }
+
 });
 
 export default AppLayout;
