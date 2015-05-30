@@ -7,18 +7,31 @@ import Backbone from 'backbone';
 import navTemplate from 'templates/envelope/templates/nav_panel';
 import navButtonTemplate from 'templates/envelope/templates/nav_button';
 
+
+
 var NavItemView = Marionette.ItemView.extend({
   template: navButtonTemplate,
   className: 'envelope-left-nav-button',
   tagName: 'li',
+  initialize: function () {
+    var routingService = EJS.getService('RoutingService');
+    this.listenTo(routingService.$vent, 'after:route', this.afterRoute);
+  },
   serializeData: function () {
     return {
       title: this.model.get('title'),
       link: this.model.get('link')
     };
   },
-  onRender: function(){
-    this.$el.attr('role','presentation');
+  onRender: function () {
+    this.$el.attr('role', 'presentation');
+  },
+  afterRoute: function (context, route) {
+    if (route.length > 0 && route[0] === this.model.get('link')) {
+      this.$el.addClass('active');
+    } else {
+      this.$el.removeClass('active');
+    }
   }
 });
 

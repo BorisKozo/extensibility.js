@@ -8,12 +8,13 @@ var service = {
     var axes = route ? route.split('/') : [];
     var i, handlers, paths;
     var currentAxes = ['routes'];
-    var options = {};
+    var context = {};
+    this.$vent.trigger('before:route', context, axes, queryString);
     handlers = EJS.build(EJS.registry.joinPath(currentAxes));
     _.forEach(handlers, function (handler) {
       if (_.isFunction(handler.handleRoute)) {
-        var returnedOptions = handler.handleRoute(options, '', queryString);
-        options = returnedOptions || options;
+        var returnedContext = handler.handleRoute(context, '', queryString);
+        context = returnedContext || context;
       }
     });
 
@@ -31,11 +32,12 @@ var service = {
       }
       _.forEach(handlers, function (handler) {
         if (_.isFunction(handler.handleRoute)) {
-          var returnedOptions = handler.handleRoute(options,axes.slice(0, i + 1), queryString);
-          options = returnedOptions || options;
+          var returnedContext = handler.handleRoute(context, axes.slice(0, i + 1), queryString);
+          context = returnedContext || context;
         }
       });
     }
+    this.$vent.trigger('after:route', context, axes, queryString);
   }
 };
 

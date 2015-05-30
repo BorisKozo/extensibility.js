@@ -7,7 +7,9 @@ var rootLayout = null;
 var router = {
   handleBaseRoute: function (options) {
     if (rootLayout === null) {
-      rootLayout = new AppLayout({el: '#main'});
+      rootLayout = new AppLayout({
+        el: '#main'
+      });
       rootLayout.render();
     }
     options.contentRegion = rootLayout.getRegion('content');
