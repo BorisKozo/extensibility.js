@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var jshint = require('gulp-jshint');
 var gulp = require('gulp');
 var handlebars = require('gulp-handlebars');
@@ -11,6 +12,7 @@ var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var concatCss = require('gulp-concat-css');
 var flatten = require('gulp-flatten');
+var compileModules = require('./gulp-compile-ejs-modules');
 
 
 gulp.task('jshint', function () {
@@ -82,6 +84,15 @@ gulp.task('copy:ejs', function () {
 gulp.task('copy:vendor', function () {
   gulp.src('./vendor/**/*.js')
     .pipe(gulp.dest('./public/vendor'));
+});
+
+gulp.task('compile:modules', function () {
+  return gulp.src(['./src/js/**/manifest.js', './src/js/**/*.ejs.js'])
+    .pipe(compileModules('modules.js', {
+      prefix: '\'use strict\';\n\n',
+      cwd: path.join(__dirname, 'src')
+    }))
+    .pipe(gulp.dest('./public/js'));
 });
 
 gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
