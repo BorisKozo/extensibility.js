@@ -2,8 +2,53 @@
 
 var chart = {
   title: 'I love pie!',
-  getData: function () {
-    return [[0, 0], [1, 1], [2, 1], [3, 0], [4, 3]];
+  setData: function (chart) {
+    chart.get('pie').setData([
+      ['Firefox', 45.0],
+      ['IE', 26.8],
+      {
+        name: 'Chrome',
+        y: 12.8,
+        sliced: true,
+        selected: true
+      },
+      ['Safari', 8.5],
+      ['Opera', 6.2],
+      ['Others', 0.7]
+    ]);
+  },
+  config: {
+
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false
+    },
+    title: {
+      text: 'Browser market shares at a specific website, 2014'
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          style: {
+            color: 'black'
+          }
+        }
+      }
+    },
+    series: [{
+      type: 'pie',
+      id: 'pie',
+      name: 'Browser share',
+      data: []
+    }]
   }
 };
 

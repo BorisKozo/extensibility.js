@@ -95,7 +95,7 @@ gulp.task('compile:modules', function () {
     .pipe(gulp.dest('./public/js'));
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
+gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'compile:modules', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
   connect.server({
     port: 8000,
     root: 'public'
