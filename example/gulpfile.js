@@ -70,6 +70,7 @@ gulp.task('less', function () {
 
 gulp.task('watch', function () {
   gulp.watch('./src/js/**/*.js', ['copy:js']);
+  gulp.watch('./src/js/**/*.ejs.js',['compile:modules']);
   gulp.watch('./src/js/**/*.hbs', ['templates']);
   gulp.watch('./src/**/*.html', ['copy:html']);
   gulp.watch('./src/**/*.less', ['less']);
@@ -87,7 +88,7 @@ gulp.task('copy:vendor', function () {
 });
 
 gulp.task('compile:modules', function () {
-  return gulp.src(['./src/js/**/manifest.js', './src/js/**/*.ejs.js'])
+  return gulp.src(['./src/js/**/*.ejs.js'])
     .pipe(compileModules('modules.js', {
       prefix: '\'use strict\';\n\n',
       cwd: path.join(__dirname, 'src')

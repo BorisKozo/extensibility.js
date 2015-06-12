@@ -1,5 +1,6 @@
 'use strict';
 
+import App from 'js/main';
 import EJS from 'vendor/extensibility';
 import _ from 'lodash';
 
@@ -13,7 +14,7 @@ var service = {
     handlers = EJS.build(EJS.registry.joinPath(currentAxes));
     _.forEach(handlers, function (handler) {
       if (_.isFunction(handler.handleRoute)) {
-        var returnedContext = handler.handleRoute(context, '', queryString);
+        var returnedContext = handler.handleRoute(context, '', axes.slice(0), queryString);
         context = returnedContext || context;
       }
     });
@@ -32,12 +33,22 @@ var service = {
       }
       _.forEach(handlers, function (handler) {
         if (_.isFunction(handler.handleRoute)) {
-          var returnedContext = handler.handleRoute(context, axes.slice(0, i + 1), queryString);
+          var returnedContext = handler.handleRoute(context, axes.slice(0, i + 1), axes.slice(i + 1), queryString);
           context = returnedContext || context;
         }
       });
     }
     this.$vent.trigger('after:route', context, axes, queryString);
+  },
+  redirect: function (url, appendUrl) {
+    var parts = location.hash.split('?');
+    if (appendUrl) {
+      parts[0] = parts[0] + '/' + url;
+    } else {
+      parts[0] = url;
+    }
+
+    App.router.navigate(parts.join('?'));
   }
 };
 
