@@ -1,0 +1,31 @@
+.dashboard-chart-panel {
+  width: 90%;
+  list-style-type: none;
+}
+body,
+html {
+  height: 100%;
+  margin: 0;
+}
+
+.envelope-flex-container {
+  display: flex;
+  height: 100%;
+  flex-direction: row;
+  align-content: stretch;
+}
+
+.envelope-left-nav {
+  flex: 0 1 200px;
+  height: 100%;
+}
+
+.envelope-right-main {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.envelope-left-nav-button {
+  text-align: center;
+  margin-top: 15px;
+}

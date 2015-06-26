@@ -6,7 +6,3 @@ tmp
 .DS_Store
 .idea
 coverage
-*.sln
-*.sou
-/*.suo
-/example/public
