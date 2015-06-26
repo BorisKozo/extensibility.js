@@ -1,8 +1,8 @@
-Extensibility - A simple extensibility layer for your JavaScript application
+EJS - A simple library for building highly decoupled and modular web applications.
 ==========================================
 [![Build Status](https://travis-ci.org/BorisKozo/extensibility.js.png?branch=master)](https://travis-ci.org/BorisKozo/extensibility.js)
 
-This library is a collection of simple patterns that can help you manage the modularization and decoupling of your
+This library is a collection of simple patterns that help web developers manage the modularization and decoupling of your
  application components. It is conceptually based on the SharpDevelop addin tree and is built with the
  "turtles all the way down" methodology (i.e. each concept is using the previous concepts of the library).
  This library is **not** a replacement for Backbone/Ember/Angular/Knockout/<your framework> as it provides complementary
@@ -10,6 +10,7 @@ This library is a collection of simple patterns that can help you manage the mod
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
 
+ For a full example and guidelines on using EJS please see the [documentation of the example project.](example/README.md)
 ## Documentation
 
 This readme file contains basic usage examples and
