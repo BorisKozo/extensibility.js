@@ -433,6 +433,61 @@ you organize your code into well known patterns with the help of this library.
 
 ## Services
 
+Services are singleton objects that are accessible from anywhere within the code without directly referencing them
+(similar to Angular.js services). The services are identified by ````name```` because they are built hierarchically.
+ For example if a service with the name _FooService_ is registered and it has a method _bar_, and another service with the
+ name _FooService_ is registered and it has the method _baz_ then the final service will have both _bar_ and _baz_ method.
+ This is achieved simply by creating prototypical inheritance between all service instances with the same name in the order
+ they appear in the registry (again, order is key).
+
+#### Services path in the registry
+**in code**
+```js
+EJS.systemPaths.services
+```
+
+**in manifest**
+```js
+EJS/services
+```
+
+#### EJS.Service(options, prototype) -> Service (The service constructor)
+Creates a new service from the given options and assigns the given prototype as the prototype of the created service.
+Normally you don't need to use the service constructor.
+
+Each service has two builtin properties:
+
+* **$vent** - An events aggregator (equivalent to Backbone.Events object) which is used by the service to trigger events.
+You should use this event aggregator for any events emitted by your service instance.
+
+* **$next** - The next service in the chain (in current implementation equivalent to ````__proto__```` but you should not rely on that).
+Use this property to traverse the services chain. This is useful when you need to access your own service explicitly which must be
+uniquely identified by ````id```` as any EJS addin.
+
+#### EJS.getService(name) -> Service
+Returns the service with the given name or undefined if no service with the given name exists.
+
+ ```js
+   var routingService = EJS.getService('Routing Service');
+   routingService.doSomething();
+ ```
+
+#### EJS.addService(name, options, override) -> Service
+Adds a service with the given name to the end of the services chain based on the given options. If the override flag is
+set to true, the existing service chain with the given name is completely removed and a new chain is started with the created service.
+Note that if some module is holding a service instance, that instance will not be changed.
+
+**You should never hold on to an instance of a service and always call ````EJS.getService()```` when your code needs the service. This call is very cheap**
+
+
+### Service initialization
+When EJS first starts it calls the ````EJS.buildServices```` method. This method builds all the services registered on the services
+path in the registry. For each service in the registry it first calls _before:service:initialized_ event on ````EJS.vent````
+callback(serviceName) then tries to run the service _initialize_ method if one exists. This method may return EJS.Promise.
+When all the services are initialized it will trigger the _after:service:initialized_ event on ````EJS.vent```` callback(name, service).
+If your service needs access to some other service after it was initialized but before the application starts, you should register to this
+event as it guarantees that all services were initialized when called.
+
 ## Unit Tests
 
 1. Be sure you have NodeJS and NPM installed on your system
