@@ -266,12 +266,12 @@ An addin can be anything including a metadata for creating an actual object. The
   property which tells the library which builder is assigned to build that addin.
 
 #### Builders path in the registry
- **in code**
+ In the code
  ```js
  EJS.systemPaths.builders
  ```
 
- **in manifest**
+ In the manifest
  ```js
  EJS/builders
  ```
@@ -441,12 +441,12 @@ Services are singleton objects that are accessible from anywhere within the code
  they appear in the registry (again, order is key).
 
 #### Services path in the registry
-**in code**
+In the code
 ```js
 EJS.systemPaths.services
 ```
 
-**in manifest**
+In the manifest
 ```js
 EJS/services
 ```
@@ -477,14 +477,15 @@ Adds a service with the given name to the end of the services chain based on the
 set to true, the existing service chain with the given name is completely removed and a new chain is started with the created service.
 Note that if some module is holding a service instance, that instance will not be changed.
 
-**You should never hold on to an instance of a service and always call ````EJS.getService()```` when your code needs the service. This call is very cheap**
+**You should never hold on to an instance of a service and always call ````EJS.getService()```` when your code needs the service.
+This call is very cheap!**
 
 
 ### Service initialization
 When EJS first starts it calls the ````EJS.buildServices```` method. This method builds all the services registered on the services
 path in the registry. For each service in the registry it first calls _before:service:initialized_ event on ````EJS.vent````
-callback(serviceName) then tries to run the service _initialize_ method if one exists. This method may return EJS.Promise.
-When all the services are initialized it will trigger the _after:service:initialized_ event on ````EJS.vent```` callback(name, service).
+_callback(serviceName)_ then tries to run the service _initialize_ method if one exists. This method may return EJS.Promise.
+When all the services are initialized it will trigger the _after:service:initialized_ event on ````EJS.vent```` _callback(serviceName, service)_.
 If your service needs access to some other service after it was initialized but before the application starts, you should register to this
 event as it guarantees that all services were initialized when called.
 

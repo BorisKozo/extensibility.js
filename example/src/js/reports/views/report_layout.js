@@ -8,6 +8,9 @@ import reportViewTemplate from 'templates/reports/templates/report_layout';
 
 var ReportLayout = Marionette.LayoutView.extend({
   template: reportViewTemplate,
+  regions: {
+    'form':''
+  },
   serializeData: function () {
     return {
       reportName: this.model.get('name')

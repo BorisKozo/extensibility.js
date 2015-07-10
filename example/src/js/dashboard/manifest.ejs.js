@@ -73,6 +73,23 @@ var manifest = {
       ]
     },
     {
+      path: EJS.registry.joinPath('routes'),
+      addins: [
+        {
+          id: 'redirectToDashboard',
+          order: 100,
+          handleRoute: function (options, prevAxes, nextAxes) {
+            var routingService;
+            if (nextAxes.length === 0) {
+              routingService = EJS.getService('RoutingService');
+              routingService.redirect('#dashboard');
+            }
+          }
+
+        }
+      ]
+    },
+    {
       path: EJS.systemPaths.builders,
       addins: [
         {

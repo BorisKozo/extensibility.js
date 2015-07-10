@@ -48,7 +48,7 @@ var service = {
       parts[0] = url;
     }
 
-    App.router.navigate(parts.join('?'));
+    App.router.navigate(parts.join('?'),{trigger: true});
   }
 };
 

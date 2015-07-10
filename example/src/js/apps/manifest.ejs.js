@@ -10,8 +10,9 @@ var manifest = {
         id: 'Apps',
         order: '>>Campaign',
         type: 'NavButton',
-        content:{
-          title: 'Apps'
+        content: {
+          title: 'Apps',
+          link: 'apps'
         }
       }
     ]

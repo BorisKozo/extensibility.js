@@ -11,7 +11,8 @@ var manifest = {
         order: '>>Reports',
         type: 'NavButton',
         content:{
-          title: 'Campaign'
+          title: 'Campaign',
+          link: 'campaign'
         }
       }
     ]
