@@ -1,8 +1,8 @@
-EJS Example
+Subdivision Example
 ==========================================
 This example shows the basic principles of how you may use the library. This is merely a suggestion of how I would write
  the application. I am using Backbone.Marionette for managing my MV* and JSPM fo module management and ES6 compilation (via Babel).
- Naturally, you don't need any of these and you can use EJS with simple HTML and JavaScript or with any other framework or
+ Naturally, you don't need any of these and you can use subdivision with simple HTML and JavaScript or with any other framework or
  library (e.g. Ember.js, React, Angular.js)
  
 ### Running the application
@@ -24,6 +24,6 @@ This example shows the basic principles of how you may use the library. This is 
     run a webserver on port 9000 (the default port for Codefresh.io). 
 
 ### Special Gulp task
-There is a special Gulp task called ````gulp-compile-ejs-modules````. It compiles a new file which references all the modules
+There is a special Gulp task called ````gulp-compile-sdv-modules````. It compiles a new file which references all the modules
 with ````.sdv.js```` extension. You may use this task as is for your project to do the same (if someone will open an issue on publishing
 it I will consider doing so). More on ````.sdv.js```` files in the next sections of this document.
