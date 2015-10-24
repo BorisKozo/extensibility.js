@@ -27,7 +27,10 @@ module.exports = function (config) {
             'app/lib/command.js',
             'app/lib/condition.js',
             'app/lib/manifest-reader.js',
-            'test/unit/**/*.js'
+            'test/unit/**/*.spec.js'
+        ],
+        exclude:[
+            'test/unit/**/*.node.spec.js'
         ],
 
         autoWatch: true,

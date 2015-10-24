@@ -1,4 +1,4 @@
-// subdivision v0.1.0
+// subdivision v0.1.1
 // Copyright (c)2015 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -1485,5 +1485,14 @@ var subdivision = {};
         });
     };
 })(subdivision);
+(function (subdivision) {
+    'use strict';
+    var glob = require('glob');
+    subdivision.readDirectory = function (globPattern, globOptions) {
+
+
+    };
+})(subdivision);
+
 
 module.exports = subdivision;

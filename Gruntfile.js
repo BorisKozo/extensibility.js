@@ -106,6 +106,7 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/command.js',
                     '<%= meta.app %>/lib/condition.js',
                     '<%= meta.app %>/lib/manifest-reader.js',
+                    '<%= meta.app %>/lib/node/manifest-reader.node.js',
                     '<%= meta.app %>/lib/node/footer.jst'
                 ],
                 dest:'<%= meta.dist %>/subdivision.node.js'
