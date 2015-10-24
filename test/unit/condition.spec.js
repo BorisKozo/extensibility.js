@@ -1,17 +1,17 @@
 describe('Condition', function () {
     'use strict';
     var expect = chai.expect;
-    var EJS = window.EJS;
+    var subdivision = window.subdivision;
 
     beforeEach(function () {
-        EJS.registry.$clear();
-        EJS.$clearBuilders();
-        EJS.$clearConditions();
+        subdivision.registry.$clear();
+        subdivision.$clearBuilders();
+        subdivision.$clearConditions();
     });
 
     describe('Create a condition', function () {
         it('should create a condition', function () {
-            var condition = new EJS.Condition({
+            var condition = new subdivision.Condition({
                 id: 'aa',
                 name: 'bb',
                 isValid: function () {
@@ -21,7 +21,7 @@ describe('Condition', function () {
             expect(condition.id).to.be.equal('aa');
             expect(condition.name).to.be.equal('bb');
 
-            condition = new EJS.Condition({
+            condition = new subdivision.Condition({
                 isValid: function () {
                 }
             });
@@ -32,42 +32,42 @@ describe('Condition', function () {
 
         it('should throw if a condition is created without isValid function', function () {
             expect(function () {
-                var condition = new EJS.Condition({});
+                var condition = new subdivision.Condition({});
             }).to.throw('A condition must have an isValid function');
         });
     });
 
     describe('Get a condition', function () {
         it('should get a condition with the given name', function () {
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 }
             });
 
-            var condition = EJS.getCondition('monkey');
+            var condition = subdivision.getCondition('monkey');
             expect(condition).to.be.ok;
             expect(condition.name).to.be.equal('monkey');
         });
 
         it('should not get a condition with the given name', function () {
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 }
             });
 
-            var condition = EJS.getCondition('monkey2');
+            var condition = subdivision.getCondition('monkey2');
             expect(condition).to.be.undefined;
         });
 
         it('should throw if the given name is undefined or null', function () {
             expect(function () {
-                EJS.getCondition();
+                subdivision.getCondition();
             }).to.throw('name must not be undefined or null');
 
             expect(function () {
-                EJS.getCondition(null);
+                subdivision.getCondition(null);
             }).to.throw('name must not be undefined or null');
 
         });
@@ -75,14 +75,14 @@ describe('Condition', function () {
 
     describe('Add a condition', function () {
         it('should add a condition and initialize it', function () {
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub()
             });
 
-            var condition = EJS.getCondition('monkey');
+            var condition = subdivision.getCondition('monkey');
             expect(condition).to.be.ok;
             expect(condition.name).to.be.equal('monkey');
             expect(condition.initialize.calledOnce).to.be.true;
@@ -90,19 +90,19 @@ describe('Condition', function () {
 
         it('should throw if the condition is not valid', function () {
             expect(function () {
-                EJS.addCondition();
+                subdivision.addCondition();
             }).to.throw('A condition must have an isValid function');
 
         });
 
         it('should return false if the condition already exists and force was false', function () {
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 },
                 initialize: sinon.stub()
             });
-            var conditionAddResult = EJS.addCondition({
+            var conditionAddResult = subdivision.addCondition({
                 name: 'monkey',
                 isValid: function () {
                 },
@@ -123,8 +123,8 @@ describe('Condition', function () {
                 initialize: sinon.stub(),
                 destroy: sinon.stub()
             };
-            EJS.addCondition(firstCondition);
-            EJS.addCondition({
+            subdivision.addCondition(firstCondition);
+            subdivision.addCondition({
                 id: '2',
                 name: 'monkey',
                 isValid: function () {
@@ -132,8 +132,8 @@ describe('Condition', function () {
                 initialize: sinon.stub()
             }, true);
             expect(firstCondition.destroy.calledOnce).to.be.true;
-            expect(EJS.getCondition('monkey')).to.be.ok;
-            expect(EJS.getCondition('monkey').id).to.be.equal('2');
+            expect(subdivision.getCondition('monkey')).to.be.ok;
+            expect(subdivision.getCondition('monkey').id).to.be.equal('2');
         });
     });
 
@@ -146,20 +146,20 @@ describe('Condition', function () {
                 destroy: sinon.stub()
             };
 
-            EJS.addCondition(condition);
-            EJS.removeCondition('monkey');
-            var result = EJS.getCondition('monkey');
+            subdivision.addCondition(condition);
+            subdivision.removeCondition('monkey');
+            var result = subdivision.getCondition('monkey');
             expect(condition.destroy.calledOnce).to.be.true;
             expect(result).to.be.undefined;
         });
 
         it('should throw if the name was null or undefined', function () {
             expect(function () {
-                EJS.removeCondition();
+                subdivision.removeCondition();
             }).to.throw('name must not be undefined or null');
 
             expect(function () {
-                EJS.removeCondition(null);
+                subdivision.removeCondition(null);
             }).to.throw('name must not be undefined or null');
         });
     });
@@ -168,32 +168,32 @@ describe('Condition', function () {
 
         var operations;
         beforeEach(function () {
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.addCondition({
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.addCondition({
                 name: "trueCondition",
                 isValid: function () {
                     return true;
                 }
             });
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: "falseCondition",
                 isValid: function () {
                     return false;
                 }
             });
-            EJS.generateBuilders();
-            operations = EJS.build(EJS.systemPaths.conditionOperations)
+            subdivision.generateBuilders();
+            operations = subdivision.build(subdivision.systemPaths.conditionOperations)
 
         });
 
         it('should build a condition operation', function () {
-            EJS.readManifest({
+            subdivision.readManifest({
                 paths: [{
-                    path: EJS.systemPaths.conditionOperations,
+                    path: subdivision.systemPaths.conditionOperations,
                     addins: [
                         {
                             literal: 'aaa',
-                            type: 'EJS.conditionOperation',
+                            type: 'subdivision.conditionOperation',
                             generator: function (element) {
                                 return element;
                             }
@@ -203,9 +203,9 @@ describe('Condition', function () {
                 }]
             });
 
-            EJS.addBuilder(EJS.Condition.$conditionOperationBuilder);
+            subdivision.addBuilder(subdivision.Condition.$conditionOperationBuilder);
 
-            var result = EJS.build(EJS.systemPaths.conditionOperations, {literal: 'aaa'});
+            var result = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: 'aaa'});
             expect(result.length).to.be.equal(1);
             expect(result[0].literal).to.be.equal('aaa');
             expect(result[0].generator('bbb')).to.be.equal('bbb');
@@ -214,16 +214,16 @@ describe('Condition', function () {
         it('should perform the not operation correctly', function () {
             var notOperator = _.find(operations, {literal: '!'});
             expect(notOperator).to.be.ok;
-            var condition = notOperator.generator(EJS.getCondition('trueCondition'));
+            var condition = notOperator.generator(subdivision.getCondition('trueCondition'));
             expect(condition.isValid()).to.be.false;
-            condition = notOperator.generator(EJS.getCondition('falseCondition'));
+            condition = notOperator.generator(subdivision.getCondition('falseCondition'));
             expect(condition.isValid()).to.be.true;
         });
 
         it('should perform the and operation correctly', function () {
             var andOperator = _.find(operations, {literal: '&'});
-            var trueCondition = EJS.getCondition('trueCondition');
-            var falseCondition = EJS.getCondition('falseCondition');
+            var trueCondition = subdivision.getCondition('trueCondition');
+            var falseCondition = subdivision.getCondition('falseCondition');
 
             expect(andOperator).to.be.ok;
             expect(andOperator.generator(trueCondition, trueCondition).isValid()).to.be.true;
@@ -234,8 +234,8 @@ describe('Condition', function () {
 
         it('should perform the or operation correctly', function () {
             var orOperator = _.find(operations, {literal: '|'});
-            var trueCondition = EJS.getCondition('trueCondition');
-            var falseCondition = EJS.getCondition('falseCondition');
+            var trueCondition = subdivision.getCondition('trueCondition');
+            var falseCondition = subdivision.getCondition('falseCondition');
 
             expect(orOperator).to.be.ok;
             expect(orOperator.generator(trueCondition, trueCondition).isValid()).to.be.true;
@@ -248,79 +248,79 @@ describe('Condition', function () {
 
     describe('Condition with parsed isValid', function () {
         beforeEach(function () {
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.addCondition({
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.addCondition({
                 name: "trueCondition",
                 isValid: function () {
                     return true;
                 }
             });
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: "falseCondition",
                 isValid: function () {
                     return false;
                 }
             });
-            EJS.generateBuilders();
+            subdivision.generateBuilders();
         });
 
         it('should be able to duplicate an existing condition', function () {
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "duplicateFalseCondition",
                 isValid: "falseCondition"
             }));
 
-            var condition = EJS.getCondition("duplicateFalseCondition");
+            var condition = subdivision.getCondition("duplicateFalseCondition");
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.false;
         });
 
         it('should be able to create a not condition', function () {
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "notFalseCondition",
                 isValid: "!falseCondition"
             }));
 
-            var condition = EJS.getCondition("notFalseCondition");
+            var condition = subdivision.getCondition("notFalseCondition");
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.true;
         });
 
 
         it('should be able to create a not not condition', function () {
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "notFalseCondition",
                 isValid: "!falseCondition"
             }));
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "notNotFalseCondition",
                 isValid: "!notFalseCondition"
             }));
 
-            var condition = EJS.getCondition("notNotFalseCondition");
+            var condition = subdivision.getCondition("notNotFalseCondition");
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.false;
         });
 
         it('should be able to create an and condition', function () {
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "andTrueFalseCondition",
                 isValid: "(trueCondition & falseCondition)"
             }));
 
-            var condition = EJS.getCondition("andTrueFalseCondition");
+            var condition = subdivision.getCondition("andTrueFalseCondition");
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.false;
         });
 
         it('should be able to create an or condition', function () {
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "orTrueFalseCondition",
                 isValid: "(trueCondition | falseCondition)"
             }));
 
-            var condition = EJS.getCondition("orTrueFalseCondition");
+            var condition = subdivision.getCondition("orTrueFalseCondition");
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.true;
         });
@@ -329,14 +329,14 @@ describe('Condition', function () {
             var a = true;
             var b = false;
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "a",
                 isValid: function () {
                     return a;
                 }
             }));
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "b",
                 isValid: function () {
                     return b;
@@ -344,23 +344,23 @@ describe('Condition', function () {
             }));
 
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "deMorganLeft",
                 isValid: "!(a | b)"
             }));
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "deMorganRight",
                 isValid: "!a & !b"
             }));
 
-            EJS.addCondition(new EJS.Condition({
+            subdivision.addCondition(new subdivision.Condition({
                 name: "deMorganFull",
                 isValid: "deMorganLeft | !deMorganRight"
             }));
 
 
-            var condition = EJS.getCondition("deMorganFull");
+            var condition = subdivision.getCondition("deMorganFull");
             expect(condition).to.be.ok;
             a = true;
             b = true;
@@ -381,16 +381,16 @@ describe('Condition', function () {
 
     describe('Condition builder', function () {
         it('should build a condition', function () {
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.readManifest({
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.readManifest({
                 paths: [
                     {
-                        path: EJS.systemPaths.conditions,
+                        path: subdivision.systemPaths.conditions,
                         addins: [
                             {
                                 id: 'condition1',
                                 name: 'monkey',
-                                type: 'EJS.condition',
+                                type: 'subdivision.condition',
                                 order: 1,
                                 isValid: function () {
                                     return true;
@@ -401,9 +401,9 @@ describe('Condition', function () {
                     }
                 ]
             });
-            EJS.generateBuilders();
+            subdivision.generateBuilders();
 
-            var condition = EJS.build(EJS.systemPaths.conditions, {name: 'monkey'})[0];
+            var condition = subdivision.build(subdivision.systemPaths.conditions, {name: 'monkey'})[0];
             expect(condition).to.be.ok;
             expect(condition.isValid()).to.be.true;
 

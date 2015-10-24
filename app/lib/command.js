@@ -1,4 +1,4 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
     var count = 0;
     var commands = {};
@@ -8,9 +8,9 @@
     }
 
 
-    EJS.Command = function (options) {
+    subdivision.Command = function (options) {
         options = options || {};
-        var result = EJS.Addin.$internalConstructor('command', count++, options);
+        var result = subdivision.Addin.$internalConstructor('command', count++, options);
         result.name = options.name || result.id;
         if (!_.isFunction(result.execute)) {
             throw new Error('Command options must contain the "execute" function ' + JSON.stringify(options));
@@ -19,16 +19,16 @@
             result.isValid = trueFunction;
         }
         if (!result.hasOwnProperty('canExecute')) {
-            result.canExecute = EJS.Command.$canExecute;
+            result.canExecute = subdivision.Command.$canExecute;
         }
 
         return result;
     };
 
-    EJS.Command.$canExecute = function(){
+    subdivision.Command.$canExecute = function(){
         var condition = this.condition;
         if (_.isString(condition)) {
-            condition = EJS.getCondition(condition);
+            condition = subdivision.getCondition(condition);
         }
         //If a condition was defined then the condition isValid function
         // AND
@@ -37,30 +37,30 @@
     };
 
 
-    EJS.systemPaths.commands = EJS.registry.joinPath(EJS.systemPaths.prefix, 'commands');
+    subdivision.systemPaths.commands = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'commands');
 
-    EJS.defaultManifest.paths.push({
-        path: EJS.systemPaths.builders,
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
         addins: [{
-            target: 'EJS.command',
-            id: 'EJS.commandBuilder',
+            target: 'subdivision.command',
+            id: 'subdivision.commandBuilder',
             order: 100,
             build: function (addin) {
-                var condition = new EJS.Command(addin);
+                var condition = new subdivision.Command(addin);
                 return condition;
             }
         }]
     });
 
-    EJS.getCommand = function (name) {
+    subdivision.getCommand = function (name) {
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
         return commands[name];
     };
 
-    EJS.addCommand = function (options, force) {
-        var command = new EJS.Command(options);
+    subdivision.addCommand = function (options, force) {
+        var command = new subdivision.Command(options);
 
         var name = command.name;
 
@@ -71,7 +71,7 @@
             return false;
         }
 
-        EJS.removeCommand(name);
+        subdivision.removeCommand(name);
 
         commands[name] = command;
         if (_.isFunction(command.initialize)) {
@@ -80,7 +80,7 @@
         return true;
     };
 
-    EJS.removeCommand = function (name) {
+    subdivision.removeCommand = function (name) {
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
@@ -90,8 +90,8 @@
         commands[name] = undefined;
     };
 
-    EJS.$clearCommands = function () {
+    subdivision.$clearCommands = function () {
         commands = {};
     };
 })
-(EJS);
+(subdivision);

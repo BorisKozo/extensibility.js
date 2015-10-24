@@ -1,6 +1,6 @@
 'use strict';
 
-import EJS from 'vendor/extensibility';
+import subdivision from 'vendor/subdivision';
 import Marionette from 'marionette';
 import Backbone from 'backbone';
 
@@ -14,7 +14,7 @@ var NavItemView = Marionette.ItemView.extend({
   className: 'envelope-left-nav-button',
   tagName: 'li',
   initialize: function () {
-    var routingService = EJS.getService('RoutingService');
+    var routingService = subdivision.getService('RoutingService');
     this.listenTo(routingService.$vent, 'after:route', this.afterRoute);
   },
   serializeData: function () {
@@ -42,7 +42,7 @@ var NavView = Marionette.CompositeView.extend({
   childView: NavItemView,
   childViewContainer: '.js-envelope-side-nav-buttons',
   initialize: function () {
-    var buttons = EJS.build('navbar');
+    var buttons = subdivision.build('navbar');
     this.collection = new Backbone.Collection(buttons);
   }
 });

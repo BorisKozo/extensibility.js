@@ -50,6 +50,6 @@
     "predef": [
         "angular", "i18n", "log4javascript", "Slick", "_", "moment", "Chart", "module", "require", "stmGlobals", "console", "inject",
         "XRegExp", "nv", "d3", "Mousetrap", "Strophe", "$msg", "$pres", "$iq", "$build", "totango", "totango_options", "CKEDITOR", "JSZip","io",
-        "it", "xit", "expect", "describe", "xdescribe", "beforeEach", "afterEach", "chai", "_", "sinon", "before", "after", "webappUnit", "EJS", "Promise"
+        "it", "xit", "expect", "describe", "xdescribe", "beforeEach", "afterEach", "chai", "_", "sinon", "before", "after", "webappUnit", "subdivision", "Promise"
     ]
 }

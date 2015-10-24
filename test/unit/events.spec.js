@@ -2,11 +2,11 @@ describe('EventBusService', function () {
 
     'use strict';
     var expect = chai.expect;
-    var EJS = window.EJS;
+    var subdivision = window.subdivision;
 
     it('on and trigger', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
         obj.on('event', function () {
             obj.counter += 1;
         });
@@ -21,7 +21,7 @@ describe('EventBusService', function () {
 
     it('binding and triggering multiple events', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         obj.on('a b c', function () {
             obj.counter += 1;
@@ -43,7 +43,7 @@ describe('EventBusService', function () {
 
     it('binding and triggering with event maps', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         var increment = function () {
             this.counter += 1;
@@ -73,8 +73,8 @@ describe('EventBusService', function () {
     });
 
     it('listenTo and stopListening', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var callbackA = sinon.spy();
         var callbackB = sinon.spy();
         a.listenTo(b, 'all', callbackA);
@@ -88,8 +88,8 @@ describe('EventBusService', function () {
     });
 
     it('listenTo and stopListening with event maps', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var cb = sinon.spy();
         a.listenTo(b, {event: cb});
         b.trigger('event');
@@ -104,8 +104,8 @@ describe('EventBusService', function () {
     });
 
     it('stopListening with omitted args', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
 
         var cb = sinon.spy();
         a.listenTo(b, 'event', cb);
@@ -123,8 +123,8 @@ describe('EventBusService', function () {
     });
 
     it('listenToOnce and stopListening', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
 
         var cb = sinon.spy();
         a.listenToOnce(b, 'all', cb);
@@ -138,8 +138,8 @@ describe('EventBusService', function () {
     });
 
     it('listenTo, listenToOnce and stopListening', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var cb = sinon.spy();
         a.listenToOnce(b, 'all', cb);
         b.trigger('anything');
@@ -152,8 +152,8 @@ describe('EventBusService', function () {
     });
 
     it('listenTo and stopListening with event maps', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var cb = sinon.spy();
         a.listenTo(b, {change: cb});
         b.trigger('change');
@@ -165,7 +165,7 @@ describe('EventBusService', function () {
     });
 
     it('listenTo yourself', function () {
-        var e = EJS.createEventBus();
+        var e = subdivision.createEventBus();
         var cb = sinon.spy();
         e.listenTo(e, 'foo', cb);
         e.trigger('foo');
@@ -174,7 +174,7 @@ describe('EventBusService', function () {
     });
 
     it('listenTo yourself cleans yourself up with stopListening', function () {
-        var e = EJS.createEventBus();
+        var e = subdivision.createEventBus();
         var cb = sinon.spy();
         e.listenTo(e, 'foo', cb);
         e.trigger('foo');
@@ -185,8 +185,8 @@ describe('EventBusService', function () {
     });
 
     it('stopListening cleans up references', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var fn = function () {
         };
         a.listenTo(b, 'all', fn).stopListening();
@@ -200,8 +200,8 @@ describe('EventBusService', function () {
     });
 
     it('listenTo and stopListening cleaning up references', function () {
-        var a = EJS.createEventBus();
-        var b = EJS.createEventBus();
+        var a = subdivision.createEventBus();
+        var b = subdivision.createEventBus();
         var cb = sinon.spy();
         a.listenTo(b, 'all', cb);
         b.trigger('anything');
@@ -213,14 +213,14 @@ describe('EventBusService', function () {
     });
 
     it('listenTo with empty callback doesn\'t throw an error', function () {
-        var e = EJS.createEventBus();
+        var e = subdivision.createEventBus();
         e.listenTo(e, 'foo', null);
         e.trigger('foo');
     });
 
     it('trigger all for each event', function () {
         var a, b, obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
         obj.on('all', function (event) {
             obj.counter++;
             if (event === 'a') {
@@ -239,7 +239,7 @@ describe('EventBusService', function () {
 
     it('on, then unbind all functions', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
         var callback = function () {
             obj.counter += 1;
         };
@@ -253,7 +253,7 @@ describe('EventBusService', function () {
 
     it('bind two callbacks, unbind only one', function () {
         var obj = {counterA: 0, counterB: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         var callback = function () {
             obj.counterA += 1;
@@ -272,7 +272,7 @@ describe('EventBusService', function () {
 
     it('unbind a callback in the midst of it firing', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
         var callback = function () {
             obj.counter += 1;
             obj.off('event', callback);
@@ -287,7 +287,7 @@ describe('EventBusService', function () {
 
     it('two binds that unbind themeselves', function () {
         var obj = {counterA: 0, counterB: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
         var incrA = function () {
             obj.counterA += 1;
             obj.off('event', incrA);
@@ -312,7 +312,7 @@ describe('EventBusService', function () {
         };
         TestClass.prototype.assertTrue = sinon.spy();
 
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         obj.on('event', function () {
             this.assertTrue();
         }, (new TestClass()));
@@ -323,7 +323,7 @@ describe('EventBusService', function () {
 
     it('nested trigger with unbind', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         var incr1 = function () {
             obj.counter += 1;
@@ -342,7 +342,7 @@ describe('EventBusService', function () {
 
     it('callback list is not altered during trigger', function () {
         var counter = 0;
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
 
         var incr = function () {
             counter++;
@@ -368,7 +368,7 @@ describe('EventBusService', function () {
 
     it('#1282 - \'all\' callback list is retrieved after each event.', function () {
         var counter = 0;
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
 
         var incr = function () {
             counter++;
@@ -382,18 +382,18 @@ describe('EventBusService', function () {
     });
 
     it('if no callback is provided, `on` is a noop', function () {
-        EJS.createEventBus().on('test').trigger('test');
+        subdivision.createEventBus().on('test').trigger('test');
     });
 
     it('if callback is truthy but not a function, `on` should throw an error just like jQuery', function () {
-        var view = EJS.createEventBus().on('test', 'noop');
+        var view = subdivision.createEventBus().on('test', 'noop');
         expect(function () {
             view.trigger('test');
         }).to.throw;
     });
 
     it('remove all events for a specific context', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var cb = sinon.spy();
         obj.on('x y all', cb);
         obj.on('x y all', cb, obj);
@@ -404,7 +404,7 @@ describe('EventBusService', function () {
     });
 
     it('remove all events for a specific callback', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var success = sinon.spy();
         var fail = sinon.spy();
         obj.on('x y all', success);
@@ -417,7 +417,7 @@ describe('EventBusService', function () {
     });
 
     it('#1310 - off does not skip consecutive events', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var cb = sinon.spy();
         obj.on('event', cb, obj);
         obj.on('event', cb, obj);
@@ -429,7 +429,7 @@ describe('EventBusService', function () {
     it('once', function () {
         // Same as the previous test, but we use once rather than having to explicitly unbind
         var obj = {counterA: 0, counterB: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         var incrA = function () {
             obj.counterA += 1;
@@ -449,8 +449,8 @@ describe('EventBusService', function () {
     it('once variant one', function () {
         var f = sinon.spy();
 
-        var a = EJS.createEventBus().once('event', f);
-        var b = EJS.createEventBus().on('event', f);
+        var a = subdivision.createEventBus().once('event', f);
+        var b = subdivision.createEventBus().on('event', f);
 
         a.trigger('event');
 
@@ -462,7 +462,7 @@ describe('EventBusService', function () {
 
     it('once variant two', function () {
         var f = sinon.spy();
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
 
         obj
             .once('event', f)
@@ -475,7 +475,7 @@ describe('EventBusService', function () {
 
     it('once with off', function () {
         var f = sinon.spy();
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
 
         obj.once('event', f);
         obj.off('event', f);
@@ -486,7 +486,7 @@ describe('EventBusService', function () {
 
     it('once with event maps', function () {
         var obj = {counter: 0};
-        obj = EJS.createEventBus(obj);
+        obj = subdivision.createEventBus(obj);
 
         var increment = function () {
             this.counter += 1;
@@ -513,7 +513,7 @@ describe('EventBusService', function () {
 
     it('once with off only by context', function () {
         var context = {};
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var cb = sinon.spy();
         obj.once('event', cb, context);
         obj.off(null, null, context);
@@ -529,14 +529,14 @@ describe('EventBusService', function () {
         });
 
         var func = _.debounce(callback, 50);
-        var obj = EJS.createEventBus().once('async', func);
+        var obj = subdivision.createEventBus().once('async', func);
 
         obj.trigger('async');
         obj.trigger('async');
     });
 
     it('once with multiple events.', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var callback = sinon.spy();
         obj.once('x y', callback);
         obj.trigger('x y');
@@ -545,7 +545,7 @@ describe('EventBusService', function () {
     });
 
     it('Off during iteration with once.', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var callback = sinon.spy();
         var f = function () {
             this.off('event', f);
@@ -562,7 +562,7 @@ describe('EventBusService', function () {
     });
 
     it('"once" on "all" should work as expected', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var callCount = 0;
 
         obj.once('all', function () {
@@ -575,12 +575,12 @@ describe('EventBusService', function () {
     });
 
     it('once without a callback is a noop', function () {
-        EJS.createEventBus().once('event').trigger('event');
+        subdivision.createEventBus().once('event').trigger('event');
     });
 
     it('event functions are chainable', function () {
-        var obj = EJS.createEventBus();
-        var obj2 = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
+        var obj2 = subdivision.createEventBus();
         var fn = function () {
         };
         expect(obj).to.equal(obj.trigger('noeventssetyet'));
@@ -597,7 +597,7 @@ describe('EventBusService', function () {
     });
 
     it('should call events with two paramters as the arguments of the event', function () {
-        var obj = EJS.createEventBus();
+        var obj = subdivision.createEventBus();
         var callback = sinon.spy();
         var arg1 = {a: 0}, arg2 = {b: 1}, arg3 = {c: 1}, arg4 = {d: 1};
 
@@ -620,7 +620,7 @@ describe('EventBusService', function () {
     });
 
     it('offAll should remove all the events subscribers with the same context', function () {
-        var obj = EJS.createEventBus(),
+        var obj = subdivision.createEventBus(),
             myContext = {paramInContext: 1},
             callback1 = sinon.spy(),
             callback2 = sinon.spy(),

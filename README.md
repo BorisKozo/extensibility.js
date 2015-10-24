@@ -1,6 +1,6 @@
-EJS - A simple library for building highly decoupled and modular web applications.
+subdivision - A simple library for building highly decoupled and modular web applications.
 ==========================================
-[![Build Status](https://travis-ci.org/BorisKozo/extensibility.js.png?branch=master)](https://travis-ci.org/BorisKozo/extensibility.js)
+[![Build Status](https://travis-ci.org/BorisKozo/subdivision.png?branch=master)](https://travis-ci.org/BorisKozo/subdivision)
 
 This library is a collection of simple patterns that help web developers manage the modularization and decoupling of your
  application components. It is conceptually based on the SharpDevelop addin tree and is built with the
@@ -10,13 +10,13 @@ This library is a collection of simple patterns that help web developers manage 
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
 
- For a full example and guidelines on using EJS please see the [documentation of the example project.](example/README.md)
+ For a full example and guidelines on using subdivision please see the [documentation of the example project.](example/README.md)
 ## Documentation
 
 This readme file contains basic usage examples and
 details on the full API, including methods,
 attributes and helper functions.
-To use the library, include  ````dist/extensibility.js```` or ````dist/extensibility.min.js```` in your
+To use the library, include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your
 index.html.
 
 The library has two dependencies - lodash and Promise polyfill for browsers that do not support ES6 Promise function.
@@ -36,82 +36,82 @@ of the tree root, we need to use the path ```boo/foo```. The root node is denote
 ```/boo/foo``` is also correct. The path delimiter is ```/``` and it is (currently) hardcoded. The registry is a global
 singleton.
 
-The Registry API is encapsulated within the ```EJS.registry``` object and is as follows:
+The Registry API is encapsulated within the ```subdivision.registry``` object and is as follows:
 
-#### EJS.registry.$getNode(axes, createIfNotExists) -> node
+#### subdivision.registry.$getNode(axes, createIfNotExists) -> node
 Tries to get a tree node from the registry tree based on the given _axes_. _axes_ can be a valid path string or
 an array of node names. If the requested node or any of the nodes in the path to the requested node do not exist,
 creates the node based on the _createIfNotExists_ argument. If the requested node is not found ```null``` is returned.
 
 ```js
-var newNode = EJS.registry.$getNode(['foo','boo'],true);
+var newNode = subdivision.registry.$getNode(['foo','boo'],true);
 
 //creates the node foo under the root node and the node boo
 //under the foo node. The last node (i.e. boo) is returned
 
-console.log(newNode === EJS.registry.$getNode('foo/boo', false)) // true
+console.log(newNode === subdivision.registry.$getNode('foo/boo', false)) // true
 ```
 
-#### EJS.registry.$clear()
+#### subdivision.registry.$clear()
 Forcefully removes all the nodes and their content from the registry. You should never call this function unless you
 are absolutely sure you know what you are doing.
 
-#### EJS.registry.verifyAxis(axis) -> boolean
+#### subdivision.registry.verifyAxis(axis) -> boolean
 Determines if the given axis is a valid axis name for the registry (i.e. can be used as a node name). The axis should be
 a non empty string which does not contain the delimiter.
 
 ```js
-  EJS.registry.verifyAxis(null); //false
-  EJS.registry.verifyAxis(undefined); //false
-  EJS.registry.verifyAxis(10); //false
-  EJS.registry.verifyAxis(''); //false
-  EJS.registry.verifyAxis('foo'); //true
-  EJS.registry.verifyAxis('foo/boo'); //false
-  EJS.registry.verifyAxis('You can put almost any string here'); //true
+  subdivision.registry.verifyAxis(null); //false
+  subdivision.registry.verifyAxis(undefined); //false
+  subdivision.registry.verifyAxis(10); //false
+  subdivision.registry.verifyAxis(''); //false
+  subdivision.registry.verifyAxis('foo'); //true
+  subdivision.registry.verifyAxis('foo/boo'); //false
+  subdivision.registry.verifyAxis('You can put almost any string here'); //true
 ```
 
-#### EJS.registry.joinPath(<axes|paths>) -> path
+#### subdivision.registry.joinPath(<axes|paths>) -> path
 Creates a single path out of the given _axes_ or _paths_. The axes or paths can be any number of separate strings
 or an array containing strings up to any depth. The proper delimiter is automatically added between the
 axes and paths as the path is built.
 
 ```js
-  EJS.registry.joinPath('a', 'bcd', 'ef'); // 'a/bcd/ef'
-  EJS.registry.joinPath('a/bcd', 'ef/g');  //'a/bcd/ef/g');
-  EJS.registry.joinPath(['a', ['bcd'], ['ef', 'g']]); //'a/bcd/ef/g';
+  subdivision.registry.joinPath('a', 'bcd', 'ef'); // 'a/bcd/ef'
+  subdivision.registry.joinPath('a/bcd', 'ef/g');  //'a/bcd/ef/g');
+  subdivision.registry.joinPath(['a', ['bcd'], ['ef', 'g']]); //'a/bcd/ef/g';
 ```
 
 
-#### EJS.registry.breakPath(path) -> [axes]
+#### subdivision.registry.breakPath(path) -> [axes]
 Breaks the given path to its individual axes. Returns an array containing all the axes as strings.
 
 ```js
-  EJS.registry.breakPath('abv/efg/aaa'); //['abv', 'efg', 'aaa']
+  subdivision.registry.breakPath('abv/efg/aaa'); //['abv', 'efg', 'aaa']
 ```
 
-#### EJS.registry.pathExists(path) -> boolean
+#### subdivision.registry.pathExists(path) -> boolean
 Returns true if the tree node for the given path exists in the tree. Note that when you create a node at some path,
 all the nodes along the path are also created. For example if you insert into the path a/b/c then a, a/b, and a/b/c
 will be created.
 
 ```js
- EJS.registry.$getNode(['foo','boo'],true);
- EJS.registry.pathExists('foo'); //true
- EJS.registry.pathExists('foo/boo'); //true
- EJS.registry.pathExists('boo'); //false
+ subdivision.registry.$getNode(['foo','boo'],true);
+ subdivision.registry.pathExists('foo'); //true
+ subdivision.registry.pathExists('foo/boo'); //true
+ subdivision.registry.pathExists('boo'); //false
 ```
 
-#### EJS.registry.getSubPaths(path) -> Array
+#### subdivision.registry.getSubPaths(path) -> Array
 Returns a list of all the immediate subpaths of the given path. For example if the registry contains the paths: a/b/c,
 a/b/d, a/b/e then calling this function with the path a/b will return ['c','d','e'] (the order is not guaranteed).
 If the path doesn't exist then null is returned.
 
 ```js
- EJS.addAddin('a/b/c');
- EJS.addAddin('a/b/d');
- EJS.addAddin('a/b/e');
- EJS.registry.getSubPaths('a/b'); //['c','d','e']
- EJS.registry.getSubPaths('x/y'); //null
+ subdivision.addAddin('a/b/c');
+ subdivision.addAddin('a/b/d');
+ subdivision.addAddin('a/b/e');
+ subdivision.registry.getSubPaths('a/b'); //['c','d','e']
+ subdivision.registry.getSubPaths('x/y'); //null
 ```
 
 ## Addins
@@ -119,7 +119,7 @@ The registry can contain anything in its nodes but it main purpose is to hold ad
 for a JavaScript object that has certain properties. In fact, anything this library adds for you into the registry is
  an addin.
 
-#### EJS.Addin(options) -> Addin (The Addin constructor)
+#### subdivision.Addin(options) -> Addin (The Addin constructor)
 Creates a new addin and shallow copies all the properties from _options_ onto it. If _options_ is a function, shallow
 copies all the properties from the object returned by the function. An addin contains at least two properties:
 
@@ -130,32 +130,32 @@ copies all the properties from the object returned by the function. An addin con
 
 
 ```js
-  var myAddin = new EJS.Addin({myVar:1, myString:"aaa", order:123});
+  var myAddin = new subdivision.Addin({myVar:1, myString:"aaa", order:123});
   //an id will be auto generated
 
   console.log(myAddin); // {id:"addin0", myVar:1, myString:"aaa", order:123}
-  var myOtherAddin = new EJS.Addin(function(){
+  var myOtherAddin = new subdivision.Addin(function(){
     return {id:"myId"};
   });
   console.log(myOtherAddin); //{id:"myId", order:0}
 ```
 
-#### EJS.addAddin(path, addin)
+#### subdivision.addAddin(path, addin)
 Adds the given _addin_ to the given _path_ in the registry. There is no check that the _addin_ was constructed with the
-````EJS.Addin```` constructor so you can send any object there as long as it has the appropriate signature.
+````subdivision.Addin```` constructor so you can send any object there as long as it has the appropriate signature.
 
-#### EJS.getAddins(path, searchCriteria, skipSort) -> [Addin]
+#### subdivision.getAddins(path, searchCriteria, skipSort) -> [Addin]
 Returns an array containing all the addins in the given _path_ that match the _searchCriteria_. If _searchCriteria_ is
 ````undefined````, returns all the addins in the path. Set _skipSort_ to true if you don't want to sort the returned addins by
 order (more on ordering addins in the next section). The syntax for the _searchCriteria_ is determined by the lodash
 [filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
 
 ```js
-  EJS.addAddin('aaa',new EJS.Addin({name:"Bob"}));
-  EJS.addAddin('aaa',new EJS.Addin({name:"Alice"}));
-  EJS.getAddins('aaa'); //[{name:"Bob" ...},{name:"Alice" ...}]
-  EJS.getAddins('aaa',{name:"Alice"}); //[{name:"Alice" ...}]
-  EJS.getAddins('aaa',function(addin){
+  subdivision.addAddin('aaa',new subdivision.Addin({name:"Bob"}));
+  subdivision.addAddin('aaa',new subdivision.Addin({name:"Alice"}));
+  subdivision.getAddins('aaa'); //[{name:"Bob" ...},{name:"Alice" ...}]
+  subdivision.getAddins('aaa',{name:"Alice"}); //[{name:"Alice" ...}]
+  subdivision.getAddins('aaa',function(addin){
     return addin.name === "Alice";
   }); //[{name:"Alice" ...}]
 ```
@@ -183,28 +183,28 @@ and this order must appear last. For example "<<foo,>>bar,>moo" is valid while "
 
 The order is evaluated in priority, first the immediately orders are calculated then the non immediate and the absolute are calculated last.
 
-#### EJS.utils.topologicalSort(addins) -> [addins]
+#### subdivision.utils.topologicalSort(addins) -> [addins]
 Sorts the given array of _addins_ with the rules mentioned above. Returns a copy of the array with all the addins sorted (does not change the original array).
 Note: You should probably never call this yourself, this function is used internally to retrieve addins.
 
 ```js
             var addins = [];
-            addins.push(new EJS.Addin({id: '1', order: 10}));
-            addins.push(new EJS.Addin({id: '2', order: 0}));
-            addins.push(new EJS.Addin({id: '3', order: 20}));
-            addins.push(new EJS.Addin({id: '4', order: 30}));
-            addins.push(new EJS.Addin({id: '5', order: 25}));
-            var result = EJS.utils.topologicalSort(addins);
+            addins.push(new subdivision.Addin({id: '1', order: 10}));
+            addins.push(new subdivision.Addin({id: '2', order: 0}));
+            addins.push(new subdivision.Addin({id: '3', order: 20}));
+            addins.push(new subdivision.Addin({id: '4', order: 30}));
+            addins.push(new subdivision.Addin({id: '5', order: 25}));
+            var result = subdivision.utils.topologicalSort(addins);
             //[{id:2},{id:1},{id:3},{id:5},{id:4}]
 ```
 
 ```js
             var addins = [];
-            addins.push(new EJS.Addin({id: '1', order: 0}));
-            addins.push(new EJS.Addin({id: '2', order: '<<3,<1'}));
-            addins.push(new EJS.Addin({id: '3', order: 20}));
-            addins.push(new EJS.Addin({id: '4', order: '>>2,>3'}));
-            var result = EJS.utils.topologicalSort(addins);
+            addins.push(new subdivision.Addin({id: '1', order: 0}));
+            addins.push(new subdivision.Addin({id: '2', order: '<<3,<1'}));
+            addins.push(new subdivision.Addin({id: '3', order: 20}));
+            addins.push(new subdivision.Addin({id: '4', order: '>>2,>3'}));
+            var result = subdivision.utils.topologicalSort(addins);
             //[{id:2},{id:1},{id:3},{id:4}]
 ```
 
@@ -257,7 +257,7 @@ The same path may appear more than once in a single manifest, the manifest reade
 join all the addins for a certain path. The only limitation is that the ids
 within a given path are unique.
 
-#### EJS.readManifest(manifest)
+#### subdivision.readManifest(manifest)
 Adds all the addins within the given _manifest_ into the registry.
 
 ## Builders
@@ -268,12 +268,12 @@ An addin can be anything including a metadata for creating an actual object. The
 #### Builders path in the registry
  In the code
  ```js
- EJS.systemPaths.builders
+ subdivision.systemPaths.builders
  ```
 
  In the manifest
  ```js
- EJS/builders
+ subdivision/builders
  ```
 
 #### The default builder
@@ -282,8 +282,8 @@ definition
 
 ```js
  {
-                id: 'EJS.defaultBuilder',
-                type: 'EJS.builder',
+                id: 'subdivision.defaultBuilder',
+                type: 'subdivision.builder',
                 target: null,
                 order: 100,
                 build: function (addin) {
@@ -292,7 +292,7 @@ definition
             }
 ```
 
-#### EJS.Builder(options) -> Builder (The builder constructor)
+#### subdivision.Builder(options) -> Builder (The builder constructor)
 Creates a new Builder from the given _options_. A builder is a type of addin therefore the addin constructor
  is called for the builder with the given _options_. A builder must have one function called _build(addin)_ which
  takes an addin definition and returns anything. The builder should have a _type_ property which defines the type of
@@ -302,7 +302,7 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
 
  ```js
    //Create a builder that can build addins of type monkey
-   var builder = new EJS.Builder({
+   var builder = new subdivision.Builder({
                  id: 'abc',
                  order: 3,
                  type: 'monkey',
@@ -314,7 +314,7 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
              });
  ```
 
-#### EJS.addBuilder(options, force) -> Boolean
+#### subdivision.addBuilder(options, force) -> Boolean
 Creates and adds a new builder based on the provided _options_ (see builder constructor). If a builder for the given
 target already exists then it is replaced with the new builder only if _force_ is truthy. Returns true if a builder was
 added and false otherwise. To add a default builder use ````target = null```` in the provided _options_.
@@ -328,11 +328,11 @@ added and false otherwise. To add a default builder use ````target = null```` in
                 }
             };
 
-            EJS.addBuilder(options);
-            var builder = EJS.getBuilder('monkey'); //returns the builder with id 'abc'
+            subdivision.addBuilder(options);
+            var builder = subdivision.getBuilder('monkey'); //returns the builder with id 'abc'
 ```
 
-#### EJS.getBuilder(type) -> Builder
+#### subdivision.getBuilder(type) -> Builder
 Returns a builder for the given _type_ or the default builder if a builder with the given _type_ was not registered.
 Pass ''''null'''' as the argument to get the default builder. If no builder is found for the given _type_ and there is no
 default builder defined then an exception is thrown.
@@ -345,20 +345,20 @@ default builder defined then an exception is thrown.
                 }
             };
 
-            EJS.addBuilder(options, true); //Replace the default builder with a new one
-            var builder = EJS.getBuilder(null);
-            var builder2 = EJS.getBuilder('no such type');
+            subdivision.addBuilder(options, true); //Replace the default builder with a new one
+            var builder = subdivision.getBuilder(null);
+            var builder2 = subdivision.getBuilder('no such type');
             console.log(builder === builder2); //true
 ```
 
-#### EJS.build(path, searchCriteria, skipSort)-> Array
+#### subdivision.build(path, searchCriteria, skipSort)-> Array
 Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type.
 If _searchCriteria_ is specified the syntax for the is determined by the lodash
 [filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
 Set _skipSort_ to true if you don't want to sort the returned addins by order.
 
 ```js
-            EJS.addBuilder({
+            subdivision.addBuilder({
                 id: 'a',
                 target: 'monkey',
                 build: function (addin) {
@@ -366,18 +366,18 @@ Set _skipSort_ to true if you don't want to sort the returned addins by order.
                 }
             });
 
-            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
-            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
 
-            var items = EJS.build('aaa'); //['1','2']
+            var items = subdivision.build('aaa'); //['1','2']
 ```
 
-#### EJS.build.async(path, searchCriteria, skipSort)-> Promise
-Same as ````EJS.build```` but returns a Promise that resolves with the result array. Does not assume that any of the
+#### subdivision.build.async(path, searchCriteria, skipSort)-> Promise
+Same as ````subdivision.build```` but returns a Promise that resolves with the result array. Does not assume that any of the
 builders involved in building the given _path_ are asynchronous. Use this variant if any of the builders for the
 _path_ are asynchronous.
 
-#### EJS.buildTree(path)-> Array
+#### subdivision.buildTree(path)-> Array
 Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type but also
 builds all the sub-paths of the given path. When an addin of a sub path is built it is added to the items property of the
 parent addin identified by the addin id. For example, if in the path "aaa" there is an addin with id "myId" and in the path
@@ -387,7 +387,7 @@ The default items property is ````$items```` but it can be changed by specifying
 the addin definition.
 
 ```js
-            EJS.addBuilder({
+            subdivision.addBuilder({
                 id: 'a',
                 target: 'monkey',
                 build: function (addin) {
@@ -395,14 +395,14 @@ the addin definition.
                 }
             });
 
-            EJS.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
-            EJS.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
-            EJS.addAddin('aaa', {id: '3', type: 'monkey', order: 3, itemsProperty: 'stuff'});
-            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '1', type: 'monkey', order: 2});
-            EJS.addAddin(EJS.registry.joinPath('aaa', '2'), {id: '2', type: 'monkey', order: 3});
-            EJS.addAddin(EJS.registry.joinPath('aaa', '3'), {id: '1', type: 'monkey', order: 3});
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+            subdivision.addAddin('aaa', {id: '3', type: 'monkey', order: 3, itemsProperty: 'stuff'});
+            subdivision.addAddin(subdivision.registry.joinPath('aaa', '2'), {id: '1', type: 'monkey', order: 2});
+            subdivision.addAddin(subdivision.registry.joinPath('aaa', '2'), {id: '2', type: 'monkey', order: 3});
+            subdivision.addAddin(subdivision.registry.joinPath('aaa', '3'), {id: '1', type: 'monkey', order: 3});
 
-            var items = EJS.buildTree('aaa');
+            var items = subdivision.buildTree('aaa');
             // [{
             //      id:'1',
             //      $items:[{id:'1'},{id:'2'}]
@@ -416,13 +416,13 @@ the addin definition.
             //  }]
 ```
 
-#### EJS.generateBuilders()
+#### subdivision.generateBuilders()
 Adds all the builders registered to the builders path in the registry into the internal
 builders list. You normally don't need to call this function as it is called automatically
 at the initialization of the library. Functions like ````getBuilder```` and ````addBuilder````
  work with the internal structure and not the path.
 
-#### EJS.$clearBuilders()
+#### subdivision.$clearBuilders()
 Forcefully clears all the builders from the internal structures. You should never call this function unless you
 are absolutely sure you know what you are doing.
 
@@ -443,15 +443,15 @@ Services are singleton objects that are accessible from anywhere within the code
 #### Services path in the registry
 In the code
 ```js
-EJS.systemPaths.services
+subdivision.systemPaths.services
 ```
 
 In the manifest
 ```js
-EJS/services
+subdivision/services
 ```
 
-#### EJS.Service(options, prototype) -> Service (The service constructor)
+#### subdivision.Service(options, prototype) -> Service (The service constructor)
 Creates a new service from the given options and assigns the given prototype as the prototype of the created service.
 Normally you don't need to use the service constructor.
 
@@ -462,30 +462,30 @@ You should use this event aggregator for any events emitted by your service inst
 
 * **$next** - The next service in the chain (in current implementation equivalent to ````__proto__```` but you should not rely on that).
 Use this property to traverse the services chain. This is useful when you need to access your own service explicitly which must be
-uniquely identified by ````id```` as any EJS addin.
+uniquely identified by ````id```` as any subdivision addin.
 
-#### EJS.getService(name) -> Service
+#### subdivision.getService(name) -> Service
 Returns the service with the given name or undefined if no service with the given name exists.
 
  ```js
-   var routingService = EJS.getService('Routing Service');
+   var routingService = subdivision.getService('Routing Service');
    routingService.doSomething();
  ```
 
-#### EJS.addService(name, options, override) -> Service
+#### subdivision.addService(name, options, override) -> Service
 Adds a service with the given name to the end of the services chain based on the given options. If the override flag is
 set to true, the existing service chain with the given name is completely removed and a new chain is started with the created service.
 Note that if some module is holding a service instance, that instance will not be changed.
 
-**You should never hold on to an instance of a service and always call ````EJS.getService()```` when your code needs the service.
+**You should never hold on to an instance of a service and always call ````subdivision.getService()```` when your code needs the service.
 This call is very cheap!**
 
 
 ### Service initialization
-When EJS first starts it calls the ````EJS.buildServices```` method. This method builds all the services registered on the services
-path in the registry. For each service in the registry it first calls _before:service:initialized_ event on ````EJS.vent````
-_callback(serviceName)_ then tries to run the service _initialize_ method if one exists. This method may return EJS.Promise.
-When all the services are initialized it will trigger the _after:service:initialized_ event on ````EJS.vent```` _callback(serviceName, service)_.
+When subdivision first starts it calls the ````subdivision.buildServices```` method. This method builds all the services registered on the services
+path in the registry. For each service in the registry it first calls _before:service:initialized_ event on ````subdivision.vent````
+_callback(serviceName)_ then tries to run the service _initialize_ method if one exists. This method may return subdivision.Promise.
+When all the services are initialized it will trigger the _after:service:initialized_ event on ````subdivision.vent```` _callback(serviceName, service)_.
 If your service needs access to some other service after it was initialized but before the application starts, you should register to this
 event as it guarantees that all services were initialized when called.
 

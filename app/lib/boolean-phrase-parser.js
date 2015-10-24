@@ -1,4 +1,4 @@
-(function () {
+(function (subdivision) {
     'use strict';
 
     //constants:
@@ -203,9 +203,9 @@
         return this.parse(stringExpression)(context);
     };
 
-    if (!EJS.utils) {
-        EJS.utils = {};
+    if (!subdivision.utils) {
+        subdivision.utils = {};
     }
 
-    EJS.utils.BooleanPhraseParser = BooleanPhraseParser;
-})();
+    subdivision.utils.BooleanPhraseParser = BooleanPhraseParser;
+})(subdivision);

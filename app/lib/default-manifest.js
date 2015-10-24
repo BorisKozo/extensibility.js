@@ -1,10 +1,10 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
 
-    EJS.defaultManifest = {
+    subdivision.defaultManifest = {
         paths: []
     };
 
 
-})(EJS);
+})(subdivision);
 

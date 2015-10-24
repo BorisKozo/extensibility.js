@@ -1,15 +1,15 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
     var count = 0;
     var conditions = {};
 
-    EJS.Condition = function (options) {
+    subdivision.Condition = function (options) {
         options = options || {};
-        var result = EJS.Addin.$internalConstructor('condition', count++, options);
+        var result = subdivision.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
         if (_.isString(result.isValid)) { //In this case we need to build the actual isValid function from the boolean parser
-            var context = EJS.Condition.$buildContext();
-            var booleanParser = new EJS.utils.BooleanPhraseParser();
+            var context = subdivision.Condition.$buildContext();
+            var booleanParser = new subdivision.utils.BooleanPhraseParser();
             var parsedCondition = booleanParser.evaluate(result.isValid, context);
             result.isValid = function () {
                 return parsedCondition.isValid();
@@ -21,17 +21,17 @@
         return result;
     };
 
-    EJS.Condition.$buildContext = function () {
-        var notConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '!'})[0];
-        var andConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '&'})[0];
-        var orConditionOperator = EJS.build(EJS.systemPaths.conditionOperations, {literal: '|'})[0];
+    subdivision.Condition.$buildContext = function () {
+        var notConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '!'})[0];
+        var andConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '&'})[0];
+        var orConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '|'})[0];
         if (notConditionOperator && andConditionOperator && orConditionOperator) {
             return {
                 not: notConditionOperator.generator,
                 and: andConditionOperator.generator,
                 or: orConditionOperator.generator,
                 literal: function (conditionName) {
-                    return EJS.getCondition(conditionName);
+                    return subdivision.getCondition(conditionName);
                 }
             };
         } else {
@@ -39,30 +39,30 @@
         }
     };
 
-    EJS.systemPaths.conditions = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditions');
+    subdivision.systemPaths.conditions = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'conditions');
 
-    EJS.defaultManifest.paths.push({
-        path: EJS.systemPaths.builders,
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
         addins: [{
-            target: 'EJS.condition',
-            id: 'EJS.conditionBuilder',
+            target: 'subdivision.condition',
+            id: 'subdivision.conditionBuilder',
             order: 100,
             build: function (addin) {
-                var condition = new EJS.Condition(addin);
+                var condition = new subdivision.Condition(addin);
                 return condition;
             }
         }]
     });
 
-    EJS.getCondition = function (name) {
+    subdivision.getCondition = function (name) {
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
         return conditions[name];
     };
 
-    EJS.addCondition = function (options, force) {
-        var condition = new EJS.Condition(options);
+    subdivision.addCondition = function (options, force) {
+        var condition = new subdivision.Condition(options);
 
         var name = condition.name;
 
@@ -73,7 +73,7 @@
             return false;
         }
 
-        EJS.removeCondition(name);
+        subdivision.removeCondition(name);
 
         conditions[name] = condition;
         if (_.isFunction(condition.initialize)) {
@@ -82,7 +82,7 @@
         return true;
     };
 
-    EJS.removeCondition = function (name) {
+    subdivision.removeCondition = function (name) {
         if (name === undefined || name === null) {
             throw new Error('name must not be undefined or null');
         }
@@ -92,15 +92,15 @@
         conditions[name] = undefined;
     };
 
-    EJS.$clearConditions = function () {
+    subdivision.$clearConditions = function () {
         conditions = {};
     };
 
-    EJS.systemPaths.conditionOperations = EJS.registry.joinPath(EJS.systemPaths.prefix, 'conditionOperations');
+    subdivision.systemPaths.conditionOperations = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'conditionOperations');
 
-    EJS.Condition.$conditionOperationBuilder = {
-        target: 'EJS.conditionOperation',
-        id: 'EJS.conditionOperationBuilder',
+    subdivision.Condition.$conditionOperationBuilder = {
+        target: 'subdivision.conditionOperation',
+        id: 'subdivision.conditionOperationBuilder',
         order: 100,
         build: function (addin) {
             return {
@@ -110,15 +110,15 @@
         }
     };
 
-    EJS.addBuilder(EJS.Condition.$conditionOperationBuilder);
+    subdivision.addBuilder(subdivision.Condition.$conditionOperationBuilder);
 
-    EJS.defaultManifest.paths.push({
-        path: EJS.systemPaths.conditionOperations,
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.conditionOperations,
         addins: [
             {
                 id: 'NotConditionOperation',
                 literal: '!',
-                type: 'EJS.conditionOperation',
+                type: 'subdivision.conditionOperation',
                 generator: function (element) {
                     return {
                         isValid: function () {
@@ -134,7 +134,7 @@
             {
                 id: 'OrConditionOperation',
                 literal: '|',
-                type: 'EJS.conditionOperation',
+                type: 'subdivision.conditionOperation',
                 generator: function (leftElement, rightElement) {
                     return {
                         isValid: function () {
@@ -153,7 +153,7 @@
             {
                 id: 'AndConditionOperation',
                 literal: '&',
-                type: 'EJS.conditionOperation',
+                type: 'subdivision.conditionOperation',
                 generator: function (leftElement, rightElement) {
                     return {
                         isValid: function () {
@@ -171,4 +171,4 @@
             }
         ]
     });
-})(EJS);
+})(subdivision);

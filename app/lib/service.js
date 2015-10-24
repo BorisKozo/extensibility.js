@@ -1,4 +1,4 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
     var services;
 
@@ -16,30 +16,30 @@
         }
     }
 
-    EJS.Service = function (options, prototype) {
+    subdivision.Service = function (options, prototype) {
         var result = Object.create(prototype || {});
         if (_.isFunction(options)) {
             options = options();
         }
         options = options || {};
         result = _.assign(result, {
-            $vent: EJS.createEventBus(),
+            $vent: subdivision.createEventBus(),
             $next: prototype ? prototype : undefined
         }, options);
         return result;
     };
 
-    EJS.systemPaths.services = EJS.registry.joinPath(EJS.systemPaths.prefix, 'services');
+    subdivision.systemPaths.services = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'services');
 
-    EJS.defaultManifest.paths.push({
-        path: EJS.systemPaths.builders,
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
         addins: [{
-            target: 'EJS.service',
-            id: 'EJS.serviceBuilder',
+            target: 'subdivision.service',
+            id: 'subdivision.serviceBuilder',
             order: 100,
             build: function (addin) {
                 if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
-                    EJS.addService(addin.name, addin.content, addin.override);
+                    subdivision.addService(addin.name, addin.content, addin.override);
                 } else {
                     throw new Error('Service name must be defined ' + JSON.stringify(addin));
                 }
@@ -52,22 +52,22 @@
      * Returns the service instance by the given name or null if no service by that name can be found or instantiated
      * @param name - The name of the service to retrieve
      */
-    EJS.getService = function (name) {
+    subdivision.getService = function (name) {
         return services[name];
     };
 
-    EJS.addService = function (name, options, override) {
+    subdivision.addService = function (name, options, override) {
         name = String(name).trim();
         var nextService;
         if (!override) {
-            nextService = EJS.getService(name);
+            nextService = subdivision.getService(name);
         }
-        var service = new EJS.Service(options, nextService);
+        var service = new subdivision.Service(options, nextService);
         services[name] = service;
         return service;
     };
 
-    EJS.$clearServices = function () {
+    subdivision.$clearServices = function () {
         services = {};
     };
 
@@ -75,17 +75,17 @@
      * Builds and initializes all the registered services
      * Returns a promise which is resolved when all the services are initialized or rejected if one of the services has failed to initialize
      */
-    EJS.buildServices = function () {
-        EJS.$clearServices();
-        EJS.build(EJS.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
+    subdivision.buildServices = function () {
+        subdivision.$clearServices();
+        subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
         var promises = [];
         _.forEach(_.keys(services), function (name) {
-            EJS.vent.trigger('before:service:initialized', name);
-            promises.push(initializeServiceRecursive(EJS.getService(name)).then(function () {
-                EJS.vent.trigger('after:service:initialized', name, EJS.getService(name));
+            subdivision.vent.trigger('before:service:initialized', name);
+            promises.push(initializeServiceRecursive(subdivision.getService(name)).then(function () {
+                subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
             }));
         });
         return Promise.all(promises);
     };
 
-})(EJS);
+})(subdivision);

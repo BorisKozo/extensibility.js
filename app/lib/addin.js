@@ -1,4 +1,4 @@
-﻿(function (EJS) {
+﻿(function (subdivision) {
     'use strict';
     var count = 0;
 
@@ -6,11 +6,11 @@
     // id
     // order - can be a number, >id, >>id, <id, <<id
 
-    EJS.Addin = function (options) {
-        return EJS.Addin.$internalConstructor('addin', count++, options);
+    subdivision.Addin = function (options) {
+        return subdivision.Addin.$internalConstructor('addin', count++, options);
     };
 
-    EJS.Addin.$internalConstructor = function (name, counter, options) {
+    subdivision.Addin.$internalConstructor = function (name, counter, options) {
         options = _.isFunction(options) ? options() : options || {};
         var result = _.assign({}, options);
         result.id = result.id ? String(result.id) : (name + counter);
@@ -22,11 +22,11 @@
      * Adds the given addin to the node at the given path
      * If no addin is specifies creates an empty node at the path
      */
-    EJS.addAddin = function (path, addin) {
+    subdivision.addAddin = function (path, addin) {
         if (path === undefined || path === null) {
             throw new Error('path was not defined for addin ' + JSON.stringify(addin));
         }
-        var node = EJS.registry.$getNode(path, true);
+        var node = subdivision.registry.$getNode(path, true);
         if (addin) {
             node.addAddin(addin);
         }
@@ -38,12 +38,12 @@
      * if skipSort is true the addins will not be sorted by the topological sort, any falsy value will sort them
      * Returns null if the path doesn't exist
      */
-    EJS.getAddins = function (path, searchCriteria, skipSort) {
-        var node = EJS.registry.$getNode(path, false);
+    subdivision.getAddins = function (path, searchCriteria, skipSort) {
+        var node = subdivision.registry.$getNode(path, false);
         if (node === null) {
             return [];
         }
-        var result = skipSort ? node.addins : EJS.utils.topologicalSort(node.addins);
+        var result = skipSort ? node.addins : subdivision.utils.topologicalSort(node.addins);
         if (searchCriteria === undefined) {
             return _.clone(result);
         }
@@ -51,4 +51,4 @@
     };
 
 
-})(EJS);
+})(subdivision);

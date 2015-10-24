@@ -1,4 +1,4 @@
-﻿(function (EJS) {
+﻿(function (subdivision) {
     'use strict';
     var clusterId = 0;
 
@@ -260,18 +260,18 @@
         return addins;
     }
 
-    if (!EJS.utils) {
-        EJS.utils = {};
+    if (!subdivision.utils) {
+        subdivision.utils = {};
     }
 
-    EJS.utils.topologicalSort = function (addins) {
-        var clusters = EJS.utils.topologicalSort._formSortClusters(addins);
-        return EJS.utils.topologicalSort._sortClusters(clusters);
+    subdivision.utils.topologicalSort = function (addins) {
+        var clusters = subdivision.utils.topologicalSort._formSortClusters(addins);
+        return subdivision.utils.topologicalSort._sortClusters(clusters);
     };
 
-    EJS.utils.topologicalSort._formSortClusters = formSortClusters;
+    subdivision.utils.topologicalSort._formSortClusters = formSortClusters;
 
-    EJS.utils.topologicalSort._sortClusters = sortClusters;
+    subdivision.utils.topologicalSort._sortClusters = sortClusters;
 
 
-})(EJS);
+})(subdivision);

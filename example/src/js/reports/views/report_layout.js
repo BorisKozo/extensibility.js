@@ -1,8 +1,6 @@
 'use strict';
 
-import EJS from 'vendor/extensibility';
 import Marionette from 'marionette';
-import Backbone from 'backbone';
 
 import reportViewTemplate from 'templates/reports/templates/report_layout';
 import FormView from 'js/reports/views/form_view';

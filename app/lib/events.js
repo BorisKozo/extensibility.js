@@ -1,4 +1,4 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
 // ** Note - This file is taken as-is from Backbone 1.1.2 to reduce dependency on Backbone.
 // ** I added a convenience function offContext which calls off with the first two arguments as null
@@ -225,9 +225,9 @@
         };
     });
 
-    EJS.Events = Events;
-    EJS.createEventBus = function (base) {
+    subdivision.Events = Events;
+    subdivision.createEventBus = function (base) {
         base = base || {};
-        return _.assign(base, EJS.Events);
+        return _.assign(base, subdivision.Events);
     };
-})(EJS);
+})(subdivision);

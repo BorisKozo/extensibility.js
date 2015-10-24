@@ -29,7 +29,7 @@ module.exports = function (grunt) {
             banner: '// <%= meta.pkg.name %> v<%= meta.version %>\n' +
             '// Copyright (c)<%= grunt.template.today("yyyy") %> Boris Kozorovitzky.\n' +
             '// Distributed under MIT license\n' +
-            '// https://github.com/BorisKozo/extensibility.js.git' + '\n\n'
+            '// https://github.com/BorisKozo/subdivision.git' + '\n\n'
         },
 
         // Make sure code styles are up to par and there are no obvious mistakes
@@ -64,7 +64,7 @@ module.exports = function (grunt) {
                     banner: '<%= meta.banner %>'
                 },
                 files: {
-                    '<%= meta.dist %>/extensibility.min.js': ['<%= meta.dist %>/extensibility.js']
+                    '<%= meta.dist %>/subdivision.min.js': ['<%= meta.dist %>/subdivision.js']
                 }
             }
         },
@@ -89,7 +89,7 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/manifest-reader.js',
                     '<%= meta.app %>/lib/partials/footer.jst'
                 ],
-                dest:'<%= meta.dist %>/extensibility.js'
+                dest:'<%= meta.dist %>/subdivision.js'
             }
 
         }

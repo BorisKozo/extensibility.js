@@ -1,4 +1,4 @@
-﻿(function (EJS) {
+﻿(function (subdivision) {
     'use strict';
     var _registry;
     var _delimiter = '/'; //The delimiter that will be used for all the path construction, path axes may not contain this delimiter
@@ -13,10 +13,10 @@
         this.addins.push(addin);
     };
 
-    EJS.registry = {
+    subdivision.registry = {
         $getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
-                axes = EJS.registry.breakPath(axes);
+                axes = subdivision.registry.breakPath(axes);
             }
             var currentNode = _registry;
             var i;
@@ -55,12 +55,12 @@
                 return '';
             }
             if (arguments[0] instanceof Array) {
-                return EJS.registry.joinPath.apply(this, _.flatten(arguments[0]));
+                return subdivision.registry.joinPath.apply(this, _.flatten(arguments[0]));
             }
             var args = Array.prototype.slice.call(arguments, 0);
             var result = [];
             _.forEach(args, function (value) {
-                var axes = EJS.registry.breakPath(value);
+                var axes = subdivision.registry.breakPath(value);
                 var i;
                 for (i = 0; i < axes.length; i++) {
                     result.push(axes[i]);
@@ -85,7 +85,7 @@
             }
             var splitPath = path.split(_delimiter);
             _.forEach(splitPath, function (axis) {
-                if (!EJS.registry.verifyAxis(axis)) {
+                if (!subdivision.registry.verifyAxis(axis)) {
                     throw new Error('Invalid axis ' + axis);
                 }
             });
@@ -119,5 +119,5 @@
         }
     };
 
-    EJS.registry.$clear();
-})(EJS);
+    subdivision.registry.$clear();
+})(subdivision);

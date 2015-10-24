@@ -1,10 +1,10 @@
-﻿(function (EJS) {
+﻿(function (subdivision) {
     'use strict';
-    EJS.readManifest = function (manifest) {
+    subdivision.readManifest = function (manifest) {
         _.forEach(manifest.paths, function (pathOptions) {
             _.forEach(pathOptions.addins, function (addinOptions) {
-                EJS.addAddin(pathOptions.path, new EJS.Addin(addinOptions));
+                subdivision.addAddin(pathOptions.path, new subdivision.Addin(addinOptions));
             });
         });
     };
-})(EJS);
+})(subdivision);

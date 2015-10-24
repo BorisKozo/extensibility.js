@@ -1,18 +1,18 @@
 describe('Command', function () {
     'use strict';
     var expect = chai.expect;
-    var EJS = window.EJS;
+    var subdivision = window.subdivision;
 
     beforeEach(function () {
-        EJS.registry.$clear();
-        EJS.$clearBuilders();
-        EJS.$clearCommands();
-        EJS.$clearConditions();
+        subdivision.registry.$clear();
+        subdivision.$clearBuilders();
+        subdivision.$clearCommands();
+        subdivision.$clearConditions();
     });
 
     describe('Create a command', function () {
         it('should create a command', function () {
-            var command = new EJS.Command({
+            var command = new subdivision.Command({
                 id: 'aa',
                 name: 'bb',
                 execute: function () {
@@ -22,7 +22,7 @@ describe('Command', function () {
             expect(command.id).to.be.equal('aa');
             expect(command.name).to.be.equal('bb');
 
-            command = new EJS.Command({
+            command = new subdivision.Command({
                 execute: function () {
                 }
             });
@@ -33,12 +33,12 @@ describe('Command', function () {
 
         it('should throw if a command is created without execute function', function () {
             expect(function () {
-                var condition = new EJS.Command({});
+                var condition = new subdivision.Command({});
             }).to.throw('Command options must contain the "execute" function');
         });
 
         it('should provide a default truthy isValid function if it was not defined', function () {
-            var command = new EJS.Command({
+            var command = new subdivision.Command({
                 id: 'aa',
                 name: 'bb',
                 execute: function () {
@@ -53,7 +53,7 @@ describe('Command', function () {
             it('should use user defined canExecute', function () {
                 var canExecute = function () {
                 };
-                var command = new EJS.Command({
+                var command = new subdivision.Command({
                     execute: function () {
                     },
                     canExecute: canExecute
@@ -64,14 +64,14 @@ describe('Command', function () {
 
             it('should use the value of the condition if such is provided', function () {
                 var isValidResult = true;
-                EJS.addCondition({
+                subdivision.addCondition({
                     name: 'hello',
                     isValid: function () {
                         return isValidResult;
                     }
                 });
 
-                var command = new EJS.Command({
+                var command = new subdivision.Command({
                     condition: 'hello',
                     execute: function () {
                     }
@@ -82,8 +82,8 @@ describe('Command', function () {
                 expect(command.canExecute()).to.be.equal(isValidResult);
                 isValidResult = true;
 
-                command = new EJS.Command({
-                    condition: new EJS.Condition({
+                command = new subdivision.Command({
+                    condition: new subdivision.Condition({
                         isValid: function () {
                             return isValidResult;
                         }
@@ -99,7 +99,7 @@ describe('Command', function () {
 
             it('should use the value of isValid function if such is provided', function () {
                 var isValidResult = true;
-                var command = new EJS.Command({
+                var command = new subdivision.Command({
                     isValid: function () {
                         return isValidResult;
                     },
@@ -117,17 +117,17 @@ describe('Command', function () {
 
     describe('Command builder', function () {
         it('should build a command', function () {
-            EJS.readManifest(EJS.defaultManifest);
+            subdivision.readManifest(subdivision.defaultManifest);
 
-            EJS.readManifest({
+            subdivision.readManifest({
                 paths: [
                     {
-                        path: EJS.systemPaths.commands,
+                        path: subdivision.systemPaths.commands,
                         addins: [
                             {
                                 id: 'command1',
                                 name: 'monkey',
-                                type: 'EJS.command',
+                                type: 'subdivision.command',
                                 order: 1,
                                 execute: function () {
                                     return true;
@@ -138,16 +138,16 @@ describe('Command', function () {
                     }
                 ]
             });
-            EJS.generateBuilders();
+            subdivision.generateBuilders();
 
-            EJS.addCondition({
+            subdivision.addCondition({
                 name: 'myCondition',
                 isValid: function () {
                     return false;
                 }
             });
 
-            var command = EJS.build(EJS.systemPaths.commands, {name: 'monkey'})[0];
+            var command = subdivision.build(subdivision.systemPaths.commands, {name: 'monkey'})[0];
             expect(command).to.be.ok;
             expect(command.canExecute()).to.be.false;
 
@@ -156,35 +156,35 @@ describe('Command', function () {
 
     describe('Get Command', function () {
         it('should get a command with the given name', function () {
-            EJS.addCommand({
+            subdivision.addCommand({
                 name: 'monkey',
                 execute: function () {
                 }
             });
 
-            var command = EJS.getCommand('monkey');
+            var command = subdivision.getCommand('monkey');
             expect(command).to.be.ok;
             expect(command.name).to.be.equal('monkey');
         });
 
         it('should not get a command with the given name', function () {
-            EJS.addCommand({
+            subdivision.addCommand({
                 name: 'monkey',
                 execute: function () {
                 }
             });
 
-            var command = EJS.getCommand('monkey2');
+            var command = subdivision.getCommand('monkey2');
             expect(command).to.be.undefined;
         });
 
         it('should throw if the given name is undefined or null', function () {
             expect(function () {
-                EJS.getCommand();
+                subdivision.getCommand();
             }).to.throw('name must not be undefined or null');
 
             expect(function () {
-                EJS.getCommand(null);
+                subdivision.getCommand(null);
             }).to.throw('name must not be undefined or null');
 
         });
@@ -192,14 +192,14 @@ describe('Command', function () {
 
     describe('Add Command', function(){
         it('should add a condition and initialize it', function () {
-            EJS.addCommand({
+            subdivision.addCommand({
                 name: 'monkey',
                 execute: function () {
                 },
                 initialize: sinon.stub()
             });
 
-            var command = EJS.getCommand('monkey');
+            var command = subdivision.getCommand('monkey');
             expect(command).to.be.ok;
             expect(command.name).to.be.equal('monkey');
             expect(command.initialize.calledOnce).to.be.true;
@@ -207,18 +207,18 @@ describe('Command', function () {
 
         it('should throw if the command is not valid', function () {
             expect(function () {
-                EJS.addCommand();
+                subdivision.addCommand();
             }).to.throw('Command options must contain the "execute" function');
 
         });
 
         it('should return false if the command already exists and force was false', function () {
-            EJS.addCommand({
+            subdivision.addCommand({
                 name: 'monkey',
                 execute: function () {
                 }
             });
-            var conditionAddResult = EJS.addCommand({
+            var conditionAddResult = subdivision.addCommand({
                 name: 'monkey',
                 execute: function () {
                 }
@@ -236,8 +236,8 @@ describe('Command', function () {
                 },
                 destroy: sinon.stub()
             };
-            EJS.addCommand(firstCommand);
-            EJS.addCommand({
+            subdivision.addCommand(firstCommand);
+            subdivision.addCommand({
                 id: '2',
                 name: 'monkey',
                 execute: function () {
@@ -245,8 +245,8 @@ describe('Command', function () {
                 initialize: sinon.stub()
             }, true);
             expect(firstCommand.destroy.calledOnce).to.be.true;
-            expect(EJS.getCommand('monkey')).to.be.ok;
-            expect(EJS.getCommand('monkey').id).to.be.equal('2');
+            expect(subdivision.getCommand('monkey')).to.be.ok;
+            expect(subdivision.getCommand('monkey').id).to.be.equal('2');
         });
     });
 
@@ -259,20 +259,20 @@ describe('Command', function () {
                 destroy: sinon.stub()
             };
 
-            EJS.addCommand(command);
-            EJS.removeCommand('monkey');
-            var result = EJS.getCommand('monkey');
+            subdivision.addCommand(command);
+            subdivision.removeCommand('monkey');
+            var result = subdivision.getCommand('monkey');
             expect(command.destroy.calledOnce).to.be.true;
             expect(result).to.be.undefined;
         });
 
         it('should throw if the name was null or undefined', function () {
             expect(function () {
-                EJS.removeCommand();
+                subdivision.removeCommand();
             }).to.throw('name must not be undefined or null');
 
             expect(function () {
-                EJS.removeCommand(null);
+                subdivision.removeCommand(null);
             }).to.throw('name must not be undefined or null');
         });
     });

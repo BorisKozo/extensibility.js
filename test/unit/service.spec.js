@@ -1,32 +1,32 @@
 describe('Service', function () {
     'use strict';
     var expect = chai.expect;
-    var EJS = window.EJS;
+    var subdivision = window.subdivision;
 
     beforeEach(function () {
-        EJS.$clearServices();
+        subdivision.$clearServices();
     });
 
     describe('Create a service', function () {
         it('should create a service without a prototype', function () {
-            var service = new EJS.Service({});
+            var service = new subdivision.Service({});
             expect(service.$vent).to.be.ok;
             expect(service.$next).to.be.undefined;
         });
 
         it('should create a service with a prototype', function () {
             var otherService = {};
-            var service = new EJS.Service({}, otherService);
+            var service = new subdivision.Service({}, otherService);
             expect(service.$next).to.be.eql(otherService);
         });
 
         it('should extend the created service with the options', function () {
-            var service = new EJS.Service({a: 'a'});
+            var service = new subdivision.Service({a: 'a'});
             expect(service.a).to.be.equal('a');
         });
 
         it('should extend the created service with the options function result', function () {
-            var service = new EJS.Service(function () {
+            var service = new subdivision.Service(function () {
                 return {
                     a: 'a'
                 };
@@ -37,16 +37,16 @@ describe('Service', function () {
 
     describe('addService', function () {
         it('should add a service', function () {
-            EJS.addService('moo', {b: 'bb'});
-            var service = EJS.getService('moo');
+            subdivision.addService('moo', {b: 'bb'});
+            var service = subdivision.getService('moo');
             expect(service).to.be.ok;
             expect(service.b).to.be.equal('bb');
         });
 
         it('should add a service with inheritance', function () {
-            EJS.addService('moo', {b: 'bb'});
-            EJS.addService('moo', {c: 'cc'});
-            var service = EJS.getService('moo');
+            subdivision.addService('moo', {b: 'bb'});
+            subdivision.addService('moo', {c: 'cc'});
+            var service = subdivision.getService('moo');
             expect(service).to.be.ok;
             expect(service.b).to.be.equal('bb');
             expect(service.c).to.be.equal('cc');
@@ -55,9 +55,9 @@ describe('Service', function () {
         });
 
         it('should add a service with override', function () {
-            EJS.addService('moo', {b: 'bb'});
-            EJS.addService('moo', {c: 'cc'}, true);
-            var service = EJS.getService('moo');
+            subdivision.addService('moo', {b: 'bb'});
+            subdivision.addService('moo', {c: 'cc'}, true);
+            var service = subdivision.getService('moo');
             expect(service).to.be.ok;
             expect(service.b).to.be.undefined;
             expect(service.c).to.be.equal('cc');
@@ -67,39 +67,39 @@ describe('Service', function () {
 
     describe('getService', function () {
         it('should get a service', function () {
-            EJS.addService('monkey', {});
-            var service = EJS.getService('monkey');
+            subdivision.addService('monkey', {});
+            var service = subdivision.getService('monkey');
             expect(service).to.be.ok;
         });
 
         it('should not get a service if it was undefined', function () {
-            var service = EJS.getService('monkey');
+            var service = subdivision.getService('monkey');
             expect(service).to.be.undefined;
         });
     });
 
     describe('buildServices', function () {
         beforeEach(function () {
-            sinon.spy(EJS.vent, 'trigger');
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.generateBuilders();
+            sinon.spy(subdivision.vent, 'trigger');
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.generateBuilders();
         });
 
         afterEach(function () {
-            EJS.vent.trigger.restore();
+            subdivision.vent.trigger.restore();
         });
 
         it('should build the services path', function (done) {
 
-            EJS.readManifest({
+            subdivision.readManifest({
                 paths: [
                     {
-                        path: EJS.systemPaths.services,
+                        path: subdivision.systemPaths.services,
                         addins: [
                             {
                                 id: 'service1',
                                 name: 'monkey',
-                                type: 'EJS.service',
+                                type: 'subdivision.service',
                                 order: 1,
                                 content: {
                                     a: 'aa',
@@ -109,7 +109,7 @@ describe('Service', function () {
                             {
                                 id: 'service2',
                                 name: 'monkey',
-                                type: 'EJS.service',
+                                type: 'subdivision.service',
                                 order: '>service1',
                                 content: {
                                     b: 'bb',
@@ -119,7 +119,7 @@ describe('Service', function () {
                             {
                                 id: 'service3',
                                 name: 'monkey',
-                                type: 'EJS.service',
+                                type: 'subdivision.service',
                                 order: '>service2',
                                 content: {
                                     c: 'cc'
@@ -131,16 +131,16 @@ describe('Service', function () {
             });
 
 
-            EJS.buildServices().then(function () {
-                var service = EJS.getService('monkey');
+            subdivision.buildServices().then(function () {
+                var service = subdivision.getService('monkey');
                 expect(service).to.be.ok;
                 expect(service.a).to.be.equal('aa');
                 expect(service.b).to.be.equal('bb');
                 expect(service.$next).to.be.ok;
                 expect(service.initialize.called).to.be.true;
                 expect(service.$next.initialize.called).to.be.true;
-                expect(EJS.vent.trigger.calledWith('before:service:initialized', 'monkey')).to.be.true;
-                expect(EJS.vent.trigger.calledWith('after:service:initialized', 'monkey')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('before:service:initialized', 'monkey')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('after:service:initialized', 'monkey')).to.be.true;
                 done();
             });
         });
@@ -148,19 +148,19 @@ describe('Service', function () {
 
     describe('service builder', function () {
         beforeEach(function () {
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.generateBuilders();
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.generateBuilders();
         });
 
         it('should throw an error if name was not defined', function () {
-            EJS.readManifest({
+            subdivision.readManifest({
                 paths: [
                     {
-                        path: EJS.systemPaths.services,
+                        path: subdivision.systemPaths.services,
                         addins: [
                             {
                                 id: 'service1',
-                                type: 'EJS.service',
+                                type: 'subdivision.service',
                                 order: 1,
                                 content: {
                                     a: 'aa',
@@ -171,7 +171,7 @@ describe('Service', function () {
             });
 
             expect(function () {
-                EJS.build(EJS.systemPaths.services);
+                subdivision.build(subdivision.systemPaths.services);
             }).to.throw('Service name must be defined');
         });
     });

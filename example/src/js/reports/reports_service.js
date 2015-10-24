@@ -1,11 +1,11 @@
 'use strict';
 
-import EJS from 'vendor/extensibility';
+import subdivision from 'vendor/subdivision';
 import _ from 'lodash';
 
 var reportsService = {
   initialize: function () {
-    this.reports = EJS.build('reports');
+    this.reports = subdivision.build('reports');
   },
   getReport: function (reportId) {
     return _.find(this.reports, {id: reportId});

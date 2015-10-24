@@ -1,12 +1,12 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
     var count = 0;
     var builders;
     var defaultBuilder;
 
 
-    EJS.Builder = function (options) {
-        var builder = EJS.Addin.$internalConstructor('builder', count++, options);
+    subdivision.Builder = function (options) {
+        var builder = subdivision.Addin.$internalConstructor('builder', count++, options);
         if (!_.isFunction(builder.build)) {
             throw new Error('Builder options must contain the "build" function ' + JSON.stringify(options));
         }
@@ -14,15 +14,15 @@
         return builder;
     };
 
-    EJS.systemPaths.builders = EJS.registry.joinPath(EJS.systemPaths.prefix, 'builders');
+    subdivision.systemPaths.builders = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'builders');
 
-    EJS.defaultManifest.paths.push({
-        path: EJS.systemPaths.builders,
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
         addins: [
             {
                 ///Update docs if this changes
-                id: 'EJS.defaultBuilder',
-                type: 'EJS.builder',
+                id: 'subdivision.defaultBuilder',
+                type: 'subdivision.builder',
                 target: null,
                 order: 100,
                 build: function (addin) {
@@ -39,8 +39,8 @@
      * Returns true if a builder was added and false otherwise
      *
      */
-    EJS.addBuilder = function (options, force) {
-        var builder = new EJS.Builder(options);
+    subdivision.addBuilder = function (options, force) {
+        var builder = new subdivision.Builder(options);
         if (builder.target === null) {
             if (!defaultBuilder || force) {
                 defaultBuilder = builder;
@@ -63,7 +63,7 @@
      * Gets a builder for the appropriate type, if no builder of the given type is found returns the default builder (builder with type === null)
      * @param type
      */
-    EJS.getBuilder = function (type) {
+    subdivision.getBuilder = function (type) {
         if (type === null && defaultBuilder) {
             return defaultBuilder;
         } else {
@@ -85,14 +85,14 @@
      * @param skipSort - If truthy the topological sort is skipped
      * @returns {Array} = The built addins
      */
-    EJS.build = function (path, searchCriteria, skipSort) {
-        var addins = EJS.getAddins(path, searchCriteria, skipSort);
+    subdivision.build = function (path, searchCriteria, skipSort) {
+        var addins = subdivision.getAddins(path, searchCriteria, skipSort);
         if (addins.length === 0) {
             return addins;
         }
         return _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
-            var builder = EJS.getBuilder(addin.type);
+            var builder = subdivision.getBuilder(addin.type);
             return builder.build(addin);
         });
     };
@@ -104,14 +104,14 @@
      * @param skipSort - If truthy the topological sort is skipped
      * @returns {Array} = A promise that resolves with an array of the built addins
      */
-    EJS.build.async = function (path, searchCriteria, skipSort) {
-        var addins = EJS.getAddins(path, searchCriteria, skipSort);
+    subdivision.build.async = function (path, searchCriteria, skipSort) {
+        var addins = subdivision.getAddins(path, searchCriteria, skipSort);
         if (addins.length === 0) {
             return Promise.resolve(addins);
         }
         var promises = _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
-            var builder = EJS.getBuilder(addin.type);
+            var builder = subdivision.getBuilder(addin.type);
             try {
                 return Promise.resolve(builder.build(addin));
             }
@@ -128,37 +128,37 @@
      * to its items property (default $items).
      * @param path
      */
-    EJS.buildTree = function (path) {
-        var addins = EJS.getAddins(path);
+    subdivision.buildTree = function (path) {
+        var addins = subdivision.getAddins(path);
         if (addins.length === 0) {
             return addins;
         }
         return _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
-            var builder = EJS.getBuilder(addin.type);
+            var builder = subdivision.getBuilder(addin.type);
             var result = builder.build(addin);
             var itemsProperty = addin.itemsProperty || '$items';
-            result[itemsProperty] = EJS.buildTree(EJS.registry.joinPath(path, addin.id));
+            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id));
             return result;
         });
     };
 
-    EJS.generateBuilders = function () {
-        EJS.$clearBuilders();
-        var addins = EJS.getAddins(EJS.systemPaths.builders, {target: null});
+    subdivision.generateBuilders = function () {
+        subdivision.$clearBuilders();
+        var addins = subdivision.getAddins(subdivision.systemPaths.builders, {target: null});
         if (addins.length > 0) {
-            defaultBuilder = new EJS.Builder(addins[0]);
+            defaultBuilder = new subdivision.Builder(addins[0]);
         }
-        addins = EJS.getAddins(EJS.systemPaths.builders);
+        addins = subdivision.getAddins(subdivision.systemPaths.builders);
         _.forEach(addins, function (addin) {
-            EJS.addBuilder(addin);
+            subdivision.addBuilder(addin);
         });
     };
 
-    EJS.$clearBuilders = function(){
+    subdivision.$clearBuilders = function(){
         builders = {};
         defaultBuilder = null;
     };
 
-    EJS.$clearBuilders();
-})(EJS);
+    subdivision.$clearBuilders();
+})(subdivision);

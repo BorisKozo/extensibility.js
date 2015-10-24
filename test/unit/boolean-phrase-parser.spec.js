@@ -1,7 +1,7 @@
 describe('BooleanPhraseParser', function () {
     'use strict';
     var expect = chai.expect;
-    var EJS = window.EJS;
+    var subdivision = window.subdivision;
 
     var booleanPhraseParser;
     var literalContext;
@@ -27,7 +27,7 @@ describe('BooleanPhraseParser', function () {
     }
 
     beforeEach(function () {
-        booleanPhraseParser = new window.EJS.utils.BooleanPhraseParser();
+        booleanPhraseParser = new window.subdivision.utils.BooleanPhraseParser();
     });
 
     describe('parse', function () {

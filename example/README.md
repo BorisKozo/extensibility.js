@@ -25,5 +25,5 @@ This example shows the basic principles of how you may use the library. This is 
 
 ### Special Gulp task
 There is a special Gulp task called ````gulp-compile-ejs-modules````. It compiles a new file which references all the modules
-with ````.ejs.js```` extension. You may use this task as is for your project to do the same (if someone will open an issue on publishing
-it I will consider doing so). More on ````.ejs.js```` files in the next sections of this document.
+with ````.sdv.js```` extension. You may use this task as is for your project to do the same (if someone will open an issue on publishing
+it I will consider doing so). More on ````.sdv.js```` files in the next sections of this document.

@@ -1,7 +1,7 @@
 {
-  "name": "extensibility_example",
+  "name": "subdivision_example",
   "version": "0.0.1",
-  "description": "An example of the extensibility.js library",
+  "description": "An example of the subdivision library",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

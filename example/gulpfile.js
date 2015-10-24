@@ -12,7 +12,7 @@ var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var concatCss = require('gulp-concat-css');
 var flatten = require('gulp-flatten');
-var compileModules = require('./gulp-compile-ejs-modules');
+var compileModules = require('./gulp-compile-sdv-modules');
 
 
 gulp.task('jshint', function () {
@@ -70,15 +70,15 @@ gulp.task('less', function () {
 
 gulp.task('watch', function () {
   gulp.watch('./src/js/**/*.js', ['copy:js']);
-  gulp.watch('./src/js/**/*.ejs.js',['compile:modules']);
+  gulp.watch('./src/js/**/*.sdv.js',['compile:modules']);
   gulp.watch('./src/js/**/*.hbs', ['templates']);
   gulp.watch('./src/**/*.html', ['copy:html']);
   gulp.watch('./src/**/*.less', ['less']);
-  gulp.watch('./../dist/extensibility.js', ['copy:ejs']);
+  gulp.watch('./../dist/subdivision.js', ['copy:sdv']);
 });
 
-gulp.task('copy:ejs', function () {
-  gulp.src('./../dist/extensibility.js')
+gulp.task('copy:sdv', function () {
+  gulp.src('./../dist/subdivision.js')
     .pipe(gulp.dest('./public/vendor'));
 });
 
@@ -88,7 +88,7 @@ gulp.task('copy:vendor', function () {
 });
 
 gulp.task('compile:modules', function () {
-  return gulp.src(['./src/js/**/*.ejs.js'])
+  return gulp.src(['./src/js/**/*.sdv.js'])
     .pipe(compileModules('modules.js', {
       prefix: '\'use strict\';\n\n',
       cwd: path.join(__dirname, 'src')
@@ -96,7 +96,7 @@ gulp.task('compile:modules', function () {
     .pipe(gulp.dest('./public/js'));
 });
 
-gulp.task('build', ['jshint', 'copy:js', 'copy:ejs', 'copy:html', 'compile:modules', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
+gulp.task('build', ['jshint', 'copy:js', 'copy:sdv', 'copy:html', 'compile:modules', 'templates', 'copy:vendor', 'copy:vendor:css', 'less', 'watch'], function () {
   connect.server({
     port: 9000,
     root: 'public'

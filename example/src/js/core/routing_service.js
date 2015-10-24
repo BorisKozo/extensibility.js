@@ -1,7 +1,7 @@
 'use strict';
 
 import App from 'js/main';
-import EJS from 'vendor/extensibility';
+import subdivision from 'vendor/subdivision';
 import _ from 'lodash';
 
 var service = {
@@ -11,7 +11,7 @@ var service = {
     var currentAxes = ['routes'];
     var context = {};
     this.$vent.trigger('before:route', context, axes, queryString);
-    handlers = EJS.build(EJS.registry.joinPath(currentAxes));
+    handlers = subdivision.build(subdivision.registry.joinPath(currentAxes));
     _.forEach(handlers, function (handler) {
       if (_.isFunction(handler.handleRoute)) {
         var returnedContext = handler.handleRoute(context, '', axes.slice(0), queryString);
@@ -21,15 +21,15 @@ var service = {
 
     for (i = 0; i < axes.length; i++) {
       currentAxes.push(axes[i]);
-      handlers = EJS.build(EJS.registry.joinPath(currentAxes));
+      handlers = subdivision.build(subdivision.registry.joinPath(currentAxes));
       if (handlers.length === 0) { //could be a parameter
         currentAxes.pop();
-        paths = EJS.registry.getSubPaths(EJS.registry.joinPath(currentAxes));
+        paths = subdivision.registry.getSubPaths(subdivision.registry.joinPath(currentAxes));
         if (paths === null || paths.length !== 1) {
           throw new Error('Could not find route handler for ' + axes.slice(0, i + 1).join('/'));
         }
         currentAxes.push(paths[0]);
-        handlers = EJS.build(EJS.registry.joinPath(currentAxes));
+        handlers = subdivision.build(subdivision.registry.joinPath(currentAxes));
       }
       _.forEach(handlers, function (handler) {
         if (_.isFunction(handler.handleRoute)) {

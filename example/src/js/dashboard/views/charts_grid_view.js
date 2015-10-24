@@ -1,6 +1,6 @@
 'use strict';
 
-import EJS from 'vendor/extensibility';
+import subdivision from 'vendor/subdivision';
 import Marionette from 'marionette';
 import Backbone from 'backbone';
 
@@ -43,7 +43,7 @@ var ChartsGridView = Marionette.CompositeView.extend({
     'container': '.js-dashboard-charts-grid-container'
   },
   initialize: function () {
-    var charts = EJS.build(EJS.registry.joinPath('dashboard', 'charts'));
+    var charts = subdivision.build(subdivision.registry.joinPath('dashboard', 'charts'));
     this.collection = new Backbone.Collection(charts);
   },
   onRender: function () {

@@ -1,12 +1,12 @@
 {
-  "name": "extensibility",
+  "name": "subdivision",
   "version": "0.1.0",
-  "description": "A simple extensibility layer for your JavaScript application",
+  "description": "A simple modularization layer for your JavaScript application",
   "license": "MIT",
-  "repository": "https://github.com/BorisKozo/extensibility.js.git",
+  "repository": "https://github.com/BorisKozo/subdivision.git",
   "author": "Boris Kozorovitzky",
-  "main": "./dist/extensibility.js",
-  "browser":"./dist/extensibility.min.js",
+  "main": "./dist/subdivision.js",
+  "browser":"./dist/subdivision.min.js",
   "devDependencies": {
     "chai": "^3.4.0",
     "grunt": "^0.4.5",

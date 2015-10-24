@@ -1,32 +1,32 @@
-(function (EJS) {
+(function (subdivision) {
     'use strict';
-    EJS.systemPaths = {
-        prefix: 'EJS'
+    subdivision.systemPaths = {
+        prefix: 'subdivision'
     };
 
-    EJS.vent = EJS.createEventBus();
+    subdivision.vent = subdivision.createEventBus();
 
     function buildServicesInternal() {
-        if (_.isFunction(EJS.buildServices)) {
-            EJS.vent.trigger('before:buildServices');
-            return EJS.buildServices().then(function () {
-                EJS.vent.trigger('after:buildServices');
+        if (_.isFunction(subdivision.buildServices)) {
+            subdivision.vent.trigger('before:buildServices');
+            return subdivision.buildServices().then(function () {
+                subdivision.vent.trigger('after:buildServices');
             });
         } else {
             return Promise.resolve();
         }
     }
 
-    EJS.start = function () {
+    subdivision.start = function () {
 
-        if (EJS.defaultManifest) {
-            EJS.vent.trigger('before:readDefaultManifest');
-            EJS.readManifest(EJS.defaultManifest);
-            EJS.vent.trigger('after:readDefaultManifest');
+        if (subdivision.defaultManifest) {
+            subdivision.vent.trigger('before:readDefaultManifest');
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.vent.trigger('after:readDefaultManifest');
         }
 
-        EJS.generateBuilders();
+        subdivision.generateBuilders();
 
         return buildServicesInternal();
     };
-})(EJS);
+})(subdivision);
