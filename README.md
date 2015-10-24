@@ -5,7 +5,7 @@ subdivision - A simple library for building highly decoupled and modular web app
 This library is a collection of simple patterns that help web developers manage the modularization and decoupling of your
  application components. It is conceptually based on the SharpDevelop addin tree and is built with the
  "turtles all the way down" methodology (i.e. each concept is using the previous concepts of the library).
- This library is **not** a replacement for Backbone/Ember/Angular/Knockout/<your framework> as it provides complementary
+ This library is **not** a replacement for Backbone/Ember/Angular/Knockout/React/<your framework> as it provides complementary
  features that can integrate with these frameworks and in general it is designed to play well with others.
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
@@ -18,6 +18,8 @@ details on the full API, including methods,
 attributes and helper functions.
 To use the library, include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your
 index.html.
+
+In Node.js simply ````var subdivision = require('subdivision');````
 
 The library has two dependencies - lodash and Promise polyfill for browsers that do not support ES6 Promise function.
 It should be possible to load this library using AMD or Common.js loaders and in Node.js as long as the dependencies are provided.
