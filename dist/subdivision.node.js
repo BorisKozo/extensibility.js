@@ -3,28 +3,9 @@
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
 
-(function(root, factory) {
-
-    // Set up subdivision appropriately for the environment. Start with AMD.
-    if (typeof define === 'function' && define.amd) {
-        define(['lodash', 'exports'], function(_, exports) {
-            // Export global even in AMD case in case this script is loaded with
-            // others that may still expect a global subdivision.
-            root.subdivision = factory(root, exports, _);
-        });
-
-        // Next for CommonJS.
-    } else if (typeof exports !== 'undefined') {
-        var _ = require('lodash');
-        factory(root, exports, _);
-
-        // Finally, as a browser global.
-    } else {
-        root.subdivision = factory(root, {}, root._);
-    }
-
-})(this, function(root, subdivision, _) {
-
+'use strict'
+var _ = require('lodash');
+var subdivision = {};
 
 (function (subdivision) {
     'use strict';
@@ -1504,4 +1485,5 @@
         });
     };
 })(subdivision);
-});
+
+module.exports = subdivision;

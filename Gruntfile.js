@@ -74,7 +74,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 src: [
-                    '<%= meta.app %>/lib/partials/header.jst',
+                    '<%= meta.app %>/lib/browser/header.jst',
                     '<%= meta.app %>/lib/events.js',
                     '<%= meta.app %>/lib/topological-sort.js',
                     '<%= meta.app %>/lib/boolean-phrase-parser.js',
@@ -87,9 +87,28 @@ module.exports = function (grunt) {
                     '<%= meta.app %>/lib/command.js',
                     '<%= meta.app %>/lib/condition.js',
                     '<%= meta.app %>/lib/manifest-reader.js',
-                    '<%= meta.app %>/lib/partials/footer.jst'
+                    '<%= meta.app %>/lib/browser/footer.jst'
                 ],
                 dest:'<%= meta.dist %>/subdivision.js'
+            },
+            node: {
+                src: [
+                    '<%= meta.app %>/lib/node/header.jst',
+                    '<%= meta.app %>/lib/events.js',
+                    '<%= meta.app %>/lib/topological-sort.js',
+                    '<%= meta.app %>/lib/boolean-phrase-parser.js',
+                    '<%= meta.app %>/lib/app.js',
+                    '<%= meta.app %>/lib/registry.js',
+                    '<%= meta.app %>/lib/default-manifest.js',
+                    '<%= meta.app %>/lib/addin.js',
+                    '<%= meta.app %>/lib/builder.js',
+                    '<%= meta.app %>/lib/service.js',
+                    '<%= meta.app %>/lib/command.js',
+                    '<%= meta.app %>/lib/condition.js',
+                    '<%= meta.app %>/lib/manifest-reader.js',
+                    '<%= meta.app %>/lib/node/footer.jst'
+                ],
+                dest:'<%= meta.dist %>/subdivision.node.js'
             }
 
         }
@@ -101,6 +120,7 @@ module.exports = function (grunt) {
         'newer:jshint',
         'clean:dist',
         'concat:dist',
+        'concat:node',
         'uglify:standard'
     ]);
 };
