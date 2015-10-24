@@ -1,7 +1,17 @@
 describe('Command', function () {
     'use strict';
-    var expect = chai.expect;
-    var subdivision = window.subdivision;
+    var expect;
+    var subdivision;
+    var sinon;
+    if (typeof window === 'undefined') {
+        expect = require('chai').expect;
+        sinon = require('sinon');
+        subdivision = require('./../../dist/subdivision.node.js');
+    } else {
+        expect = chai.expect;
+        subdivision = window.subdivision;
+        sinon = window.sinon;
+    }
 
     beforeEach(function () {
         subdivision.registry.$clear();

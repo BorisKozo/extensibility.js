@@ -1,7 +1,14 @@
 describe('BooleanPhraseParser', function () {
     'use strict';
-    var expect = chai.expect;
-    var subdivision = window.subdivision;
+    var expect;
+    var subdivision;
+    if (typeof window === 'undefined') {
+        expect = require('chai').expect;
+        subdivision = require('./../../dist/subdivision.node.js');
+    } else {
+        expect = chai.expect;
+        subdivision = window.subdivision;
+    }
 
     var booleanPhraseParser;
     var literalContext;
@@ -27,7 +34,7 @@ describe('BooleanPhraseParser', function () {
     }
 
     beforeEach(function () {
-        booleanPhraseParser = new window.subdivision.utils.BooleanPhraseParser();
+        booleanPhraseParser = new subdivision.utils.BooleanPhraseParser();
     });
 
     describe('parse', function () {

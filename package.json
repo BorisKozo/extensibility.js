@@ -6,7 +6,7 @@
   "repository": "https://github.com/BorisKozo/subdivision.git",
   "author": "Boris Kozorovitzky",
   "main": "./dist/subdivision.node.js",
-  "browser":"./dist/subdivision.min.js",
+  "browser": "./dist/subdivision.min.js",
   "devDependencies": {
     "chai": "^3.4.0",
     "grunt": "^0.4.5",
@@ -27,7 +27,7 @@
     "load-grunt-tasks": "^3.3.0",
     "mocha": "^2.2.4",
     "shelljs": "^0.5.3",
-    "sinon": "^1.14.1",
+    "sinon": "^1.17.2",
     "time-grunt": "^1.2.2"
   },
   "scripts": {

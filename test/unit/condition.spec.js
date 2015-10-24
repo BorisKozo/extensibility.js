@@ -1,7 +1,20 @@
 describe('Condition', function () {
     'use strict';
-    var expect = chai.expect;
-    var subdivision = window.subdivision;
+    var expect;
+    var subdivision;
+    var sinon;
+    var _;
+    if (typeof window === 'undefined') {
+        expect = require('chai').expect;
+        sinon = require('sinon');
+        subdivision = require('./../../dist/subdivision.node.js');
+        _ = require('lodash');
+    } else {
+        expect = chai.expect;
+        subdivision = window.subdivision;
+        sinon = window.sinon;
+        _ = window._;
+    }
 
     beforeEach(function () {
         subdivision.registry.$clear();

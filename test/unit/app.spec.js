@@ -1,7 +1,17 @@
 describe('Addin', function () {
     'use strict';
-    var expect = chai.expect;
-    var subdivision = window.subdivision;
+    var expect;
+    var subdivision;
+    var sinon;
+    if (typeof window === 'undefined') {
+        expect = require('chai').expect;
+        sinon = require('sinon');
+        subdivision = require('./../../dist/subdivision.node.js');
+    } else {
+        expect = chai.expect;
+        subdivision = window.subdivision;
+        sinon = window.sinon;
+    }
 
     beforeEach(function () {
         sinon.spy(subdivision.vent, 'trigger');
@@ -37,7 +47,7 @@ describe('Addin', function () {
             expect(service).to.be.ok;
             expect(service.hello).to.be.equal('world');
             done();
-        }, function(error){
+        }, function (error) {
             done(error);
         });
 

@@ -1,7 +1,14 @@
 ﻿describe('Topological Sort', function () {
     'use strict';
-    var expect = chai.expect;
-    var subdivision = window.subdivision;
+    var expect;
+    var subdivision;
+    if (typeof window === 'undefined') {
+        expect = require('chai').expect;
+        subdivision = require('./../../dist/subdivision.node.js');
+    } else {
+        expect = chai.expect;
+        subdivision = window.subdivision;
+    }
     describe('formSortClusters', function () {
         function verifyClusterOrder(cluster, order) {
             if (cluster.addins.length !== order.length) {
