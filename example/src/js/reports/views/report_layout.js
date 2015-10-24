@@ -5,11 +5,15 @@ import Marionette from 'marionette';
 import Backbone from 'backbone';
 
 import reportViewTemplate from 'templates/reports/templates/report_layout';
+import FormView from 'js/reports/views/form_view';
+
 
 var ReportLayout = Marionette.LayoutView.extend({
   template: reportViewTemplate,
   regions: {
-    'form':''
+    'form': '.js-report-form-container',
+    'graph': '.js-report-graph-container',
+    'table': '.js-report-table-container'
   },
   serializeData: function () {
     return {
@@ -17,6 +21,7 @@ var ReportLayout = Marionette.LayoutView.extend({
     };
   },
   onRender: function () {
+    this.showChildView('form', new FormView());
   }
 });
 
