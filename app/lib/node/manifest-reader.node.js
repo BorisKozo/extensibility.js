@@ -1,8 +1,30 @@
 (function (subdivision) {
     'use strict';
     var glob = require('glob');
-    subdivision.readDirectory = function (globPattern, globOptions) {
+    var _ = require('lodash');
 
+    function readMatches(matches) {
+        _.forEach(matches, function (filename) {
+            var manifest =  require(filename);
+            subdivision.readManifest(manifest);
+        });
+    }
 
+    subdivision.readFiles = function (globPattern, globOptions) {
+        return new Promise(function (resolve, reject) {
+            glob(globPattern, globOptions, function (err, matches) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                readMatches(matches);
+                resolve();
+            });
+        });
     };
+    subdivision.readFilesSync = function (globPattern, globOptions) {
+        var matches = glob.sync(globPattern, globOptions);
+        readMatches(matches);
+    };
+
 })(subdivision);

@@ -70,9 +70,11 @@ module.exports = function (grunt) {
         },
         concat: {
             options: {
-                banner: '<%= meta.banner %>'
+                banner: '<%= meta.banner %>',
+                sourceMap: true
             },
             dist: {
+
                 src: [
                     '<%= meta.app %>/lib/browser/header.jst',
                     '<%= meta.app %>/lib/events.js',
@@ -112,9 +114,16 @@ module.exports = function (grunt) {
                 dest:'<%= meta.dist %>/subdivision.node.js'
             }
 
+        },
+        watch: {
+            scripts: {
+                files: ['app/lib/**/*.js'],
+                tasks: ['build'],
+                options: {
+                    spawn: false
+                }
+            }
         }
-
-
     });
 
     grunt.registerTask('build', [
