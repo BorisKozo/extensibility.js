@@ -1,4 +1,4 @@
-describe.only('Manifest Reader', function () {
+describe('Manifest Reader', function () {
     'use strict';
     var expect = require('chai').expect;
     var sinon = require('sinon');
