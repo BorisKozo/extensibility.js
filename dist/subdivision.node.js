@@ -1497,7 +1497,7 @@ var subdivision = {};
         });
     }
 
-    subdivision.readFiles = function (globPattern, globOptions) {
+    subdivision.readManifestFiles = function (globPattern, globOptions) {
         return new Promise(function (resolve, reject) {
             glob(globPattern, globOptions, function (err, matches) {
                 if (err) {
@@ -1509,7 +1509,7 @@ var subdivision = {};
             });
         });
     };
-    subdivision.readFilesSync = function (globPattern, globOptions) {
+    subdivision.readManifestFilesSync = function (globPattern, globOptions) {
         var matches = glob.sync(globPattern, globOptions);
         readMatches(matches);
     };

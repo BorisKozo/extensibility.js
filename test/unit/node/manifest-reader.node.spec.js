@@ -27,7 +27,7 @@ describe('Manifest Reader', function () {
 
 
     it('should read some files asynchronously', function (done) {
-        subdivision.readFiles('foo').then(function () {
+        subdivision.readManifestFiles('foo').then(function () {
             expect(subdivision.readManifest.calledTwice).to.be.true;
             expect(subdivision.readManifest.getCall(0).args[0]).to.be.equal('foofoo');
             expect(subdivision.readManifest.getCall(1).args[0]).to.be.equal('barbar');
@@ -36,14 +36,14 @@ describe('Manifest Reader', function () {
     });
 
     it('should read some files synchronously', function () {
-        subdivision.readFilesSync('foo');
+        subdivision.readManifestFilesSync('foo');
         expect(subdivision.readManifest.calledTwice).to.be.true;
         expect(subdivision.readManifest.getCall(0).args[0]).to.be.equal('foofoo');
         expect(subdivision.readManifest.getCall(1).args[0]).to.be.equal('barbar');
     });
 
     it('should fail on error', function (done) {
-        subdivision.readFiles('error').catch(function (err) {
+        subdivision.readManifestFiles('error').catch(function (err) {
             expect(err).to.be.equal('error');
             done();
         });

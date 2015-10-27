@@ -262,6 +262,22 @@ within a given path are unique.
 #### subdivision.readManifest(manifest)
 Adds all the addins within the given _manifest_ into the registry.
 
+#### subdivision.readManifestFiles(globPattern, globOptions)->Promise [This function is available in the Node.js version]
+Reads all the files given by the standard _globPattern_ and _globOptions_ (see [glob](https://www.npmjs.com/package/glob)).
+Each of the read files is loaded into the registry and therefore should export a valid manifest.
+
+```js
+subdivision.readManifestFiles(path.join(__dirname,'modules','**','manifest.js')).then(function(){
+  return subdivision.start();
+}).then(function(){
+   //You are ready to run your application
+});
+```
+
+#### subdivision.readManifestFilesSync(globPattern, globOptions) [This function is available in the Node.js version]
+The synchronous version of ````subdivision.readManifestFiles````.
+
+
 ## Builders
 An addin can be anything including a metadata for creating an actual object. The builders are used to transform
   an adding to another object or value by processing the addin content. Each addin may habe a ````type````
@@ -428,6 +444,16 @@ at the initialization of the library. Functions like ````getBuilder```` and ````
 Forcefully clears all the builders from the internal structures. You should never call this function unless you
 are absolutely sure you know what you are doing.
 
+## Bootstrapping everything up
+Once you are done loading all the manifests and doing other initialization relevant for your application a call to
+ ````subdivision.start()```` should be made to initialize subdivision and build the registry and initialize all the parts
+ of subdivision (see following sections for various optional library concepts).
+
+#### subdivision.start() -> Promise
+ Initializes the registry, builders, services, and other concepts of subdivision.
+ You must call this function to start working with subdivision.
+ Returns a promise that resolves once all the initialization (including custom initialization functions provided by the user)
+ are complete.
 
 ## Optional Concepts
 All the concepts in the following paragraphs are completely optional. They are here to help
@@ -490,6 +516,14 @@ _callback(serviceName)_ then tries to run the service _initialize_ method if one
 When all the services are initialized it will trigger the _after:service:initialized_ event on ````subdivision.vent```` _callback(serviceName, service)_.
 If your service needs access to some other service after it was initialized but before the application starts, you should register to this
 event as it guarantees that all services were initialized when called.
+
+## Commands
+
+TBD
+
+## Conditions
+
+TBD
 
 ## Unit Tests
 
