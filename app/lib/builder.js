@@ -143,7 +143,7 @@
         });
     };
 
-    subdivision.generateBuilders = function () {
+    subdivision.$generateBuilders = function () {
         subdivision.$clearBuilders();
         var addins = subdivision.getAddins(subdivision.systemPaths.builders, {target: null});
         if (addins.length > 0) {

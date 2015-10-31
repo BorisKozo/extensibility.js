@@ -280,7 +280,7 @@ The synchronous version of ````subdivision.readManifestFiles````.
 
 ## Builders
 An addin can be anything including a metadata for creating an actual object. The builders are used to transform
-  an adding to another object or value by processing the addin content. Each addin may habe a ````type````
+  an adding to another object or value by processing the addin content. Each addin may have a ````type````
   property which tells the library which builder is assigned to build that addin.
 
 #### Builders path in the registry
@@ -434,7 +434,7 @@ the addin definition.
             //  }]
 ```
 
-#### subdivision.generateBuilders()
+#### subdivision.$generateBuilders()
 Adds all the builders registered to the builders path in the registry into the internal
 builders list. You normally don't need to call this function as it is called automatically
 at the initialization of the library. Functions like ````getBuilder```` and ````addBuilder````
@@ -450,7 +450,9 @@ Once you are done loading all the manifests and doing other initialization relev
  of subdivision (see following sections for various optional library concepts).
 
 #### subdivision.start() -> Promise
- Initializes the registry, builders, services, and other concepts of subdivision.
+ Initializes the registry, builders, services, and other concepts of subdivision. Note that all the internal structures are reset
+ except for the registry therefore you should use the various manifest functions to initialize the library prior to calling ````start()````
+ and ````add*```` functions after calling ````start()````.
  You must call this function to start working with subdivision.
  Returns a promise that resolves once all the initialization (including custom initialization functions provided by the user)
  are complete.

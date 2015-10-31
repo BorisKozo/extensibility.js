@@ -1,4 +1,4 @@
-// subdivision v0.1.1
+// subdivision v0.1.3
 // Copyright (c)2015 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -774,7 +774,7 @@
             subdivision.vent.trigger('after:readDefaultManifest');
         }
 
-        subdivision.generateBuilders();
+        subdivision.$generateBuilders();
 
         return buildServicesInternal();
     };
@@ -1112,7 +1112,7 @@
         });
     };
 
-    subdivision.generateBuilders = function () {
+    subdivision.$generateBuilders = function () {
         subdivision.$clearBuilders();
         var addins = subdivision.getAddins(subdivision.systemPaths.builders, {target: null});
         if (addins.length > 0) {

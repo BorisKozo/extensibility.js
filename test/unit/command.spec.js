@@ -148,7 +148,7 @@ describe('Command', function () {
                     }
                 ]
             });
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
 
             subdivision.addCondition({
                 name: 'myCondition',

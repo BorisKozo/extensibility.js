@@ -194,7 +194,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
             operations = subdivision.build(subdivision.systemPaths.conditionOperations)
 
         });
@@ -274,7 +274,7 @@ describe('Condition', function () {
                     return false;
                 }
             });
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
         });
 
         it('should be able to duplicate an existing condition', function () {
@@ -414,7 +414,7 @@ describe('Condition', function () {
                     }
                 ]
             });
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
 
             var condition = subdivision.build(subdivision.systemPaths.conditions, {name: 'monkey'})[0];
             expect(condition).to.be.ok;

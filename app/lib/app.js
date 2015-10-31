@@ -25,7 +25,7 @@
             subdivision.vent.trigger('after:readDefaultManifest');
         }
 
-        subdivision.generateBuilders();
+        subdivision.$generateBuilders();
 
         return buildServicesInternal();
     };

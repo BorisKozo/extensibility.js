@@ -92,7 +92,7 @@ describe('Service', function () {
         beforeEach(function () {
             sinon.spy(subdivision.vent, 'trigger');
             subdivision.readManifest(subdivision.defaultManifest);
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
         });
 
         afterEach(function () {
@@ -159,7 +159,7 @@ describe('Service', function () {
     describe('service builder', function () {
         beforeEach(function () {
             subdivision.readManifest(subdivision.defaultManifest);
-            subdivision.generateBuilders();
+            subdivision.$generateBuilders();
         });
 
         it('should throw an error if name was not defined', function () {
