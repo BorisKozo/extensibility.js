@@ -189,7 +189,7 @@ describe('Builder', function () {
         it('should return empty array if there are no addins to build', function () {
             subdivision.addBuilder({
                 id: 'a',
-                type: 'monkey',
+                target: 'mouse',
                 build: function (addin) {
                     return addin.id;
                 }
@@ -200,6 +200,24 @@ describe('Builder', function () {
 
             var items = subdivision.build('bbb');
             expect(items.length).to.be.equal(0);
+        });
+
+        it('should pass the options to the build function', function () {
+            var options = {};
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, innerOptions) {
+                    expect(innerOptions).to.be.equal(options);
+                    return addin.id;
+                }
+            });
+
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            var items = subdivision.build('aaa', options);
+            expect(items.length).to.be.equal(2);
         });
     });
 
@@ -287,14 +305,40 @@ describe('Builder', function () {
                 done();
             });
         });
+
+        it('should build a path with a couple of addins in it with options', function (done) {
+            var options = {};
+
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, innerOptions) {
+                    expect(innerOptions).to.be.equal(options);
+                    return addin.id;
+                }
+            });
+
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            subdivision.build.async('aaa', options).then(function (items) {
+                expect(items).to.be.ok;
+                expect(items.length).to.be.equal(2);
+                expect(items[0]).to.be.equal('1');
+                expect(items[1]).to.be.equal('2');
+                done();
+            });
+        });
     });
 
     describe('Build Tree', function () {
         it('should build a path tree', function () {
+            var options = {};
             subdivision.addBuilder({
                 id: 'a',
                 target: 'monkey',
-                build: function (addin) {
+                build: function (addin, innerOptions) {
+                    expect(innerOptions).to.be.equal(options);
                     return {id: addin.id};
                 }
             });
@@ -306,7 +350,7 @@ describe('Builder', function () {
             subdivision.addAddin(subdivision.registry.joinPath('aaa', '2'), {id: '2', type: 'monkey', order: 3});
             subdivision.addAddin(subdivision.registry.joinPath('aaa', '3'), {id: '1', type: 'monkey', order: 3});
 
-            var items = subdivision.buildTree('aaa');
+            var items = subdivision.buildTree('aaa', options);
             expect(items).to.be.ok;
             expect(items.length).to.be.equal(3);
             expect(items[1].$items.length).to.be.equal(2);
@@ -316,6 +360,61 @@ describe('Builder', function () {
             expect(items[2].stuff[0].id).to.be.equal('1');
         });
 
+    });
+
+    describe('Build addin', function () {
+        it('should build an addin', function () {
+            var options = {};
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, innerOptions) {
+                    expect(innerOptions).to.be.equal(options);
+                    return addin.id;
+                }
+            });
+
+            var addin = {id: '1', type: 'monkey', order: 1};
+            var result = subdivision.buildAddin(addin, options);
+            expect(result).to.be.equal('1');
+        });
+
+        it('should not build if no builder exists and return undefined', function () {
+            expect(function () {
+                var addin = {id: '1', type: 'monkey', order: 1};
+                subdivision.buildAddin(addin);
+            }).to.throw('No builder of type "monkey" was defined');
+
+        });
+    });
+
+    describe('Build addin async', function () {
+        it('should build an addin', function () {
+            var options = {};
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, innerOptions) {
+                    expect(innerOptions).to.be.equal(options);
+                    return addin.id;
+                }
+            });
+
+            var addin = {id: '1', type: 'monkey', order: 1};
+            subdivision.buildAddin.async(addin, options).then(function (result) {
+                expect(result).to.be.equal('1');
+            });
+        });
+
+        it('should not build if no builder exists and reject the promise', function () {
+
+                var addin = {id: '1', type: 'monkey', order: 1};
+                subdivision.buildAddin.async(addin).catch(function(exception){
+                    expect(exception.message).to.contain('No builder of type "monkey" was defined');
+                });
+
+
+        });
     });
 
 });

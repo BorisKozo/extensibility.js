@@ -22,9 +22,9 @@
     };
 
     subdivision.Condition.$buildContext = function () {
-        var notConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '!'})[0];
-        var andConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '&'})[0];
-        var orConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations, {literal: '|'})[0];
+        var notConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations,null, {literal: '!'})[0];
+        var andConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations,null, {literal: '&'})[0];
+        var orConditionOperator = subdivision.build(subdivision.systemPaths.conditionOperations,null, {literal: '|'})[0];
         if (notConditionOperator && andConditionOperator && orConditionOperator) {
             return {
                 not: notConditionOperator.generator,

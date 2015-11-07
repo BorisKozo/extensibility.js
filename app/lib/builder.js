@@ -81,11 +81,12 @@
     /**
      * Returns all the addins in the path after applying the appropriate builder on each
      * @param path - The path to build
+     * @param options - Custom options to be passed to the addin builder
      * @param searchCriteria - The search criteria for the underscore filter function
      * @param skipSort - If truthy the topological sort is skipped
      * @returns {Array} = The built addins
      */
-    subdivision.build = function (path, searchCriteria, skipSort) {
+    subdivision.build = function (path, options, searchCriteria, skipSort) {
         var addins = subdivision.getAddins(path, searchCriteria, skipSort);
         if (addins.length === 0) {
             return addins;
@@ -93,18 +94,19 @@
         return _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
             var builder = subdivision.getBuilder(addin.type);
-            return builder.build(addin);
+            return builder.build(addin, options);
         });
     };
 
     /**
      * Returns all the addins in the path after applying the appropriate builder on each
      * @param path - The path to build
+     * @param options - Custom options to be passed to the addin builder
      * @param searchCriteria - The search criteria for the underscore filter function
      * @param skipSort - If truthy the topological sort is skipped
      * @returns {Array} = A promise that resolves with an array of the built addins
      */
-    subdivision.build.async = function (path, searchCriteria, skipSort) {
+    subdivision.build.async = function (path, options, searchCriteria, skipSort) {
         var addins = subdivision.getAddins(path, searchCriteria, skipSort);
         if (addins.length === 0) {
             return Promise.resolve(addins);
@@ -113,7 +115,7 @@
             //TODO: Optimization that tries to guess the builder from previous builder
             var builder = subdivision.getBuilder(addin.type);
             try {
-                return Promise.resolve(builder.build(addin));
+                return Promise.resolve(builder.build(addin, options));
             }
             catch (ex) {
                 return Promise.reject(ex);
@@ -124,11 +126,46 @@
     };
 
     /**
+     * Builds a single addin based on its type
+     * @param addin The addin to build
+     * @param options The options to pass to the builder
+     */
+    subdivision.buildAddin = function (addin, options) {
+        var builder = subdivision.getBuilder(addin.type);
+        if (builder) {
+            return builder.build(addin, options);
+        }
+    };
+
+    /**
+     * The async version of buildAddin
+     * @param addin The addin to build
+     * @param options The options to pass to the builder
+     * @returns A promise that when resolved returns the built addin
+     */
+
+    subdivision.buildAddin.async = function (addin, options) {
+        var builder = subdivision.getBuilder(addin.type);
+        try {
+            if (builder) {
+                return Promise.resolve(builder.build(addin, options));
+            } else {
+                return Promise.resolve();
+            }
+        }
+        catch (ex) {
+            return Promise.reject(ex);
+        }
+    };
+
+
+    /**
      * Builds a tree out of the given path. Each addin will have child elements at path+addin.id added
      * to its items property (default $items).
      * @param path
+     * @param options - Custom options to be passed to the addin builder
      */
-    subdivision.buildTree = function (path) {
+    subdivision.buildTree = function (path, options) {
         var addins = subdivision.getAddins(path);
         if (addins.length === 0) {
             return addins;
@@ -136,9 +173,9 @@
         return _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
             var builder = subdivision.getBuilder(addin.type);
-            var result = builder.build(addin);
+            var result = builder.build(addin, options);
             var itemsProperty = addin.itemsProperty || '$items';
-            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id));
+            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id),options);
             return result;
         });
     };
@@ -155,7 +192,7 @@
         });
     };
 
-    subdivision.$clearBuilders = function(){
+    subdivision.$clearBuilders = function () {
         builders = {};
         defaultBuilder = null;
     };

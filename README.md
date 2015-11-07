@@ -369,8 +369,9 @@ default builder defined then an exception is thrown.
             console.log(builder === builder2); //true
 ```
 
-#### subdivision.build(path, searchCriteria, skipSort)-> Array
+#### subdivision.build(path, options, searchCriteria, skipSort)-> Array
 Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type.
+Each builder's build function will take the addin and the _options_ as its arguments.
 If _searchCriteria_ is specified the syntax for the is determined by the lodash
 [filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
 Set _skipSort_ to true if you don't want to sort the returned addins by order.
@@ -394,6 +395,27 @@ Set _skipSort_ to true if you don't want to sort the returned addins by order.
 Same as ````subdivision.build```` but returns a Promise that resolves with the result array. Does not assume that any of the
 builders involved in building the given _path_ are asynchronous. Use this variant if any of the builders for the
 _path_ are asynchronous.
+
+
+#### subdivision.buildAddin(addin, options)-> Any
+Builds a single addin object based on its type. The appropriate builder will take the _addin_ and the _options_
+as the arguments.
+
+```js
+    subdivision.addBuilder({
+        id: 'a',
+        target: 'monkey',
+        build: function (addin, suffix) {
+            return addin.id + suffix;
+        }
+    });
+
+    var addin = {id: '1', type: 'monkey', order: 1};
+    var result = subdivision.buildAddin(addin, 'foo'); //1foo
+```
+
+#### subdivision.buildAddin.async(addin, options)-> Promise
+Same as ````subdivision.buildAddin```` but allows async building. Returns a promise that resolved with the built addin.
 
 #### subdivision.buildTree(path)-> Array
 Builds all the addins in the given _path_ by calling the build function for each addin separately based on its type but also
@@ -540,6 +562,14 @@ TBD
 1. Run `grunt build`
 
 If all went well, the appropriate files should be generated in the dist directory
+
+##Change Log
+
+### 0.1.3 -> 0.2.0
+
+* Added the ````buildAddin```` and the ````buildAddin.async```` functions.
+
+* **BREAKING** Added a new parameter _options_ to the various ````build```` functions.
 
 ##License
 (MIT License)
