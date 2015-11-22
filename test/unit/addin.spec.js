@@ -28,7 +28,7 @@ describe('Addin', function () {
                 return {
                     id: 'abc',
                     order: 3
-                }
+                };
             });
             expect(addin.id).to.be.equal('abc');
             expect(addin.order).to.be.equal(3);
@@ -54,6 +54,12 @@ describe('Addin', function () {
         it('should create a node if the addin is undefined', function () {
             subdivision.addAddin('a/b/c');
             expect(subdivision.registry.pathExists('a/b/c')).to.be.true;
+        });
+
+        it('should throw if path was undefined', function(){
+           expect(function(){
+               subdivision.addAddin();
+           }).to.throw('path was not defined for addin');
         });
     });
 

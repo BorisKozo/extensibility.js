@@ -6,6 +6,7 @@
 
     subdivision.vent = subdivision.createEventBus();
 
+    //This will move to service file
     function buildServicesInternal() {
         if (_.isFunction(subdivision.buildServices)) {
             subdivision.vent.trigger('before:buildServices');
@@ -15,6 +16,14 @@
         } else {
             return Promise.resolve();
         }
+    }
+
+    //This will move to commands file
+    function buildCommandsInternal() {
+        var commands = subdivision.build(subdivision.systemPaths.commands);
+        _.forEach(commands, function (command) {
+            subdivision.addCommand(command, true);
+        });
     }
 
     subdivision.start = function () {
@@ -27,6 +36,9 @@
 
         subdivision.$generateBuilders();
 
-        return buildServicesInternal();
+        //This will be a generic initializer
+        return buildServicesInternal().then(function () {
+            buildCommandsInternal();
+        });
     };
 })(subdivision);

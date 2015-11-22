@@ -25,15 +25,33 @@
         return result;
     };
 
-    subdivision.Command.$canExecute = function(){
-        var condition = this.condition;
-        if (_.isString(condition)) {
-            condition = subdivision.getCondition(condition);
+    subdivision.Command.$canExecute = function () {
+        var conditionResult = true;
+        var condition;
+        if (this.hasOwnProperty('condition')) {
+            condition = this.condition;
+            if (_.isString(condition)) {
+                condition = subdivision.getCondition(condition);
+                if (condition === undefined) { //generate condition from isValid parser
+                    condition = new subdivision.Condition({
+                        isValid: this.condition
+                    });
+                }
+            }
+            conditionResult = condition.isValid(this);
         }
-        //If a condition was defined then the condition isValid function
-        // AND
-        //If isValid was defined then the value of the isValid function
-        return (!Boolean(condition) || condition.isValid()) && (!_.isFunction(this.isValid) || this.isValid());
+
+
+        var validity = true;
+        if (this.hasOwnProperty('isValid')) {
+            if (_.isFunction(this.isValid)) {
+                validity = this.isValid();
+            } else {
+                validity = Boolean(this.isValid);
+            }
+        }
+
+        return conditionResult && validity;
     };
 
 
@@ -46,8 +64,7 @@
             id: 'subdivision.commandBuilder',
             order: 100,
             build: function (addin) {
-                var condition = new subdivision.Command(addin);
-                return condition;
+                subdivision.addCommand(addin);
             }
         }]
     });

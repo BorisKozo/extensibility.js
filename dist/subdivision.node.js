@@ -1,4 +1,4 @@
-// subdivision v0.1.3
+// subdivision v0.2.0
 // Copyright (c)2015 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -1062,8 +1062,9 @@ var subdivision = {};
             return Promise.resolve(addins);
         }
         var promises = _.map(addins, function (addin) {
+            //TODO: Optimization that tries to guess the builder from previous builder
+            var builder = subdivision.getBuilder(addin.type);
             try {
-                var builder = subdivision.getBuilder(addin.type);
                 return Promise.resolve(builder.build(addin, options));
             }
             catch (ex) {
@@ -1124,7 +1125,7 @@ var subdivision = {};
             var builder = subdivision.getBuilder(addin.type);
             var result = builder.build(addin, options);
             var itemsProperty = addin.itemsProperty || '$items';
-            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id),options);
+            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id), options);
             return result;
         });
     };
@@ -1266,15 +1267,33 @@ var subdivision = {};
         return result;
     };
 
-    subdivision.Command.$canExecute = function(){
-        var condition = this.condition;
-        if (_.isString(condition)) {
-            condition = subdivision.getCondition(condition);
+    subdivision.Command.$canExecute = function () {
+        var conditionResult = true;
+        var condition;
+        if (this.hasOwnProperty('condition')) {
+            condition = this.condition;
+            if (_.isString(condition)) {
+                condition = subdivision.getCondition(condition);
+                if (condition === undefined) { //generate condition from isValid parser
+                    condition = new subdivision.Condition({
+                        isValid: this.condition
+                    });
+                }
+            }
+            conditionResult = condition.isValid(this);
         }
-        //If a condition was defined then the condition isValid function
-        // AND
-        //If isValid was defined then the value of the isValid function
-        return (!Boolean(condition) || condition.isValid()) && (!_.isFunction(this.isValid) || this.isValid());
+
+
+        var validity = true;
+        if (this.hasOwnProperty('isValid')) {
+            if (_.isFunction(this.isValid)) {
+                validity = this.isValid();
+            } else {
+                validity = Boolean(this.isValid);
+            }
+        }
+
+        return conditionResult && validity;
     };
 
 
@@ -1287,8 +1306,8 @@ var subdivision = {};
             id: 'subdivision.commandBuilder',
             order: 100,
             build: function (addin) {
-                var condition = new subdivision.Command(addin);
-                return condition;
+                var command = new subdivision.Command(addin);
+                return command;
             }
         }]
     });

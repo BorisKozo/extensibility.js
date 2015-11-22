@@ -145,8 +145,8 @@
      */
 
     subdivision.buildAddin.async = function (addin, options) {
-        var builder = subdivision.getBuilder(addin.type);
         try {
+            var builder = subdivision.getBuilder(addin.type);
             if (builder) {
                 return Promise.resolve(builder.build(addin, options));
             } else {
@@ -175,7 +175,7 @@
             var builder = subdivision.getBuilder(addin.type);
             var result = builder.build(addin, options);
             var itemsProperty = addin.itemsProperty || '$items';
-            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id),options);
+            result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id), options);
             return result;
         });
     };

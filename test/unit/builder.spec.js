@@ -389,7 +389,7 @@ describe('Builder', function () {
     });
 
     describe('Build addin async', function () {
-        it('should build an addin', function () {
+        it('should build an addin', function (done) {
             var options = {};
             subdivision.addBuilder({
                 id: 'a',
@@ -403,14 +403,16 @@ describe('Builder', function () {
             var addin = {id: '1', type: 'monkey', order: 1};
             subdivision.buildAddin.async(addin, options).then(function (result) {
                 expect(result).to.be.equal('1');
+                done();
             });
         });
 
-        it('should not build if no builder exists and reject the promise', function () {
+        it('should not build if no builder exists and reject the promise', function (done) {
 
                 var addin = {id: '1', type: 'monkey', order: 1};
                 subdivision.buildAddin.async(addin).catch(function(exception){
                     expect(exception.message).to.contain('No builder of type "monkey" was defined');
+                    done();
                 });
 
 

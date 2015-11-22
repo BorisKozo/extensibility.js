@@ -543,7 +543,113 @@ event as it guarantees that all services were initialized when called.
 
 ## Commands
 
-TBD
+Commands are a standard mechanism that exists in many UI frameworks. The commands implementation in this library is
+a minimal one and allows you complete freedom on extending the commands functionality. The goal is to provide the basics
+for you to use commands but allow you more complex use cases. The command is a way to invoke some functionality anywhere
+in the system.
+
+#### Commands path in the registry
+In the code
+```js
+subdivision.systemPaths.commands
+```
+
+In the manifest
+```js
+subdivision/commands
+```
+
+#### subdivision.Command(options) -> Command (The command constructor)
+Creates a new command from the given options. The command must have an ````execute```` function which executes the command.
+You may provide an optional ````isValid```` function that determines if the command is ready to be executed or not.
+The ````isValid```` function should only determine the command specific validity and normally you
+don't need to define this function. The function that determines if a command can be executed is the
+````canExecute```` function.
+The default implementation (see below) evaluates the condition of the function **and** the ````isValid````
+function. It returns true if both the condition ````isValid```` and the command ````isValid```` return a truthy value
+or were undefined.
+
+```js
+ var command = new subdivision.Command({
+                id: 'aa',
+                name: 'bb',
+                execute: function () {
+                   console.log('foo!');
+                }
+            });
+ if (command.canExecute()){
+   command.execute(); //foo!
+ }
+```
+
+Currently the command is more of a wrapper for your commands. It will receive more functionality in future versions.
+
+#### subdivision.Command.$canExecute -> Boolean
+
+The default implementation of the ````canExecute```` function for all commands. It is assigned to any command created
+either by the ````new```` operator, ````addCommand```` function, or the manifest reader. Override the default implementation to affect all newly created
+commands.
+
+#### subdivision.getCommand(name) -> command
+
+Returns a command with the given _name_ or undefined if no command with the given _name_ was defined.
+
+```js
+ subdivision.addCommand({
+                name: 'monkey',
+                execute: function () {
+                  console.log('bar!');
+                }
+            });
+
+            var command = subdivision.getCommand('monkey');
+            command.execute('bar!');
+```
+
+#### subdivision.addCommand(options, force) -> Boolean
+
+Creates a command from the given _options_ and adds it to subdivision.
+If a command with the same name (as in ````options.name````) already exists then the _force_ parameter is used.
+When _force_ is truthy, the old command is removed using ````removeCommand```` , the new command is added, and true
+is returned.
+When _force_ is falsy, the old command remains and false is returned.
+If _options_ has an ````initialize```` function, this function is invoke after the command was added.
+
+```js
+ subdivision.addCommand({
+                name: 'monkey',
+                execute: function () {
+                  console.log('bar!');
+                }
+            });
+
+            var command = subdivision.getCommand('monkey');
+            command.execute('bar!');
+```
+
+#### subdivision.removeCommand(name)
+
+Removes a command with the given _name_ from the library (i.e. you will no longer be able to get it with ````getCommand````).
+If the removed command has a ````destroy```` function, that function is invoked before the command is removed.
+
+```js
+ subdivision.addCommand({
+                name: 'monkey',
+                execute: function () {
+                  console.log('bar!');
+                },
+                destroy: function(){
+                  console.log('Goodbye cruel world!');
+                }
+            });
+
+            subdivision.removeCommand('monkey'); //Goodbye cruel world!
+            subdivision.getCommand('monkey'); //undefined
+```
+
+#### subdivision.$clearCommands()
+Forcefully clears all the commands from the internal structures. None of the ````destroy```` functions will be called.
+You should never call this function unless you are absolutely sure you know what you are doing.
 
 ## Conditions
 
