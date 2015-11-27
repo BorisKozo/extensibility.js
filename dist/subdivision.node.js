@@ -736,6 +736,7 @@ var subdivision = {};
 
     subdivision.vent = subdivision.createEventBus();
 
+    //This will move to service file
     function buildServicesInternal() {
         if (_.isFunction(subdivision.buildServices)) {
             subdivision.vent.trigger('before:buildServices');
@@ -745,6 +746,14 @@ var subdivision = {};
         } else {
             return Promise.resolve();
         }
+    }
+
+    //This will move to commands file
+    function buildCommandsInternal() {
+        var commands = subdivision.build(subdivision.systemPaths.commands);
+        _.forEach(commands, function (command) {
+            subdivision.addCommand(command, true);
+        });
     }
 
     subdivision.start = function () {
@@ -757,7 +766,10 @@ var subdivision = {};
 
         subdivision.$generateBuilders();
 
-        return buildServicesInternal();
+        //This will be a generic initializer
+        return buildServicesInternal().then(function () {
+            buildCommandsInternal();
+        });
     };
 })(subdivision);
 (function (subdivision) {
@@ -1245,9 +1257,6 @@ var subdivision = {};
     var count = 0;
     var commands = {};
 
-    function trueFunction() {
-        return true;
-    }
 
 
     subdivision.Command = function (options) {
@@ -1257,8 +1266,8 @@ var subdivision = {};
         if (!_.isFunction(result.execute)) {
             throw new Error('Command options must contain the "execute" function ' + JSON.stringify(options));
         }
-        if (!_.isFunction(result.isValid)) {
-            result.isValid = trueFunction;
+        if (!result.hasOwnProperty('isValid')) {
+            result.isValid = true;
         }
         if (!result.hasOwnProperty('canExecute')) {
             result.canExecute = subdivision.Command.$canExecute;
@@ -1296,7 +1305,6 @@ var subdivision = {};
         return conditionResult && validity;
     };
 
-
     subdivision.systemPaths.commands = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'commands');
 
     subdivision.defaultManifest.paths.push({
@@ -1306,8 +1314,7 @@ var subdivision = {};
             id: 'subdivision.commandBuilder',
             order: 100,
             build: function (addin) {
-                var command = new subdivision.Command(addin);
-                return command;
+                return new subdivision.Command(addin);
             }
         }]
     });
@@ -1467,7 +1474,10 @@ var subdivision = {};
         }
     };
 
-    subdivision.addBuilder(subdivision.Condition.$conditionOperationBuilder);
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
+        addins: [subdivision.Condition.$conditionOperationBuilder]
+    });
 
     subdivision.defaultManifest.paths.push({
         path: subdivision.systemPaths.conditionOperations,

@@ -3,9 +3,6 @@
     var count = 0;
     var commands = {};
 
-    function trueFunction() {
-        return true;
-    }
 
 
     subdivision.Command = function (options) {
@@ -15,8 +12,8 @@
         if (!_.isFunction(result.execute)) {
             throw new Error('Command options must contain the "execute" function ' + JSON.stringify(options));
         }
-        if (!_.isFunction(result.isValid)) {
-            result.isValid = trueFunction;
+        if (!result.hasOwnProperty('isValid')) {
+            result.isValid = true;
         }
         if (!result.hasOwnProperty('canExecute')) {
             result.canExecute = subdivision.Command.$canExecute;
@@ -54,7 +51,6 @@
         return conditionResult && validity;
     };
 
-
     subdivision.systemPaths.commands = subdivision.registry.joinPath(subdivision.systemPaths.prefix, 'commands');
 
     subdivision.defaultManifest.paths.push({
@@ -64,7 +60,7 @@
             id: 'subdivision.commandBuilder',
             order: 100,
             build: function (addin) {
-                subdivision.addCommand(addin);
+                return new subdivision.Command(addin);
             }
         }]
     });

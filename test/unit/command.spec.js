@@ -14,6 +14,11 @@ describe('Command', function () {
     }
 
     beforeEach(function () {
+        subdivision.readManifest(subdivision.defaultManifest);
+        subdivision.$generateBuilders();
+    });
+
+    afterEach(function () {
         subdivision.registry.$clear();
         subdivision.$clearBuilders();
         subdivision.$clearCommands();
@@ -43,11 +48,11 @@ describe('Command', function () {
 
         it('should throw if a command is created without execute function', function () {
             expect(function () {
-                var condition = new subdivision.Command({});
+                var command = new subdivision.Command({});
             }).to.throw('Command options must contain the "execute" function');
         });
 
-        it('should provide a default truthy isValid function if it was not defined', function () {
+        it('should provide a default truthy isValid if it was not defined', function () {
             var command = new subdivision.Command({
                 id: 'aa',
                 name: 'bb',
@@ -55,8 +60,7 @@ describe('Command', function () {
                 }
             });
             expect(command).to.be.ok;
-            expect(command.isValid).to.be.ok;
-            expect(command.isValid()).to.be.true;
+            expect(command.isValid).to.be.true;
         });
 
         describe('canExecute', function () {
@@ -107,6 +111,36 @@ describe('Command', function () {
                 isValidResult = true;
             });
 
+            it('should use a complex condition', function () {
+                subdivision.readManifest(subdivision.defaultManifest);
+                var isValidResult = true;
+                subdivision.addCondition({
+                    name: 'hello',
+                    isValid: function () {
+                        return isValidResult;
+                    }
+                });
+
+                subdivision.addCondition({
+                    name: 'goodbye',
+                    isValid: function () {
+                        return !isValidResult;
+                    }
+                });
+
+
+                var command = new subdivision.Command({
+                    condition: 'hello & goodbye',
+                    execute: function () {
+                    }
+                });
+
+                expect(command.canExecute()).to.be.equal(false);
+                isValidResult = false;
+                expect(command.canExecute()).to.be.equal(false);
+                isValidResult = true;
+            });
+
             it('should use the value of isValid function if such is provided', function () {
                 var isValidResult = true;
                 var command = new subdivision.Command({
@@ -122,12 +156,21 @@ describe('Command', function () {
                 isValidResult = true;
 
             });
+            it('should use the value of isValid variable if such is provided', function () {
+                var isValidResult = true;
+                var command = new subdivision.Command({
+                    isValid: isValidResult,
+                    execute: function () {
+                    }
+                });
+                expect(command.canExecute()).to.be.equal(true);
+            });
         });
     });
 
     describe('Command builder', function () {
         it('should build a command', function () {
-            subdivision.readManifest(subdivision.defaultManifest);
+
 
             subdivision.readManifest({
                 paths: [
@@ -148,7 +191,7 @@ describe('Command', function () {
                     }
                 ]
             });
-            subdivision.$generateBuilders();
+
 
             subdivision.addCondition({
                 name: 'myCondition',
@@ -157,7 +200,7 @@ describe('Command', function () {
                 }
             });
 
-            var command = subdivision.build(subdivision.systemPaths.commands, {name: 'monkey'})[0];
+            var command = subdivision.build(subdivision.systemPaths.commands, {}, {name: 'monkey'})[0];
             expect(command).to.be.ok;
             expect(command.canExecute()).to.be.false;
 
@@ -200,7 +243,7 @@ describe('Command', function () {
         });
     });
 
-    describe('Add Command', function(){
+    describe('Add Command', function () {
         it('should add a condition and initialize it', function () {
             subdivision.addCommand({
                 name: 'monkey',

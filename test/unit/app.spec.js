@@ -1,4 +1,4 @@
-describe('Addin', function () {
+describe('App', function () {
     'use strict';
     var expect;
     var subdivision;
@@ -22,6 +22,8 @@ describe('Addin', function () {
     });
 
     it('should start subdivision', function (done) {
+        subdivision.readManifest(subdivision.defaultManifest);
+
         subdivision.readManifest({
             paths: [
                 {
@@ -32,6 +34,17 @@ describe('Addin', function () {
                             name: 'cow',
                             content: {
                                 hello: 'world'
+                            }
+                        }
+                    ]
+                },
+                {
+                    path: subdivision.systemPaths.commands,
+                    addins: [
+                        {
+                            type: 'subdivision.command',
+                            name: 'cow',
+                            execute: function(){
                             }
                         }
                     ]
@@ -52,4 +65,5 @@ describe('Addin', function () {
         });
 
     });
-});
+})
+;

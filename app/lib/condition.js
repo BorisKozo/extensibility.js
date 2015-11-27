@@ -110,7 +110,10 @@
         }
     };
 
-    subdivision.addBuilder(subdivision.Condition.$conditionOperationBuilder);
+    subdivision.defaultManifest.paths.push({
+        path: subdivision.systemPaths.builders,
+        addins: [subdivision.Condition.$conditionOperationBuilder]
+    });
 
     subdivision.defaultManifest.paths.push({
         path: subdivision.systemPaths.conditionOperations,
