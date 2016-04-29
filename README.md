@@ -321,6 +321,11 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
  addin this builder can build. If the _type_ of a builder is ````null```` then the builder is the default builder for
  all addin types. You may manipulate the builders order within the registry by using the _order_ property of the builder
  addin.
+ You may specify the _preBuildTarget_ property of a builder. When this property is specified, the builder will run the
+ build function of the builder with _type_ = _preBuildTarget_ if such a builder exists before the build function is called. 
+ Your builder will get the result of the build function run by the pre build builder. This allows you to chain builders.
+ For example if you want some pre processing done before a set of builders are run, you may write the logic in another builder
+ and specify that builder type as the _preBuildTarget_ of all the builders that need the pre processing.
 
  ```js
    //Create a builder that can build addins of type monkey
@@ -328,6 +333,7 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
                  id: 'abc',
                  order: 3,
                  type: 'monkey',
+                 preBuildTarget: 'cow',
                  build: function (addin) {
                      return {
                         food: addin.food
@@ -727,6 +733,16 @@ is considered valid when both foo and bar conditions are valid.
 If all went well, the appropriate files should be generated in the dist directory
 
 ##Change Log
+
+### 0.2.0 -> 0.2.1
+
+* You may specify the _preBuildTarget_ propery for builders if you need pre processing before the build function
+
+* Default order for all addins is now specified at ````subdivision.registry.$defaultOrder````
+
+* Updated the dependencies to the latest versions
+
+* Minor changes to readme
 
 ### 0.1.3 -> 0.2.0
 

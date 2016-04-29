@@ -219,6 +219,32 @@ describe('Builder', function () {
             var items = subdivision.build('aaa', options);
             expect(items.length).to.be.equal(2);
         });
+
+        it('should pre-build if preBuildTarget was specified', function () {
+            subdivision.addBuilder({
+                target: 'monkey',
+                preBuildTarget: 'cow',
+                build: function (addin) {
+                    return addin + '!';
+                }
+            });
+            subdivision.addBuilder({
+                target: 'cow',
+                build: function (addin) {
+                    return '*' + addin.id + '*';
+                }
+            });
+
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            var items = subdivision.build('aaa');
+            expect(items).to.be.ok;
+            expect(items.length).to.be.equal(2);
+            expect(items[0]).to.be.equal('*1*!');
+            expect(items[1]).to.be.equal('*2*!');
+        });
+
     });
 
     describe('Build Async', function () {
@@ -329,6 +355,37 @@ describe('Builder', function () {
                 done();
             });
         });
+
+        it('should pre-build if preBuildTarget was specified', function (done) {
+            subdivision.addBuilder({
+                target: 'monkey',
+                preBuildTarget: 'cow',
+                build: function (addin) {
+                    return addin + '!';
+                }
+            });
+            subdivision.addBuilder({
+                target: 'cow',
+                build: function (addin) {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve('*' + addin.id + '*');
+                        }, 1);
+                    });
+                }
+            });
+
+            subdivision.addAddin('aaa', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa', {id: '2', type: 'monkey', order: 2});
+
+            subdivision.build.async('aaa').then(function (items) {
+                expect(items).to.be.ok;
+                expect(items.length).to.be.equal(2);
+                expect(items[0]).to.be.equal('*1*!');
+                expect(items[1]).to.be.equal('*2*!');
+                done();
+            });
+        });
     });
 
     describe('Build Tree', function () {
@@ -386,6 +443,26 @@ describe('Builder', function () {
             }).to.throw('No builder of type "monkey" was defined');
 
         });
+
+        it('should pre-build if preBuildTarget was specified', function () {
+            subdivision.addBuilder({
+                target: 'monkey',
+                preBuildTarget: 'cow',
+                build: function (addin) {
+                    return addin + '!';
+                }
+            });
+            subdivision.addBuilder({
+                target: 'cow',
+                build: function (addin) {
+                    return '*' + addin.id + '*';
+                }
+            });
+
+            var addin = {id: '1', type: 'monkey', order: 1};
+            var result = subdivision.buildAddin(addin, {});
+            expect(result).to.be.equal('*1*!');
+        });
     });
 
     describe('Build addin async', function () {
@@ -409,14 +486,41 @@ describe('Builder', function () {
 
         it('should not build if no builder exists and reject the promise', function (done) {
 
-                var addin = {id: '1', type: 'monkey', order: 1};
-                subdivision.buildAddin.async(addin).catch(function(exception){
-                    expect(exception.message).to.contain('No builder of type "monkey" was defined');
-                    done();
-                });
+            var addin = {id: '1', type: 'monkey', order: 1};
+            subdivision.buildAddin.async(addin).catch(function (exception) {
+                expect(exception.message).to.contain('No builder of type "monkey" was defined');
+                done();
+            });
 
 
         });
+
+        it('should pre-build if preBuildTarget was specified', function (done) {
+            subdivision.addBuilder({
+                target: 'monkey',
+                preBuildTarget: 'cow',
+                build: function (addin) {
+                    return addin + '!';
+                }
+            });
+            subdivision.addBuilder({
+                target: 'cow',
+                build: function (addin) {
+                    return new Promise(function (resolve) {
+                        setTimeout(function () {
+                            resolve('*' + addin.id + '*');
+                        }, 1);
+                    });
+                }
+            });
+
+            var addin = {id: '1', type: 'monkey', order: 1};
+            subdivision.buildAddin.async(addin, {}).then(function (result) {
+                expect(result).to.be.equal('*1*!');
+                done();
+            });
+        });
+
     });
 
 });
