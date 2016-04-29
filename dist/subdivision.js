@@ -384,7 +384,7 @@
                                 }
                             }
                             currentCluster.dependsOnClusters[cluster.id] = true;
-                            if (!_.contains(nextClusters, currentCluster)) {
+                            if (!_.includes(nextClusters, currentCluster)) {
                                 nextClusters.push(currentCluster);
                             }
                         } else { //case of >
@@ -401,7 +401,7 @@
                                 if (!cluster.verifyOrder(targetId, addin.id, true)) {
                                     throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
                                 }
-                                if (!_.contains(nextClusters, currentCluster)) {
+                                if (!_.includes(nextClusters, currentCluster)) {
                                     nextClusters.push(currentCluster);
                                 }
                             } else {
@@ -430,7 +430,7 @@
                                 }
                             }
                             cluster.dependsOnClusters[currentCluster.id] = true;
-                            if (!_.contains(nextClusters, currentCluster)) {
+                            if (!_.includes(nextClusters, currentCluster)) {
                                 nextClusters.push(currentCluster);
                             }
                         } else {// case of <
@@ -446,7 +446,7 @@
                                 if (!cluster.verifyOrder(addin.id, targetId, true)) {
                                     throw new Error('Could not find appropriate order for ' + targetId + ' and ' + addin.id);
                                 }
-                                if (!_.contains(nextClusters, currentCluster)) {
+                                if (!_.includes(nextClusters, currentCluster)) {
                                     nextClusters.push(currentCluster);
                                 }
                             } else {
