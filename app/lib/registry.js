@@ -14,6 +14,8 @@
     };
 
     subdivision.registry = {
+        $defaultOrder: 100,
+        
         $getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = subdivision.registry.breakPath(axes);

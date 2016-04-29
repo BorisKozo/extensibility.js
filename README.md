@@ -39,6 +39,10 @@ of the tree root, we need to use the path ```boo/foo```. The root node is denote
 singleton.
 
 The Registry API is encapsulated within the ```subdivision.registry``` object and is as follows:
+#### subdivision.registry.$defaultOrder
+The default order given to all addins which don't have the ````order```` property specified. 
+
+Defaults to 100.
 
 #### subdivision.registry.$getNode(axes, createIfNotExists) -> node
 Tries to get a tree node from the registry tree based on the given _axes_. _axes_ can be a valid path string or

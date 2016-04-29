@@ -58,7 +58,7 @@
         addins: [{
             target: 'subdivision.command',
             id: 'subdivision.commandBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 return new subdivision.Command(addin);
             }

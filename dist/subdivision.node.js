@@ -788,6 +788,8 @@ var subdivision = {};
     };
 
     subdivision.registry = {
+        $defaultOrder: 100,
+        
         $getNode: function (axes, createIfNotExists) {
             if (_.isString(axes)) {
                 axes = subdivision.registry.breakPath(axes);
@@ -986,7 +988,7 @@ var subdivision = {};
                 id: 'subdivision.defaultBuilder',
                 type: 'subdivision.builder',
                 target: null,
-                order: 100,
+                order: subdivision.registry.$defaultOrder,
                 build: function (addin) {
                     return _.cloneDeep(addin);
                 }
@@ -1199,7 +1201,7 @@ var subdivision = {};
         addins: [{
             target: 'subdivision.service',
             id: 'subdivision.serviceBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
                     subdivision.addService(addin.name, addin.content, addin.override);
@@ -1312,7 +1314,7 @@ var subdivision = {};
         addins: [{
             target: 'subdivision.command',
             id: 'subdivision.commandBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 return new subdivision.Command(addin);
             }
@@ -1411,7 +1413,7 @@ var subdivision = {};
         addins: [{
             target: 'subdivision.condition',
             id: 'subdivision.conditionBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 var condition = new subdivision.Condition(addin);
                 return condition;
@@ -1466,7 +1468,7 @@ var subdivision = {};
     subdivision.Condition.$conditionOperationBuilder = {
         target: 'subdivision.conditionOperation',
         id: 'subdivision.conditionOperationBuilder',
-        order: 100,
+        order: subdivision.registry.$defaultOrder,
         build: function (addin) {
             return {
                 literal: addin.literal,

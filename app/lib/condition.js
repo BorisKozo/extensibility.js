@@ -47,7 +47,7 @@
         addins: [{
             target: 'subdivision.condition',
             id: 'subdivision.conditionBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 var condition = new subdivision.Condition(addin);
                 return condition;
@@ -102,7 +102,7 @@
     subdivision.Condition.$conditionOperationBuilder = {
         target: 'subdivision.conditionOperation',
         id: 'subdivision.conditionOperationBuilder',
-        order: 100,
+        order: subdivision.registry.$defaultOrder,
         build: function (addin) {
             return {
                 literal: addin.literal,

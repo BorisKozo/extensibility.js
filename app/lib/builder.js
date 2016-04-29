@@ -24,7 +24,7 @@
                 id: 'subdivision.defaultBuilder',
                 type: 'subdivision.builder',
                 target: null,
-                order: 100,
+                order: subdivision.registry.$defaultOrder,
                 build: function (addin) {
                     return _.cloneDeep(addin);
                 }

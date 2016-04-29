@@ -36,7 +36,7 @@
         addins: [{
             target: 'subdivision.service',
             id: 'subdivision.serviceBuilder',
-            order: 100,
+            order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
                     subdivision.addService(addin.name, addin.content, addin.override);
