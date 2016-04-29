@@ -1,5 +1,5 @@
 // subdivision v0.2.0
-// Copyright (c)2015 Boris Kozorovitzky.
+// Copyright (c)2016 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
 
@@ -1391,10 +1391,11 @@
         var result = subdivision.Addin.$internalConstructor('condition', count++, options);
         result.name = options.name || result.id;
         if (_.isString(result.isValid)) { //In this case we need to build the actual isValid function from the boolean parser
-            var context = subdivision.Condition.$buildContext();
-            var booleanParser = new subdivision.utils.BooleanPhraseParser();
-            var parsedCondition = booleanParser.evaluate(result.isValid, context);
+            var expression = result.isValid;
             result.isValid = function () {
+                var booleanParser = new subdivision.utils.BooleanPhraseParser();
+                var context = subdivision.Condition.$buildContext();  //we need to build the context each time in case someone changed the literals
+                var parsedCondition = booleanParser.evaluate(expression, context);
                 return parsedCondition.isValid();
             };
         }

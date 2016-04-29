@@ -541,6 +541,31 @@ When all the services are initialized it will trigger the _after:service:initial
 If your service needs access to some other service after it was initialized but before the application starts, you should register to this
 event as it guarantees that all services were initialized when called.
 
+### Defining a service
+The default definition of a service is done through the _content_ property of the service addin.
+
+```js
+var manifest = {
+  paths: [{
+    path: subdivision.systemPaths.services,
+    addins: [
+      {
+        id: 'MyService',
+        name: 'somethingService',
+        type: 'subdivision.service',
+        order: 100,
+        content: {
+           doSomething: function(){
+           },
+           doAnotherThing: function(){
+           }
+        }
+      }
+    ]
+  }]
+};
+```
+
 ## Commands
 
 Commands are a standard mechanism that exists in many UI frameworks. The commands implementation in this library is
@@ -565,9 +590,12 @@ You may provide an optional ````isValid```` function that determines if the comm
 The ````isValid```` function should only determine the command specific validity and normally you
 don't need to define this function. The function that determines if a command can be executed is the
 ````canExecute```` function.
-The default implementation (see below) evaluates the condition of the function **and** the ````isValid````
+The default implementation evaluates the condition (see below) of the command **and** the ````isValid````
 function. It returns true if both the condition ````isValid```` and the command ````isValid```` return a truthy value
 or were undefined.
+The condition is defined using the ````condition```` property. It can be either a ````subdivision.Condition```` instance,
+a registered condition name, or even boolean logic on registered condition names. For example, if you have registered conditions
+_foo_, _bar_, and _baz_ then a valid value for that property can be ````'!foo & (bar | baz)'````
 
 ```js
  var command = new subdivision.Command({
@@ -653,7 +681,32 @@ You should never call this function unless you are absolutely sure you know what
 
 ## Conditions
 
-TBD
+A condition is a "smart" boolean flag which tracks some system state and can instantly answer if some predefined
+condition is met. For example a condition can track the currently selected item in your application and return true
+if the item is unsaved. In this case the condition will track the select item, its changes, and the save function.
+The condition must have an ````isValid```` function which returns the state of the condition. It is common to save
+some underlying property in the condition and update that property. The ````isValid```` function only returns the
+state of that property. Subdivision gives a general structure for defining and managing condition. You may even create
+new conditions by using boolean logic. The three supported operators are _!_ (not), _&_ (and), and _|_ (or).
+
+#### Conditions path in the registry
+In the code
+```js
+subdivision.systemPaths.conditions
+```
+
+In the manifest
+```js
+subdivision/conditions
+```
+
+
+#### subdivision.Condition(options) -> Condition (The condition constructor)
+Creates a new condition but does not register it into the internal conditions registry.
+The _options_ must have either an ````isValid```` function or an ````isValid```` string which is a boolean
+representation of operations between other conditions. For example if there are conditions foo and bar registered in the
+internal conditions registry then ````isValid```` can be equal ````'foo & bar'````. In this case the newly created condition
+is considered valid when both foo and bar conditions are valid.
 
 ## Unit Tests
 
