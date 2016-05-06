@@ -11,6 +11,11 @@
     }
 
     subdivision.readManifestFiles = function (globPattern, globOptions) {
+        var matches = glob.sync(globPattern, globOptions);
+        readMatches(matches);
+    };
+
+    subdivision.readManifestFiles.async = function (globPattern, globOptions) {
         return new Promise(function (resolve, reject) {
             glob(globPattern, globOptions, function (err, matches) {
                 if (err) {
@@ -22,9 +27,6 @@
             });
         });
     };
-    subdivision.readManifestFilesSync = function (globPattern, globOptions) {
-        var matches = glob.sync(globPattern, globOptions);
-        readMatches(matches);
-    };
+
 
 })(subdivision);

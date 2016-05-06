@@ -1,4 +1,4 @@
-// subdivision v0.2.0
+// subdivision v0.3.0
 // Copyright (c)2016 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -969,25 +969,25 @@ var subdivision = {};
     var defaultBuilder;
 
 
-    function buildInternal(type, addin, options) {
+    function buildInternal(type, addin, options, meta) {
         var builder = subdivision.getBuilder(type);
         if (builder.preBuildTarget) {
-            addin = buildInternal(builder.preBuildTarget, addin, options);
+            addin = buildInternal(builder.preBuildTarget, addin, options, meta);
         }
-        return builder.build(addin, options);
+        return builder.build(addin, options, meta);
     }
 
-    function buildInternalAsync(type, addin, options) {
+    function buildInternalAsync(type, addin, options, meta) {
         try {
             var builder = subdivision.getBuilder(type);
             var promise = Promise.resolve(addin);
 
             if (builder.preBuildTarget) {
-                promise = buildInternalAsync(builder.preBuildTarget, addin, options);
+                promise = buildInternalAsync(builder.preBuildTarget, addin, options, meta);
             }
 
             return promise.then(function (addin) {
-                return builder.build(addin, options);
+                return builder.build(addin, options, meta);
             });
         }
         catch (ex) {
@@ -1083,7 +1083,9 @@ var subdivision = {};
             return addins;
         }
         return _.map(addins, function (addin) {
-            return buildInternal(addin.type, addin, options);
+            return buildInternal(addin.type, addin, options, {
+                path: path
+            });
         });
     };
 
@@ -1102,7 +1104,9 @@ var subdivision = {};
         }
         var promises = _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
-            return buildInternalAsync(addin.type, addin, options);
+            return buildInternalAsync(addin.type, addin, options, {
+                path: path
+            });
         });
 
         return Promise.all(promises);
@@ -1114,7 +1118,9 @@ var subdivision = {};
      * @param options The options to pass to the builder
      */
     subdivision.buildAddin = function (addin, options) {
-        return buildInternal(addin.type, addin, options);
+        return buildInternal(addin.type, addin, options, {
+            path: null
+        });
     };
 
     /**
@@ -1125,7 +1131,9 @@ var subdivision = {};
      */
 
     subdivision.buildAddin.async = function (addin, options) {
-        return buildInternalAsync(addin.type, addin, options);
+        return buildInternalAsync(addin.type, addin, options, {
+            path: null
+        });
     };
 
     /**
@@ -1141,13 +1149,18 @@ var subdivision = {};
         }
         return _.map(addins, function (addin) {
             //TODO: Optimization that tries to guess the builder from previous builder
-            var result = buildInternal(addin.type, addin, options);
+            var result = buildInternal(addin.type, addin, options, {
+                path: path
+            });
             var itemsProperty = addin.itemsProperty || '$items';
             result[itemsProperty] = subdivision.buildTree(subdivision.registry.joinPath(path, addin.id), options);
             return result;
         });
     };
 
+    /**
+     * Regenerates all the builders from the system builders path
+     */
     subdivision.$generateBuilders = function () {
         subdivision.$clearBuilders();
         var addins = subdivision.getAddins(subdivision.systemPaths.builders, {target: null});
@@ -1570,6 +1583,11 @@ var subdivision = {};
     }
 
     subdivision.readManifestFiles = function (globPattern, globOptions) {
+        var matches = glob.sync(globPattern, globOptions);
+        readMatches(matches);
+    };
+
+    subdivision.readManifestFiles.async = function (globPattern, globOptions) {
         return new Promise(function (resolve, reject) {
             glob(globPattern, globOptions, function (err, matches) {
                 if (err) {
@@ -1581,10 +1599,7 @@ var subdivision = {};
             });
         });
     };
-    subdivision.readManifestFilesSync = function (globPattern, globOptions) {
-        var matches = glob.sync(globPattern, globOptions);
-        readMatches(matches);
-    };
+
 
 })(subdivision);
 

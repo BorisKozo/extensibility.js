@@ -245,6 +245,25 @@ describe('Builder', function () {
             expect(items[1]).to.be.equal('*2*!');
         });
 
+        it('should provide the path in the metadata', function () {
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, options, metadata) {
+                    return metadata.path;
+                }
+            });
+
+            subdivision.addAddin('aaa/bbb', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa/bbb', {id: '2', type: 'monkey', order: 2});
+
+            var items = subdivision.build('aaa/bbb');
+            expect(items).to.be.ok;
+            expect(items.length).to.be.equal(2);
+            expect(items[0]).to.be.equal('aaa/bbb');
+            expect(items[1]).to.be.equal('aaa/bbb');
+        });
+
     });
 
     describe('Build Async', function () {
@@ -386,6 +405,26 @@ describe('Builder', function () {
                 done();
             });
         });
+
+        it('should provide the path in the metadata', function () {
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, options, metadata) {
+                    return metadata.path;
+                }
+            });
+
+            subdivision.addAddin('aaa/bbb', {id: '1', type: 'monkey', order: 1});
+            subdivision.addAddin('aaa/bbb', {id: '2', type: 'monkey', order: 2});
+
+            subdivision.build.async('aaa/bbb').then(function (items) {
+                expect(items).to.be.ok;
+                expect(items.length).to.be.equal(2);
+                expect(items[0]).to.be.equal('aaa/bbb');
+                expect(items[1]).to.be.equal('aaa/bbb');
+            });
+        });
     });
 
     describe('Build Tree', function () {
@@ -462,6 +501,22 @@ describe('Builder', function () {
             var addin = {id: '1', type: 'monkey', order: 1};
             var result = subdivision.buildAddin(addin, {});
             expect(result).to.be.equal('*1*!');
+        });
+
+        it('should build an addin with metadata', function () {
+            var options = {};
+            subdivision.addBuilder({
+                id: 'a',
+                target: 'monkey',
+                build: function (addin, options, metadata) {
+                    expect(metadata.path).to.be.null;
+                    return addin.id;
+                }
+            });
+
+            var addin = {id: '1', type: 'monkey', order: 1};
+            var result = subdivision.buildAddin(addin, options);
+            expect(result).to.be.equal('1');
         });
     });
 
