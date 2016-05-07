@@ -6,6 +6,7 @@
 'use strict'
 var _ = require('lodash');
 var subdivision = {};
+subdivision.$version = '0.3.0';
 
 (function (subdivision) {
     'use strict';

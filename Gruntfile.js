@@ -123,6 +123,16 @@ module.exports = function (grunt) {
                     spawn: false
                 }
             }
+        },
+        replace: {
+            node: {
+                src: '<%= meta.dist %>/subdivision.node.js',
+                overwrite: true,
+                replacements: [{
+                    from: '$$$version$$$',                   // string replacement
+                    to: '<%= meta.pkg.version %>'
+                }]
+            }
         }
     });
 
@@ -131,6 +141,7 @@ module.exports = function (grunt) {
         'clean:dist',
         'concat:dist',
         'concat:node',
+        'replace:node',
         'uglify:standard'
     ]);
 };
