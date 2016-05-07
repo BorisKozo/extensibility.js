@@ -7,6 +7,9 @@
   "author": "Boris Kozorovitzky",
   "main": "./dist/subdivision.node.js",
   "browser": "./dist/subdivision.min.js",
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "devDependencies": {
     "chai": "^3.4.0",
     "grunt": "^0.4.5",

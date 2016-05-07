@@ -106,5 +106,4 @@
     subdivision.$clearCommands = function () {
         commands = {};
     };
-})
-(subdivision);
+})(subdivision);

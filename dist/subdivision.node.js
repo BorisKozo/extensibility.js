@@ -3,8 +3,8 @@
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
 
-'use strict'
-var _ = require('lodash');
+'use strict';
+var _ = require('lodash'); //needed for events module
 var subdivision = {};
 subdivision.$version = '0.3.0';
 
@@ -1380,8 +1380,7 @@ subdivision.$version = '0.3.0';
     subdivision.$clearCommands = function () {
         commands = {};
     };
-})
-(subdivision);
+})(subdivision);
 (function (subdivision) {
     'use strict';
     var count = 0;
@@ -1604,6 +1603,18 @@ subdivision.$version = '0.3.0';
 
 })(subdivision);
 
+var majorVersion = subdivision.$version.split('.')[0];
 
-module.exports = subdivision;
+var subdivisionSymbol = Symbol.for('global.subdivision.singleton.' + majorVersion);
+var subdivisionResetSymbol = Symbol.for('global.subdivision.singleton.reset');
+
+var globalSymbols = Object.getOwnPropertySymbols(global);
+var symbolExists = (globalSymbols.indexOf(subdivisionSymbol) > -1);
+var resetSymbolValue = global[subdivisionResetSymbol];
+
+if (!symbolExists || resetSymbolValue === true) {
+    global[subdivisionSymbol] = subdivision;
+}
+
+module.exports = global[subdivisionSymbol];
 //# sourceMappingURL=subdivision.node.js.map

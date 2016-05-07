@@ -1398,8 +1398,7 @@
     subdivision.$clearCommands = function () {
         commands = {};
     };
-})
-(subdivision);
+})(subdivision);
 (function (subdivision) {
     'use strict';
     var count = 0;

@@ -726,6 +726,22 @@ representation of operations between other conditions. For example if there are 
 internal conditions registry then ````isValid```` can be equal ````'foo & bar'````. In this case the newly created condition
 is considered valid when both foo and bar conditions are valid.
 
+### Subdivision as a singleton in Node.js
+Since version 0.3.0 the subdivision singleton will be loaded as a true singleton regardless of 
+the module that required it as long as it has the same major version.
+For example if you have three modules A,B,and C. Module A requires subdivision version 1.0.3, module B requires subdivision
+version 1.1.0, and module C requires subdivision version 2.0.0 then A and B will get the same instance of the module while
+C gets another instance. This is to make sure that major versions with breaking API changes will not be accidentally used
+where they should not. You can avoid this behaviour by setting the ````global.subdivision.singleton.reset```` symbol to
+````true```` on the global variable before requiring subdivision. When this symbol is true you will get a new instance 
+of subdivision as long as you require different versions of the module or require with a different path.
+
+The following code will set the reset symbol to ````true````
+```js
+    var resetSymbol = Symbol.for('global.subdivision.singleton.reset');
+    global[resetSymbol] = true;
+```
+
 ## Unit Tests
 
 1. Be sure you have NodeJS and NPM installed on your system
@@ -754,6 +770,8 @@ an issue)
 * **POSSIBLY BREAKING** Added a new parameter _metadata_ to the builder's _build_ handler.
   
 * removed the example from the repository (I will add an example in a separate repository)
+
+* [Node.js only] require('subdivision') will now return the subdivision singleton regardless of the module using it.
 
 ### 0.2.0 -> 0.2.1
 

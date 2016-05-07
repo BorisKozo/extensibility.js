@@ -11,6 +11,7 @@ describe('Service', function () {
         expect = chai.expect;
         subdivision = window.subdivision;
         sinon = window.sinon;
+
     }
 
     beforeEach(function () {

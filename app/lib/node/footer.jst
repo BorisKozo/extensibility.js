@@ -1,2 +1,14 @@
+var majorVersion = subdivision.$version.split('.')[0];
 
-module.exports = subdivision;
+var subdivisionSymbol = Symbol.for('global.subdivision.singleton.' + majorVersion);
+var subdivisionResetSymbol = Symbol.for('global.subdivision.singleton.reset');
+
+var globalSymbols = Object.getOwnPropertySymbols(global);
+var symbolExists = (globalSymbols.indexOf(subdivisionSymbol) > -1);
+var resetSymbolValue = global[subdivisionResetSymbol];
+
+if (!symbolExists || resetSymbolValue === true) {
+    global[subdivisionSymbol] = subdivision;
+}
+
+module.exports = global[subdivisionSymbol];

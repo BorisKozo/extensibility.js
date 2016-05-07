@@ -3,6 +3,10 @@ describe('Manifest Reader', function () {
     var expect = require('chai').expect;
     var sinon = require('sinon');
     var proxyquire = require('proxyquire').noCallThru();
+
+    var resetSymbol = Symbol.for('global.subdivision.singleton.reset');
+    global[resetSymbol] = true;
+
     var glob = function (pattern, options, callback) {
         if (pattern === 'error') {
             callback('error');
@@ -11,7 +15,7 @@ describe('Manifest Reader', function () {
         }
 
     };
-    glob.sync = function (pattern, options) {
+    glob.sync = function () {
         return ['foo.js', 'bar.js'];
     };
 
