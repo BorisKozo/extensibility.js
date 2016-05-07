@@ -16,5 +16,5 @@ before_script:
 
 script:
   - karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
-  - node node_modules\mocha\bin\_mocha test --recursive
+  - node node_modules/mocha/bin/_mocha test --recursive
   
