@@ -27,6 +27,9 @@ It should be possible to load this library using AMD or Common.js loaders and in
 Some objects contain private function denoted with prefixed ```$``` sign. You should not normally call these functions.
 Changes made to the signature or the return value of these function does not constitute a breaking API change.
 
+In Node.js you can get the current version of subdivision by calling ````subdivision.$version````. This is also the package
+version on NPM.
+
 ## The Registry
 
 The center of this library is the registry. The registry is basically a tree. Each node in the tree has a string name
