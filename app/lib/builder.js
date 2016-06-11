@@ -215,4 +215,12 @@
     };
 
     subdivision.$clearBuilders();
+
+    Object.defineProperty(subdivision, 'builders', {
+        enumerable: true,
+        configurable: false,
+        get: function () {
+            return _.clone(builders);
+        }
+    });
 })(subdivision);

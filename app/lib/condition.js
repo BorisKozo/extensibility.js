@@ -175,4 +175,12 @@
             }
         ]
     });
+
+    Object.defineProperty(subdivision, 'conditions', {
+        enumerable: true,
+        configurable: false,
+        get: function () {
+            return _.clone(conditions);
+        }
+    });
 })(subdivision);

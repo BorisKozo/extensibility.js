@@ -106,4 +106,12 @@
     subdivision.$clearCommands = function () {
         commands = {};
     };
+
+    Object.defineProperty(subdivision, 'commands', {
+        enumerable: true,
+        configurable: false,
+        get: function () {
+            return _.clone(commands);
+        }
+    });
 })(subdivision);

@@ -88,4 +88,12 @@
         return Promise.all(promises);
     };
 
+    Object.defineProperty(subdivision, 'services', {
+        enumerable: true,
+        configurable: false,
+        get: function () {
+            return _.clone(services);
+        }
+    });
+
 })(subdivision);
