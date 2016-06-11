@@ -329,4 +329,20 @@ describe('Command', function () {
             }).to.throw('name must not be undefined or null');
         });
     });
+
+    describe('commands object', function () {
+        it('should add a command and get it from the commands object', function () {
+            subdivision.addCommand({
+                name: 'monkey',
+                execute: function () {
+                },
+                initialize: sinon.stub()
+            });
+
+            var command = subdivision.commands.monkey;
+            expect(command).to.be.ok;
+            expect(command.name).to.be.equal('monkey');
+            expect(command.initialize.calledOnce).to.be.true;
+        });
+    });
 });

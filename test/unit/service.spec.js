@@ -186,4 +186,13 @@ describe('Service', function () {
             }).to.throw('Service name must be defined');
         });
     });
+
+    describe('services object', function () {
+        it('should contain a value', function () {
+            subdivision.addService('moo', {b: 'bb'});
+            var service = subdivision.services.moo;
+            expect(service).to.be.ok;
+            expect(service.b).to.be.equal('bb');
+        });
+    });
 });

@@ -423,4 +423,20 @@ describe('Condition', function () {
         });
     });
 
+    describe('conditions object', function () {
+        it('should add a condition and get it from the conditions object', function () {
+            subdivision.addCondition({
+                name: 'monkey',
+                isValid: function () {
+                },
+                initialize: sinon.stub()
+            });
+
+            var condition = subdivision.conditions.monkey;
+            expect(condition).to.be.ok;
+            expect(condition.name).to.be.equal('monkey');
+            expect(condition.initialize.calledOnce).to.be.true;
+        });
+    });
+
 });

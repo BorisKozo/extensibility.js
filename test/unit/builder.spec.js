@@ -578,4 +578,22 @@ describe('Builder', function () {
 
     });
 
+    describe('commands object', function () {
+        it('should add a builder and get it from the builders object', function () {
+            var options = {
+                id: 'abc',
+                order: 3,
+                target: 'monkey',
+                build: function () {
+                }
+            };
+
+            subdivision.addBuilder(options);
+            var builder = subdivision.builders.monkey;
+            expect(builder.id).to.be.equal('abc');
+            expect(builder.order).to.be.equal(3);
+            expect(builder.target).to.be.equal('monkey');
+        });
+    });
+
 });
