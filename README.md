@@ -301,6 +301,13 @@ An addin can be anything including a metadata for creating an actual object. The
  subdivision/builders
  ```
 
+#### Destructuring friendly property
+
+```js
+const {myBuilder1, myBuilder2} = subdivision.builders; //Those are builder names
+```
+
+
 #### The default builder
 The default builder is added to the registry (via the default manifest, see details below) with the following
 definition
@@ -504,6 +511,51 @@ Once you are done loading all the manifests and doing other initialization relev
 All the concepts in the following paragraphs are completely optional. They are here to help
 you organize your code into well known patterns with the help of this library.
 
+
+## Values
+
+Values are designed to save you some boilerplate when you want to store some values (primitives or objects) in the
+registry.
+
+#### Values path in the registry
+In the code
+```js
+subdivision.systemPaths.values
+```
+
+In the manifest
+```js
+subdivision/values
+```
+
+#### Destructuring friendly property
+
+```js
+const {myValue1, myValue2} = subdivision.values; //Those are value names
+```
+
+#### subdivision.getValue(name) -> Anything
+ Returns the value with the given _name_ from the registry.
+ 
+ ```js
+ var myObj = {};
+ subdivision.setValue('Foo',myObj);
+ subdivision.getValue('Foo'); //return myObj
+ ```
+
+#### subdivision.addValue(name, value, override)
+Adds a value to subdivision. You may later retrieve that value by using ````getValue```` or by
+using the ````subdivision.values```` object. If a value with the given _name_ already exists, calling 
+add value with _name_ will throw an exception unless _override_ is set to ````true````. 
+
+ ```js
+ subdivision.setValue('foo',123);
+ 
+ 
+ subdivision.setValue('foo',456, true);
+ console.log(subdivision.values.foo); //456
+ ```
+ 
 ## Services
 
 Services are singleton objects that are accessible from anywhere within the code without directly referencing them
@@ -522,6 +574,12 @@ subdivision.systemPaths.services
 In the manifest
 ```js
 subdivision/services
+```
+
+#### Destructuring friendly property
+
+```js
+const {myService1, myService2} = subdivision.services; //Those are service names
 ```
 
 #### subdivision.Service(options, prototype) -> Service (The service constructor)
@@ -604,6 +662,13 @@ In the manifest
 ```js
 subdivision/commands
 ```
+
+#### Destructuring friendly property
+
+```js
+const {myCommand1, myCommand2} = subdivision.commands; //Those are command names
+```
+
 
 #### subdivision.Command(options) -> Command (The command constructor)
 Creates a new command from the given options. The command must have an ````execute```` function which executes the command.
@@ -721,6 +786,12 @@ In the manifest
 subdivision/conditions
 ```
 
+#### Destructuring friendly property
+
+```js
+const {myCondition1, myCondition2} = subdivision.conditions; //Those are condition names
+```
+
 
 #### subdivision.Condition(options) -> Condition (The condition constructor)
 Creates a new condition but does not register it into the internal conditions registry.
@@ -728,6 +799,8 @@ The _options_ must have either an ````isValid```` function or an ````isValid````
 representation of operations between other conditions. For example if there are conditions foo and bar registered in the
 internal conditions registry then ````isValid```` can be equal ````'foo & bar'````. In this case the newly created condition
 is considered valid when both foo and bar conditions are valid.
+
+
 
 ### Subdivision as a singleton in Node.js
 Since version 0.3.0 the subdivision singleton will be loaded as a true singleton regardless of 
@@ -763,6 +836,13 @@ If all went well, the appropriate files should be generated in the dist director
 
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
+
+### 0.3.0 -> 0.3.1
+
+* Added the Value construct
+
+* Added destructuring friendly properties to all the constructs (Builder, Service, Value, Command, Condition)
+
 
 ### 0.2.1 -> 0.3.0
 
