@@ -10,6 +10,12 @@ This library is a collection of simple patterns that help web developers manage 
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
 
+## Node.js
+
+````
+npm install subdivision --save
+````
+
 ## Documentation
 
 This readme file contains basic usage examples and
