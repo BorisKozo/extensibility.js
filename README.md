@@ -10,7 +10,6 @@ This library is a collection of simple patterns that help web developers manage 
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
 
- For a full example and guidelines on using subdivision please see the [documentation of the example project.](example/README.md)
 ## Documentation
 
 This readme file contains basic usage examples and
