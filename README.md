@@ -836,6 +836,10 @@ If all went well, the appropriate files should be generated in the dist director
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
 
+### 0.3.1 -> 0.3.2
+
+* Bumped version due to build issues
+
 ### 0.3.0 -> 0.3.1
 
 * Added the Value construct

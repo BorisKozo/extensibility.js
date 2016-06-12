@@ -1,4 +1,4 @@
-// subdivision v0.3.0
+// subdivision v0.3.2
 // Copyright (c)2016 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
