@@ -851,6 +851,10 @@ If all went well, the appropriate files should be generated in the dist director
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
 
+### 0.3.3 -> 0.3.4
+
+* fixed issue where services were not initialized correctly if initialize function didn't return a promise
+
 ### 0.3.2 -> 0.3.3
 
 * Services are built sequentially instead of in parallel adhering to the addin order

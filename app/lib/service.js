@@ -5,11 +5,11 @@
     function initializeServiceRecursive(service) {
         if (service) {
             return initializeServiceRecursive(service.$next).then(function () {
+                var result;
                 if (service.hasOwnProperty('initialize') && _.isFunction(service.initialize)) {
-                    return service.initialize();
-                } else {
-                    return Promise.resolve();
+                    result = service.initialize();
                 }
+                return Promise.resolve(result);
             });
         } else {
             return Promise.resolve();
@@ -64,6 +64,7 @@
         }
         var service = new subdivision.Service(options, nextService);
         services[name] = service;
+        service.$name = name;
         return service;
     };
 
@@ -77,12 +78,17 @@
      */
     subdivision.buildServices = function () {
         subdivision.$clearServices();
-        var services = subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
-        return _.reduce(services, function (promise, name) {
-            subdivision.vent.trigger('before:service:initialized', name);
+        var builtServices = subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
+        var initializedServices = new Set();
+        return _.reduce(builtServices, function (promise, service) {
+            if (initializedServices.has(service.$name)) {
+                return promise;
+            }
+            initializedServices.add(service.$name);
+            subdivision.vent.trigger('before:service:initialized', service.$name);
             return promise.then(function () {
-                return initializeServiceRecursive(subdivision.getService(name)).then(function () {
-                    subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
+                return initializeServiceRecursive(subdivision.getService(service.$name)).then(function () {
+                    subdivision.vent.trigger('after:service:initialized', service.$name, subdivision.getService(service.$name));
                 });
             });
         }, Promise.resolve());
