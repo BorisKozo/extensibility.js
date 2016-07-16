@@ -1287,14 +1287,14 @@
     subdivision.buildServices = function () {
         subdivision.$clearServices();
         subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
-        var promises = [];
-        _.forEach(_.keys(services), function (name) {
+        return _.reduce(_.keys(services), function (promise, name) {
             subdivision.vent.trigger('before:service:initialized', name);
-            promises.push(initializeServiceRecursive(subdivision.getService(name)).then(function () {
-                subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
-            }));
-        });
-        return Promise.all(promises);
+            return promise.then(function(){
+                return initializeServiceRecursive(subdivision.getService(name)).then(function () {
+                    subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
+                });
+            });
+        }, Promise.resolve());
     };
 
     Object.defineProperty(subdivision, 'services', {

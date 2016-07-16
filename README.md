@@ -10,21 +10,30 @@ This library is a collection of simple patterns that help web developers manage 
 
  If you have any suggestions, improvements or ideas for this library I would be more than happy to hear them and integrate them.
 
-## Node.js
+## Using
+
+#### Node.js
 
 ````
 npm install subdivision --save
 ````
+
+Then 
+
+````var subdivision = require('subdivision');````
+
+#### Browser
+
+Include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your html.
 
 ## Documentation
 
 This readme file contains basic usage examples and
 details on the full API, including methods,
 attributes and helper functions.
-To use the library, include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your
-index.html.
 
-In Node.js simply ````var subdivision = require('subdivision');````
+
+
 
 The library has two dependencies - lodash and Promise polyfill for browsers that do not support ES6 Promise function.
 It should be possible to load this library using AMD or Common.js loaders and in Node.js as long as the dependencies are provided.
@@ -225,47 +234,48 @@ Note: You should probably never call this yourself, this function is used intern
 ## Manifest (and manifest-reader)
 The manifest is a declarative way to define addins via a simple JavaScript object (or JSON).
  The manifest has the following structure:
- ```js
- var myManifest : {
-   paths:[
-     {
-        path: 'some/path/to/my/addins',
-        addins: [
-                 {
-                   target:'my.addin.target',
-                   id:'addinId',
-                   order: 123
-                   //any other properties your addin needs
-                 },
-                 {
-                   target:'my.addin.target',
-                   id:'addinId2',
-                   order: '<addinId'
-                   //any other properties your addin needs
-                 }
-                ]
-     },
-     {
-        path: 'some/other/path',
-        addins: [
-                 {
-                   target:'my.target',
-                   id:'addinId',
-                   order: 123
-                   //any other properties your addin needs
-                 },
-                 {
-                   target:'my.target',
-                   id:'addinId2',
-                   order: 345
-                   //any other properties your addin needs
-                 }
-                ]
-     }
-     //etc...
-   ]
- }
- ```
+
+```js
+var myManifest : {
+  paths:[
+    {
+       path: 'some/path/to/my/addins',
+       addins: [
+                {
+                  target:'my.addin.target',
+                  id:'addinId',
+                  order: 123
+                  //any other properties your addin needs
+                },
+                {
+                  target:'my.addin.target',
+                  id:'addinId2',
+                  order: '<addinId'
+                  //any other properties your addin needs
+                }
+               ]
+    },
+    {
+       path: 'some/other/path',
+       addins: [
+                {
+                  target:'my.target',
+                  id:'addinId',
+                  order: 123
+                  //any other properties your addin needs
+                },
+                {
+                  target:'my.target',
+                  id:'addinId2',
+                  order: 345
+                  //any other properties your addin needs
+                }
+               ]
+    }
+    //etc...
+  ]
+}
+```
 
 The same path may appear more than once in a single manifest, the manifest reader will
 join all the addins for a certain path. The only limitation is that the ids
@@ -349,21 +359,20 @@ Creates a new Builder from the given _options_. A builder is a type of addin the
    (in case ````subdivision.buildAddin(addin)```` was called).
      
  
- ```js
-   //Create a builder that can build addins of type monkey
-   var builder = new subdivision.Builder({
-                 id: 'abc',
-                 order: 3,
-                 type: 'monkey',
-                 preBuildTarget: 'cow',
-                 build: function (addin, options, metadata) {
-                     return {
-                        food: addin.food
-                     };
-                 }
-             });
- ```
-
+```js
+  //Create a builder that can build addins of type monkey
+  var builder = new subdivision.Builder({
+                id: 'abc',
+                order: 3,
+                type: 'monkey',
+                preBuildTarget: 'cow',
+                build: function (addin, options, metadata) {
+                    return {
+                       food: addin.food
+                    };
+               }
+            });
+```
 
 #### subdivision.addBuilder(options, force) -> Boolean
 Creates and adds a new builder based on the provided _options_ (see builder constructor). If a builder for the given
@@ -542,24 +551,24 @@ const {myValue1, myValue2} = subdivision.values; //Those are value names
 #### subdivision.getValue(name) -> Anything
  Returns the value with the given _name_ from the registry.
  
- ```js
- var myObj = {};
- subdivision.setValue('Foo',myObj);
- subdivision.getValue('Foo'); //return myObj
- ```
+```js
+var myObj = {};
+subdivision.setValue('Foo',myObj);
+subdivision.getValue('Foo'); //return myObj
+```
 
 #### subdivision.addValue(name, value, override)
 Adds a value to subdivision. You may later retrieve that value by using ````getValue```` or by
 using the ````subdivision.values```` object. If a value with the given _name_ already exists, calling 
 add value with _name_ will throw an exception unless _override_ is set to ````true````. 
 
- ```js
- subdivision.setValue('foo',123);
- 
- 
- subdivision.setValue('foo',456, true);
- console.log(subdivision.values.foo); //456
- ```
+```js
+subdivision.setValue('foo',123);
+
+
+subdivision.setValue('foo',456, true);
+console.log(subdivision.values.foo); //456
+```
  
 ## Services
 
@@ -603,10 +612,10 @@ uniquely identified by ````id```` as any subdivision addin.
 #### subdivision.getService(name) -> Service
 Returns the service with the given name or undefined if no service with the given name exists.
 
- ```js
-   var routingService = subdivision.getService('Routing Service');
-   routingService.doSomething();
- ```
+```js
+  var routingService = subdivision.getService('Routing Service');
+  routingService.doSomething();
+```
 
 #### subdivision.addService(name, options, override) -> Service
 Adds a service with the given name to the end of the services chain based on the given options. If the override flag is
@@ -841,6 +850,10 @@ If all went well, the appropriate files should be generated in the dist director
 
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
+
+### 0.3.2 -> 0.3.3
+
+* Services are built sequentially instead of in parallel adhering to the addin order
 
 ### 0.3.1 -> 0.3.2
 

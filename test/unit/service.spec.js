@@ -94,10 +94,12 @@ describe('Service', function () {
             sinon.spy(subdivision.vent, 'trigger');
             subdivision.readManifest(subdivision.defaultManifest);
             subdivision.$generateBuilders();
+
         });
 
         afterEach(function () {
             subdivision.vent.trigger.restore();
+            subdivision.registry.$clear();
         });
 
         it('should build the services path', function (done) {
@@ -152,6 +154,70 @@ describe('Service', function () {
                 expect(service.$next.initialize.called).to.be.true;
                 expect(subdivision.vent.trigger.calledWith('before:service:initialized', 'monkey')).to.be.true;
                 expect(subdivision.vent.trigger.calledWith('after:service:initialized', 'monkey')).to.be.true;
+                done();
+            });
+        });
+
+        it('should build the services path in order', function (done) {
+
+            function aInitialize() {
+                expect(subdivision.services['C']).to.be.ok;
+                expect(subdivision.services['C'].c).to.be.equal('cc');
+            }
+
+            function bInitialize() {
+                expect(subdivision.services['A']).to.be.ok;
+                expect(subdivision.services['A'].a).to.be.equal('aa');
+            }
+
+
+            subdivision.readManifest({
+                paths: [
+                    {
+                        path: subdivision.systemPaths.services,
+                        addins: [
+                            {
+                                id: 'service1',
+                                name: 'A',
+                                type: 'subdivision.service',
+                                order: 1,
+                                content: {
+                                    a: 'aa',
+                                    initialize: aInitialize
+                                }
+                            },
+                            {
+                                id: 'service2',
+                                name: 'B',
+                                type: 'subdivision.service',
+                                order: '>service1',
+                                content: {
+                                    b: 'bb',
+                                    initialize: bInitialize
+                                }
+                            },
+                            {
+                                id: 'service3',
+                                name: 'C',
+                                type: 'subdivision.service',
+                                order: '<service1',
+                                content: {
+                                    c: 'cc'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+
+
+            subdivision.buildServices().then(function () {
+                expect(subdivision.vent.trigger.calledWith('before:service:initialized', 'A')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('before:service:initialized', 'B')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('before:service:initialized', 'C')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('after:service:initialized', 'A')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('after:service:initialized', 'B')).to.be.true;
+                expect(subdivision.vent.trigger.calledWith('after:service:initialized', 'C')).to.be.true;
                 done();
             });
         });

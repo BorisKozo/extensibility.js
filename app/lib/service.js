@@ -39,7 +39,7 @@
             order: subdivision.registry.$defaultOrder,
             build: function (addin) {
                 if (_.isString(addin.name) && !_.isEmpty(addin.name)) {
-                    subdivision.addService(addin.name, addin.content, addin.override);
+                    return subdivision.addService(addin.name, addin.content, addin.override);
                 } else {
                     throw new Error('Service name must be defined ' + JSON.stringify(addin));
                 }
@@ -77,15 +77,15 @@
      */
     subdivision.buildServices = function () {
         subdivision.$clearServices();
-        subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
-        var promises = [];
-        _.forEach(_.keys(services), function (name) {
+        var services = subdivision.build(subdivision.systemPaths.services); //TODO: This assumes that there is a builder side effect that adds the services to the services map
+        return _.reduce(services, function (promise, name) {
             subdivision.vent.trigger('before:service:initialized', name);
-            promises.push(initializeServiceRecursive(subdivision.getService(name)).then(function () {
-                subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
-            }));
-        });
-        return Promise.all(promises);
+            return promise.then(function () {
+                return initializeServiceRecursive(subdivision.getService(name)).then(function () {
+                    subdivision.vent.trigger('after:service:initialized', name, subdivision.getService(name));
+                });
+            });
+        }, Promise.resolve());
     };
 
     Object.defineProperty(subdivision, 'services', {

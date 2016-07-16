@@ -9,6 +9,21 @@
         expect = chai.expect;
         subdivision = window.subdivision;
     }
+
+    function verifyAddinsOrder(addins, ids) {
+        var i;
+        if (addins.length !== ids.length) {
+            return false;
+        }
+        for (i = 0; i < addins.length; i++) {
+            if (addins[i].id !== ids[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     describe('formSortClusters', function () {
         function verifyClusterOrder(cluster, order) {
             if (cluster.addins.length !== order.length) {
@@ -322,19 +337,7 @@
     });
 
     describe('topologicalSort', function () {
-        function verifyAddinsOrder(addins, ids) {
-            var i;
-            if (addins.length !== ids.length) {
-                return false;
-            }
-            for (i = 0; i < addins.length; i++) {
-                if (addins[i].id !== ids[i]) {
-                    return false;
-                }
-            }
 
-            return true;
-        }
 
         it('should properly sort two dependant addins', function () {
             var addins = [];
@@ -425,7 +428,7 @@
             expect(verifyAddinsOrder(result, ['2', '1', '3', '4'])).to.be.true;
         });
 
-        it('should throw if there is a circular dependency in mixed indirect after and direct before',function(){
+        it('should throw if there is a circular dependency in mixed indirect after and direct before', function () {
             var addins = [];
             addins.push(new subdivision.Addin({id: '0', order: 30}));
             addins.push(new subdivision.Addin({id: '1', order: 0}));
@@ -456,6 +459,18 @@
 
         });
 
+    });
+
+    describe('simple examples', function () {
+        it('should test simple 3 addin order in one cluster', function () {
+            var addins = [];
+            addins.push(new subdivision.Addin({id: 'service1', order: 1}));
+            addins.push(new subdivision.Addin({id: 'service2', order: '>service1'}));
+            addins.push(new subdivision.Addin({id: 'service3', order: '<service1'}));
+            var result = subdivision.utils.topologicalSort(addins);
+            expect(result.length).to.be.equal(3);
+            expect(verifyAddinsOrder(result, ['service3', 'service1', 'service2'])).to.be.true;
+        });
     });
 
 });
