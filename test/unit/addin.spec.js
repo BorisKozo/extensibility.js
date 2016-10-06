@@ -12,6 +12,8 @@ describe('Addin', function () {
 
     afterEach(function () {
         subdivision.registry.$clear();
+        subdivision.$clearBuilders();
+        subdivision.$clearConditions();
     });
 
     describe('Create an addin', function () {
@@ -56,10 +58,10 @@ describe('Addin', function () {
             expect(subdivision.registry.pathExists('a/b/c')).to.be.true;
         });
 
-        it('should throw if path was undefined', function(){
-           expect(function(){
-               subdivision.addAddin();
-           }).to.throw('path was not defined for addin');
+        it('should throw if path was undefined', function () {
+            expect(function () {
+                subdivision.addAddin();
+            }).to.throw('path was not defined for addin');
         });
     });
 
@@ -74,6 +76,14 @@ describe('Addin', function () {
             subdivision.addAddin('ab/cd', addin1);
             subdivision.addAddin('ab/cd', addin2);
             expect(subdivision.getAddins('ab/cd')).to.be.eql([addin1, addin2]);
+        });
+
+        it('should get all addins of a node with the dedicated function', function () {
+            var addin1 = new subdivision.Addin({order: 1});
+            var addin2 = new subdivision.Addin({order: 2, isEnabled: false});
+            subdivision.addAddin('ab/cd', addin1);
+            subdivision.addAddin('ab/cd', addin2);
+            expect(subdivision.getAllAddins('ab/cd')).to.be.eql([addin1, addin2]);
         });
 
         it('should get all addins of a node with a specific property', function () {
@@ -96,6 +106,90 @@ describe('Addin', function () {
             expect(addins[0].id).to.be.equal('1');
             expect(addins[1].id).to.be.equal('2');
             expect(addins[2].id).to.be.equal('3');
+        });
+
+    });
+
+    describe('isEnabled flag', function () {
+        it('should disable an addin with boolean', function () {
+            var addin1 = new subdivision.Addin({isEnabled: false});
+            var addin2 = new subdivision.Addin({isEnabled: true});
+            subdivision.addAddin('a', addin1);
+            subdivision.addAddin('a', addin2);
+            expect(subdivision.getAddins('a')).to.be.eql([addin2]);
+        });
+
+        it('should disable addins with function', function () {
+            var addin1 = new subdivision.Addin({
+                isEnabled: function () {
+                    return false;
+                }
+            });
+            var addin2 = new subdivision.Addin({
+                isEnabled: function () {
+                    return true;
+                }
+            });
+            subdivision.addAddin('a', addin1);
+            subdivision.addAddin('a', addin2);
+            expect(subdivision.getAddins('a')).to.be.eql([addin2]);
+        });
+
+        it('should disable addins with string', function () {
+
+            subdivision.addCondition({
+                name: 'falseCondition',
+                isValid: function () {
+                    return false;
+                }
+            });
+
+            subdivision.addCondition({
+                name: 'trueCondition',
+                isValid: function () {
+                    return true;
+                }
+            });
+
+
+            var addin1 = new subdivision.Addin({
+                isEnabled: 'falseCondition'
+            });
+            var addin2 = new subdivision.Addin({
+                isEnabled: 'trueCondition'
+            });
+            subdivision.addAddin('a', addin1);
+            subdivision.addAddin('a', addin2);
+            expect(subdivision.getAddins('a')).to.be.eql([addin2]);
+        });
+
+        it('should disable addins with complex string condition', function () {
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.$generateBuilders();
+            subdivision.addCondition({
+                name: 'falseCondition',
+                isValid: function () {
+                    return false;
+                }
+            });
+
+            subdivision.addCondition({
+                name: 'trueCondition',
+                isValid: function () {
+                    return true;
+                }
+            });
+
+
+            var addin1 = new subdivision.Addin({
+                isEnabled: 'falseCondition & trueCondition'
+            });
+            var addin2 = new subdivision.Addin({
+                isEnabled: 'trueCondition | trueCondition'
+            });
+            subdivision.addAddin('a', addin1);
+            subdivision.addAddin('a', addin2);
+            expect(subdivision.getAddins('a')).to.be.eql([addin2]);
         });
 
     });

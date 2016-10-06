@@ -777,6 +777,7 @@
 
     subdivision.start = function () {
 
+        subdivision.vent.trigger('before:start');
         if (subdivision.defaultManifest) {
             subdivision.vent.trigger('before:readDefaultManifest');
             subdivision.readManifest(subdivision.defaultManifest);
@@ -788,6 +789,8 @@
         //This will be a generic initializer
         return buildServicesInternal().then(function () {
             buildCommandsInternal();
+        }).then(function () {
+            subdivision.vent.trigger('after:start');
         });
     };
 })(subdivision);
@@ -962,17 +965,48 @@
     };
 
     /**
+     * Returns all the addins from the given path without any kind of filtering
+     * @returns an array of addins
+     */
+    subdivision.getAllAddins = function (path, skipSort) {
+        var node = subdivision.registry.$getNode(path, false);
+        if (node === null) {
+            return [];
+        }
+        return skipSort ? node.addins : subdivision.utils.topologicalSort(node.addins);
+    };
+
+    /**
      * Returns an array of all the addins immediately under the given path using the search criteria
      * Search criteria goes as the parameter for lodash filter function, if undefined then all the addins are returned
      * if skipSort is true the addins will not be sorted by the topological sort, any falsy value will sort them
      * Returns null if the path doesn't exist
      */
     subdivision.getAddins = function (path, searchCriteria, skipSort) {
-        var node = subdivision.registry.$getNode(path, false);
-        if (node === null) {
-            return [];
-        }
-        var result = skipSort ? node.addins : subdivision.utils.topologicalSort(node.addins);
+        var condition;
+        var result = subdivision.getAllAddins(path, skipSort);
+        result = _.filter(result, function (addin) {
+            if (!addin.hasOwnProperty('isEnabled')) {
+                return true;
+            }
+            if (_.isBoolean(addin.isEnabled)) {
+                return addin.isEnabled;
+            }
+            if (_.isFunction(addin.isEnabled)) {
+                return addin.isEnabled();
+            }
+            if (_.isString(addin.isEnabled) && subdivision.Condition) {
+                condition = subdivision.getCondition(addin.isEnabled);
+                if (condition === undefined) { //generate condition from isValid parser
+                    condition = new subdivision.Condition({
+                        isValid: addin.isEnabled
+                    });
+                }
+                return condition.isValid(addin);
+            }
+            return false;
+        });
+
         if (searchCriteria === undefined) {
             return _.clone(result);
         }
@@ -1498,9 +1532,11 @@
 
         var name = condition.name;
 
-        if (name === undefined || name === null) {
-            throw new Error('name must not be undefined or null');
-        }
+        //this cannot happen because the constructor generates a name
+        // if (name === undefined || name === null) {
+        //     throw new Error('name must not be undefined or null');
+        // }
+
         if (conditions[name] && !force) {
             return false;
         }

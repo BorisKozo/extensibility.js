@@ -44,7 +44,7 @@ describe('App', function () {
                         {
                             type: 'subdivision.command',
                             name: 'cow',
-                            execute: function(){
+                            execute: function () {
                             }
                         }
                     ]
@@ -60,10 +60,67 @@ describe('App', function () {
             expect(service).to.be.ok;
             expect(service.hello).to.be.equal('world');
             done();
-        }, function (error) {
+        }).catch(function (error) {
             done(error);
         });
 
     });
-})
-;
+
+    it('should trigger start events when subdivision starts', function (done) {
+        subdivision.readManifest(subdivision.defaultManifest);
+
+        subdivision.start().then(function () {
+            expect(subdivision.vent.trigger.calledWith('before:start')).to.be.true;
+            expect(subdivision.vent.trigger.calledWith('after:start')).to.be.true;
+            done();
+        }).catch(function (error) {
+            done(error);
+        });
+    });
+
+    it('should start subdivision if no buildServices is defined', function () {
+        var temp = subdivision.buildServices;
+        subdivision.readManifest(subdivision.defaultManifest);
+
+        subdivision.readManifest({
+            paths: [
+                {
+                    path: subdivision.systemPaths.services,
+                    addins: [
+                        {
+                            type: 'subdivision.service',
+                            name: 'cow',
+                            content: {
+                                hello: 'world'
+                            }
+                        }
+                    ]
+                },
+                {
+                    path: subdivision.systemPaths.commands,
+                    addins: [
+                        {
+                            type: 'subdivision.command',
+                            name: 'cow',
+                            execute: function () {
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        subdivision.buildServices = null;
+        subdivision.start().then(function () {
+            expect(subdivision.vent.trigger.calledWith('before:buildServices')).to.be.false;
+            expect(subdivision.vent.trigger.calledWith('after:buildServices')).to.be.false;
+            var service = subdivision.getService('cow');
+            expect(service).to.be.undefined;
+            done();
+        }).catch(function (error) {
+            done(error);
+        });
+        subdivision.buildServices = temp;
+
+    });
+});

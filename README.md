@@ -22,6 +22,8 @@ Then
 
 ````var subdivision = require('subdivision');````
 
+NOTE: Until version 1.x.x please use ~[version] in your package.json and not ^[version]
+
 #### Browser
 
 Include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your html.
@@ -168,10 +170,14 @@ Adds the given _addin_ to the given _path_ in the registry. There is no check th
 ````subdivision.Addin```` constructor so you can send any object there as long as it has the appropriate signature.
 
 #### subdivision.getAddins(path, searchCriteria, skipSort) -> [Addin]
-Returns an array containing all the addins in the given _path_ that match the _searchCriteria_. If _searchCriteria_ is
-````undefined````, returns all the addins in the path. Set _skipSort_ to true if you don't want to sort the returned addins by
+Returns an array containing all the addins in the given _path_ that match the _searchCriteria_ and are not disabled via the
+_isEnabled_ property. If _searchCriteria_ is ````undefined````, returns all the addins in the path. Set _skipSort_ to true if you don't want to sort the returned addins by
 order (more on ordering addins in the next section). The syntax for the _searchCriteria_ is determined by the lodash
 [filter function](https://lodash.com/docs#filter) as the _predicate_ argument.
+
+You may specify the  _isEnabled_ property to be either a boolean, a function, or a Condition string (see documentation for Conditions below). 
+If a function is provided then it will be invokes with the addin as its _this_ variable. If a string is provided then a condition
+with the given name will be used. Complex condition expressions are supported.
 
 ```js
   subdivision.addAddin('aaa',new subdivision.Addin({name:"Bob"}));
@@ -181,6 +187,25 @@ order (more on ordering addins in the next section). The syntax for the _searchC
   subdivision.getAddins('aaa',function(addin){
     return addin.name === "Alice";
   }); //[{name:"Alice" ...}]
+```
+
+```js
+subdivision.addAddin('aaa',new subdivision.Addin({name:"Bob",isEnabled:false}));
+subdivision.addAddin('aaa',new subdivision.Addin({name:"Alice",isEnabled:function(){
+  return true;
+})); //[]
+subdivision.addAddin('aaa',new subdivision.Addin({name:"Matt",isEnabled:"condition_that_returns_true"));
+subdivision.getAddins('aaa'); //[{name:"Alice"}, {name:"Matt"}]
+```
+
+#### subdivision.getAllAddins(path, skipSort) -> [Addin]
+Returns an array containing all the addins in the given _path_ regardless of any filtering or disabling.
+Set _skipSort_ to true if you don't want to sort the returned addins by order (more on ordering addins in the next section)
+
+```js
+  subdivision.addAddin('aaa',new subdivision.Addin({name:"Bob"}));
+  subdivision.addAddin('aaa',new subdivision.Addin({name:"Alice"}));
+  subdivision.getAllAddins('aaa'); //[{name:"Bob" ...},{name:"Alice" ...}]
 ```
 
 ## Topological Sort
@@ -520,6 +545,9 @@ Once you are done loading all the manifests and doing other initialization relev
  You must call this function to start working with subdivision.
  Returns a promise that resolves once all the initialization (including custom initialization functions provided by the user)
  are complete.
+ When subdivision starts two events are triggered on the main event bus (````subdivision.vent````). The _before:start_ event is
+ triggered right after the call to ````start()```` and before anything is executed while the _after:start_ event is triggered once
+ everything is initialized and subdivision is ready to run.
 
 ## Optional Concepts
 All the concepts in the following paragraphs are completely optional. They are here to help
@@ -850,6 +878,14 @@ If all went well, the appropriate files should be generated in the dist director
 
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
+
+### 0.3.4 -> 0.4.0
+
+* Added the _before:start_ and _after:start_ events on the subdivision message bus
+
+* **POSSIBLY BREAKING** Added a new property _isEnabled_ to addins which allows you to exclude the addin from build commands.
+ 
+* Added ````subdivision.getAllAddins```` that retrieves all the addins without any kind of filtering.
 
 ### 0.3.3 -> 0.3.4
 

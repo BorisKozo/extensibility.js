@@ -67,9 +67,11 @@
 
         var name = condition.name;
 
-        if (name === undefined || name === null) {
-            throw new Error('name must not be undefined or null');
-        }
+        //this cannot happen because the constructor generates a name
+        // if (name === undefined || name === null) {
+        //     throw new Error('name must not be undefined or null');
+        // }
+
         if (conditions[name] && !force) {
             return false;
         }

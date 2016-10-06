@@ -28,6 +28,7 @@
 
     subdivision.start = function () {
 
+        subdivision.vent.trigger('before:start');
         if (subdivision.defaultManifest) {
             subdivision.vent.trigger('before:readDefaultManifest');
             subdivision.readManifest(subdivision.defaultManifest);
@@ -39,6 +40,8 @@
         //This will be a generic initializer
         return buildServicesInternal().then(function () {
             buildCommandsInternal();
+        }).then(function () {
+            subdivision.vent.trigger('after:start');
         });
     };
 })(subdivision);

@@ -1,6 +1,6 @@
 {
   "name": "subdivision",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "A simple modularization layer for your JavaScript application",
   "license": "MIT",
   "repository": "https://github.com/BorisKozo/subdivision.git",

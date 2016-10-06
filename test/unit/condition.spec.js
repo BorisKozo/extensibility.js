@@ -218,7 +218,7 @@ describe('Condition', function () {
 
             subdivision.addBuilder(subdivision.Condition.$conditionOperationBuilder);
 
-            var result = subdivision.build(subdivision.systemPaths.conditionOperations,{}, {literal: 'aaa'});
+            var result = subdivision.build(subdivision.systemPaths.conditionOperations, {}, {literal: 'aaa'});
             expect(result.length).to.be.equal(1);
             expect(result[0].literal).to.be.equal('aaa');
             expect(result[0].generator('bbb')).to.be.equal('bbb');
