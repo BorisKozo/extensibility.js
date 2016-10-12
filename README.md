@@ -265,6 +265,7 @@ var myManifest : {
   paths:[
     {
        path: 'some/path/to/my/addins',
+       someProp: 'myProp',
        addins: [
                 {
                   target:'my.addin.target',
@@ -305,6 +306,9 @@ var myManifest : {
 The same path may appear more than once in a single manifest, the manifest reader will
 join all the addins for a certain path. The only limitation is that the ids
 within a given path are unique.
+
+When a property is specified on the _path_ level, it will propagate to all the addins within this definition of path. This is useful
+if you want to define the same _type_ for all the addins within some path.
 
 #### subdivision.readManifest(manifest)
 Adds all the addins within the given _manifest_ into the registry.
@@ -879,9 +883,17 @@ If all went well, the appropriate files should be generated in the dist director
 (Note: sometimes minor breaking changes appear in minor versions. If this is a problem for your process please open
 an issue)
 
+When a change is marked as **BREAKING** it means that an API has changed, if you were using that API you should update your code.
+When a change is marked as **POSSIBLY BREAKING** it means that something was added/removed but it should not break your code unless
+you are doing something which you should not have been doing (like assigning your own properties to Subdivision's internal structures).
+
+### 0.4.0 -> 0.4.1
+
+* Added properties that can be defined on the path level of a manifest.
+
 ### 0.3.4 -> 0.4.0
 
-* Added the _before:start_ and _after:start_ events on the subdivision message bus
+* Added the _before:start_ and _after:start_ events on the subdivision message bus.
 
 * **POSSIBLY BREAKING** Added a new property _isEnabled_ to addins which allows you to exclude the addin from build commands.
  
@@ -889,21 +901,21 @@ an issue)
 
 ### 0.3.3 -> 0.3.4
 
-* fixed issue where services were not initialized correctly if initialize function didn't return a promise
+* fixed issue where services were not initialized correctly if initialize function didn't return a promise.
 
 ### 0.3.2 -> 0.3.3
 
-* Services are built sequentially instead of in parallel adhering to the addin order
+* Services are built sequentially instead of in parallel adhering to the addin order.
 
 ### 0.3.1 -> 0.3.2
 
-* Bumped version due to build issues
+* Bumped version due to build issues.
 
 ### 0.3.0 -> 0.3.1
 
-* Added the Value construct
+* Added the Value construct.
 
-* Added destructuring friendly properties to all the constructs (Builder, Service, Value, Command, Condition)
+* Added destructuring friendly properties to all the constructs (Builder, Service, Value, Command, Condition).
 
 
 ### 0.2.1 -> 0.3.0
@@ -914,19 +926,19 @@ an issue)
   
 * **POSSIBLY BREAKING** Added a new parameter _metadata_ to the builder's _build_ handler.
   
-* removed the example from the repository (I will add an example in a separate repository)
+* removed the example from the repository (I will add an example in a separate repository).
 
 * [Node.js only] require('subdivision') will now return the subdivision singleton regardless of the module using it.
 
 ### 0.2.0 -> 0.2.1
 
-* You may specify the _preBuildTarget_ property for builders if you need pre processing before the build function
+* You may specify the _preBuildTarget_ property for builders if you need pre processing before the build function.
 
-* Default order for all addins is now specified at ````subdivision.registry.$defaultOrder````
+* Default order for all addins is now specified at ````subdivision.registry.$defaultOrder````.
 
-* Updated the dependencies to the latest versions
+* Updated the dependencies to the latest versions.
 
-* Minor changes to readme
+* Minor changes to readme.
 
 ### 0.1.3 -> 0.2.0
 

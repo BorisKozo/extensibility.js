@@ -1,4 +1,4 @@
-// subdivision v0.3.4
+// subdivision v0.4.0
 // Copyright (c)2016 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -1718,8 +1718,11 @@
     'use strict';
     subdivision.readManifest = function (manifest) {
         _.forEach(manifest.paths, function (pathOptions) {
+            var clonedOptions = _.clone(pathOptions);
+            delete clonedOptions['addins'];
+            delete clonedOptions['id'];
             _.forEach(pathOptions.addins, function (addinOptions) {
-                subdivision.addAddin(pathOptions.path, new subdivision.Addin(addinOptions));
+                subdivision.addAddin(pathOptions.path, new subdivision.Addin(_.assign({}, clonedOptions, addinOptions)));
             });
         });
     };
