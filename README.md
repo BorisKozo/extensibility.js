@@ -283,6 +283,7 @@ var myManifest : {
     },
     {
        path: 'some/other/path',
+       isEnabled: true
        addins: [
                 {
                   target:'my.target',
@@ -309,6 +310,9 @@ within a given path are unique.
 
 When a property is specified on the _path_ level, it will propagate to all the addins within this definition of path. This is useful
 if you want to define the same _type_ for all the addins within some path.
+
+You can set the _isEnabled_ property on the _path_ level to disable the entire path. It can be either a boolean or a function returning a boolean.
+The _isEnabled_ property will not propagate to the addin level.
 
 #### subdivision.readManifest(manifest)
 Adds all the addins within the given _manifest_ into the registry.
@@ -846,6 +850,67 @@ representation of operations between other conditions. For example if there are 
 internal conditions registry then ````isValid```` can be equal ````'foo & bar'````. In this case the newly created condition
 is considered valid when both foo and bar conditions are valid.
 
+```js
+//Defining an always true condition
+ var condition = new subdivision.Condition({
+                id: 'someId',
+                name: 'myCondition',
+                isValid: function () {
+                  return true;
+                }
+            });
+```
+
+#### subdivision.addCondition(options, force) -> Boolean
+Creates a condition from the give _options_ and tries to add it to the internal conditions list by the given _options.name_. If a condition with the same name already exists
+then the _force_ argument is considered. If _force_ is ````true```` then the new condition overwrites the existing condition by removing the old condition using
+ ````subdivision.removeCondition```` and adding the new condition. The function returns ````true```` if a condition was added and ````false```` otherwise.
+If _options.initialize_ is defined as a function it is invoked prior to the function return.
+
+```js
+            subdivision.addCondition({
+                name: 'monkey',
+                isValid: function () {
+                  return true;
+                },
+                initialize: function() {
+                 //some initialization code
+                }
+            });
+```
+
+#### subdivision.getCondition(name) -> Condition 
+Returns a condition with the given _name_. If no condition with the given name exists then ````undefined```` is returned.
+
+```js
+subdivision.addCondition({
+                name: 'monkey',
+                isValid: function () {
+                  //some code
+                }
+            });
+
+var condition = subdivision.getCondition('monkey');
+```
+
+
+#### subdivision.removeCondition(name)
+Removes a condition with the given _name_ from the internal data structure. After calling this method you can no longer retrieve the condition using ````subdivision.getCondition````.
+If the condition addin defined a _destroy_ function, it will be invoked.
+
+```js
+ var condition = {
+                name: 'monkey',
+                isValid: function () {
+                },
+                destroy: function() {
+                  //this will be invoked when removeCondition is called
+                }
+            };
+
+subdivision.addCondition(condition);
+subdivision.removeCondition('monkey');
+```
 
 
 ### Subdivision as a singleton in Node.js
@@ -886,6 +951,10 @@ an issue)
 When a change is marked as **BREAKING** it means that an API has changed, if you were using that API you should update your code.
 When a change is marked as **POSSIBLY BREAKING** it means that something was added/removed but it should not break your code unless
 you are doing something which you should not have been doing (like assigning your own properties to Subdivision's internal structures).
+
+### 0.4.1 -> 0.4.2
+
+* added the _isEnabled_ property for path level to disable an entire path in the manifest
 
 ### 0.4.0 -> 0.4.1
 
