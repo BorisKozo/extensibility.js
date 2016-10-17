@@ -195,7 +195,7 @@ describe('Condition', function () {
                 }
             });
             subdivision.$generateBuilders();
-            operations = subdivision.build(subdivision.systemPaths.conditionOperations)
+            operations = subdivision.build(subdivision.systemPaths.conditionOperations);
 
         });
 

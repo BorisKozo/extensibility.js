@@ -955,6 +955,9 @@ you are doing something which you should not have been doing (like assigning you
 ### 0.4.1 -> 0.4.2
 
 * added the _isEnabled_ property for path level to disable an entire path in the manifest
+* added some new initialization events
+* fixed bug where conditions were not properly initialized from the manifest
+* updated documentation regarding conditions
 
 ### 0.4.0 -> 0.4.1
 
