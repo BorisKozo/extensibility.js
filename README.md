@@ -266,6 +266,7 @@ var myManifest : {
     {
        path: 'some/path/to/my/addins',
        someProp: 'myProp',
+       order: 500,
        addins: [
                 {
                   target:'my.addin.target',
@@ -314,6 +315,14 @@ if you want to define the same _type_ for all the addins within some path.
 You can set the _isEnabled_ property on the _path_ level to disable the entire path. It can be either a boolean or a function returning a boolean.
 The _isEnabled_ property will not propagate to the addin level.
 
+You can specify _order_ property on the _path_ level to auto assign order for all the addins within that path which don't have the _order_
+  property defined. By default, the addins within the ````addins:[]```` which don't have the _order_ property will get the default order
+  value which essentially means that they are unordered within that path. When you set the _order_ property to some number at the _path_ level,
+  each addin without the _order_ property will get a sequential order number starting from the given order raising by 100 (You can control this
+  by changing ````subdivision.readManifest.$autoorderIncrement````).
+   For example if order is set to 150 on the _path_ level then the first addin in the array without the order property will get the order
+   150, the next addin without the order property will get 250 and so on.
+   
 #### subdivision.readManifest(manifest)
 Adds all the addins within the given _manifest_ into the registry.
 
@@ -954,10 +963,11 @@ you are doing something which you should not have been doing (like assigning you
 
 ### 0.4.1 -> 0.4.2
 
-* added the _isEnabled_ property for path level to disable an entire path in the manifest
-* added some new initialization events
-* fixed bug where conditions were not properly initialized from the manifest
-* updated documentation regarding conditions
+* Added the _isEnabled_ property for path level to disable an entire path in the manifest
+* Added some new initialization events
+* Fixed bug where conditions were not properly initialized from the manifest
+* Updated documentation regarding conditions
+* You can now specify order on the path level to auto order unordered addins within that path
 
 ### 0.4.0 -> 0.4.1
 

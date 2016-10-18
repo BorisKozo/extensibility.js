@@ -48,6 +48,18 @@ describe('App', function () {
                             }
                         }
                     ]
+                },
+                {
+                    path: subdivision.systemPaths.conditions,
+                    addins: [
+                        {
+                            type: 'subdivision.condition',
+                            name: 'cow',
+                            isValid: function () {
+                                return true;
+                            }
+                        }
+                    ]
                 }
             ]
         });

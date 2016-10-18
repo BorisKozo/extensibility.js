@@ -1,4 +1,4 @@
-// subdivision v0.4.1
+// subdivision v0.4.2
 // Copyright (c)2016 Boris Kozorovitzky.
 // Distributed under MIT license
 // https://github.com/BorisKozo/subdivision.git
@@ -6,7 +6,7 @@
 'use strict';
 var _ = require('lodash'); //needed for events module
 var subdivision = {};
-subdivision.$version = '0.4.1';
+subdivision.$version = '0.4.2';
 
 (function (subdivision) {
     'use strict';
@@ -748,7 +748,7 @@ subdivision.$version = '0.4.1';
             return Promise.resolve();
         }
     }
-    
+
     function buildCommandsInternal() {
         var commands = subdivision.build(subdivision.systemPaths.commands);
         _.forEach(commands, function (command) {
@@ -1728,11 +1728,19 @@ subdivision.$version = '0.4.1';
             delete clonedOptions['addins'];
             delete clonedOptions['id'];
             delete clonedOptions['isEnabled'];
+            delete clonedOptions['order'];
+            var order = pathOptions.order;
             _.forEach(pathOptions.addins, function (addinOptions) {
-                subdivision.addAddin(pathOptions.path, new subdivision.Addin(_.assign({}, clonedOptions, addinOptions)));
+                var tempObj = {};
+                if (_.isNumber(order) && !_.has(addinOptions, 'order')) {
+                    tempObj.order = order;
+                    order += subdivision.readManifest.$autoorderIncrement;
+                }
+                subdivision.addAddin(pathOptions.path, new subdivision.Addin(_.assign(tempObj, clonedOptions, addinOptions)));
             });
         });
     };
+    subdivision.readManifest.$autoorderIncrement = 100;
 })(subdivision);
 (function (subdivision) {
     'use strict';

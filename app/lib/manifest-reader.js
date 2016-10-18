@@ -18,9 +18,17 @@
             delete clonedOptions['addins'];
             delete clonedOptions['id'];
             delete clonedOptions['isEnabled'];
+            delete clonedOptions['order'];
+            var order = pathOptions.order;
             _.forEach(pathOptions.addins, function (addinOptions) {
-                subdivision.addAddin(pathOptions.path, new subdivision.Addin(_.assign({}, clonedOptions, addinOptions)));
+                var tempObj = {};
+                if (_.isNumber(order) && !_.has(addinOptions, 'order')) {
+                    tempObj.order = order;
+                    order += subdivision.readManifest.$autoorderIncrement;
+                }
+                subdivision.addAddin(pathOptions.path, new subdivision.Addin(_.assign(tempObj, clonedOptions, addinOptions)));
             });
         });
     };
+    subdivision.readManifest.$autoorderIncrement = 100;
 })(subdivision);

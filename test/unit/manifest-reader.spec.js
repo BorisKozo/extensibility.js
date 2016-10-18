@@ -16,6 +16,11 @@ describe('Manifest Reader', function () {
         _ = window._;
     }
 
+    beforeEach(function () {
+        subdivision.registry.$clear();
+        subdivision.$clearBuilders();
+    });
+
     it('should not read disabled path', function () {
         subdivision.addBuilder({
             target: null,
@@ -73,5 +78,44 @@ describe('Manifest Reader', function () {
         expect(subdivision.build('c').length).to.be.equal(1);
         expect(subdivision.build('d').length).to.be.equal(0);
 
+    });
+
+
+    it('should auto assign order if it was defined on the path level', function () {
+        subdivision.addBuilder({
+            target: null,
+            build: function (addin) {
+                return addin;
+            }
+        });
+        subdivision.readManifest({
+            paths: [
+                {
+                    path: 'a',
+                    order:1000,
+                    addins: [
+                        {
+                            id: '1'
+                        },
+                        {
+                            id: '2'
+                        },
+                        {
+                            id: '3',
+                            order: 1
+                        }
+
+                    ]
+                }
+            ]
+        });
+
+        var addins = subdivision.build('a');
+        expect(addins.length).to.be.equal(3);
+        expect(addins[0].id).to.be.equal('3');
+        expect(addins[1].id).to.be.equal('1');
+        expect(addins[2].id).to.be.equal('2');
+        expect(addins[1].order).to.be.equal(1000);
+        expect(addins[2].order).to.be.equal(1100);
     });
 });

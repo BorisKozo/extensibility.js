@@ -192,5 +192,16 @@ describe('Addin', function () {
             expect(subdivision.getAddins('a')).to.be.eql([addin2]);
         });
 
+        it('should disable addins with unsupported value provided', function () {
+            subdivision.readManifest(subdivision.defaultManifest);
+            subdivision.$generateBuilders();
+
+            var addin1 = new subdivision.Addin({
+                isEnabled: {}
+            });
+            subdivision.addAddin('a', addin1);
+            expect(subdivision.getAddins('a')).to.be.eql([]);
+        });
+
     });
 });
