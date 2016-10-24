@@ -28,6 +28,14 @@ NOTE: Until version 1.x.x please use ~[version] in your package.json and not ^[v
 
 Include  ````dist/subdivision.js```` or ````dist/subdivision.min.js```` in your html.
 
+## Examples
+
+[Using Subdivision in a simple Node.js + Express project](https://github.com/BorisKozo/express-depot/tree/master/demo-subdivision)
+
+[Older example of using with Node.js + Express with more detailed explanations](https://github.com/BorisKozo/subdivision-express-example)
+
+More examples coming soon... (Open an issue if you need an example for something specific)
+
 ## Documentation
 
 This readme file contains basic usage examples and
